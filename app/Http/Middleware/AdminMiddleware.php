@@ -25,7 +25,8 @@ class AdminMiddleware
         }
 
         $user = Auth::user();
-        if (!$user->hasAnyRole(['admin', 'manager', 'staff'])) {
+        // Allow access if user has admin role OR is branch staff
+        if (!$user->hasAnyRole(['admin', 'manager', 'staff']) && !$user->isBranchStaff()) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Unauthorized access.'], 403);
             }

@@ -57,11 +57,12 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="sku" class="form-label">SKU <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('sku') is-invalid @enderror" id="sku" name="sku" value="{{ old('sku') }}" required>
+                                <label for="sku" class="form-label">SKU</label>
+                                <input type="text" class="form-control @error('sku') is-invalid @enderror" id="sku" name="sku" value="{{ old('sku') }}" placeholder="Leave empty to auto-generate">
                                 @error('sku')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                                <small class="form-text text-muted">Leave empty to auto-generate a unique SKU (Format: PRD-YYYYMMDD-XXXX)</small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -124,10 +125,10 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="cost_price" class="form-label">Cost Price</label>
+                                <label for="cost_price" class="form-label">Cost Price <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
-                                    <input type="number" step="0.01" class="form-control @error('cost_price') is-invalid @enderror" id="cost_price" name="cost_price" value="{{ old('cost_price', 0) }}">
+                                    <input type="number" step="0.01" class="form-control @error('cost_price') is-invalid @enderror" id="cost_price" name="cost_price" value="{{ old('cost_price') }}" required>
                                 </div>
                                 @error('cost_price')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -276,5 +277,19 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    // Initialize Select2 for category dropdown
+    $('#category_id').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Select Category',
+        allowClear: true,
+        width: '100%'
+    });
+});
+</script>
+@endpush
 @endsection
 

@@ -4,6 +4,12 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
+@if($isBranchStaff ?? false)
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-building me-2"></i>
+        <strong>Branch Staff Dashboard</strong> - You are viewing data for <strong>{{ $branch->name ?? 'your branch' }}</strong>
+    </div>
+@endif
 <div class="row">
     <div class="col-md-3">
         <div class="stat-card blue">

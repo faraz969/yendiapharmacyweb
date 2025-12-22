@@ -151,10 +151,10 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="cost_price" class="form-label">Cost Price</label>
+                                <label for="cost_price" class="form-label">Cost Price <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
-                                    <input type="number" step="0.01" class="form-control @error('cost_price') is-invalid @enderror" id="cost_price" name="cost_price" value="{{ old('cost_price', $product->cost_price) }}">
+                                    <input type="number" step="0.01" class="form-control @error('cost_price') is-invalid @enderror" id="cost_price" name="cost_price" value="{{ old('cost_price', $product->cost_price) }}" required>
                                 </div>
                                 @error('cost_price')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -303,5 +303,19 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    // Initialize Select2 for category dropdown
+    $('#category_id').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Select Category',
+        allowClear: true,
+        width: '100%'
+    });
+});
+</script>
+@endpush
 @endsection
 

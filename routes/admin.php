@@ -10,6 +10,10 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PrescriptionController;
 use App\Http\Controllers\Admin\DeliveryZoneController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\BranchController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 
 /*
@@ -60,6 +64,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Users
         Route::resource('users', UserController::class);
+        
+        // Banners
+        Route::resource('banners', BannerController::class);
+        
+        // Pages
+        Route::resource('pages', PageController::class);
+        
+        // Branches
+        Route::resource('branches', BranchController::class);
+        
+        // Notifications
+        Route::resource('notifications', NotificationController::class);
     });
 });
 

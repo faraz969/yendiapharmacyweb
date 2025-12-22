@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\ProductController;
 use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\CheckoutController;
+use App\Http\Controllers\Web\PaystackPaymentController;
 use App\Http\Controllers\Web\OrderTrackingController;
 use App\Http\Controllers\Web\Auth\LoginController;
 use App\Http\Controllers\Web\Auth\RegisterController;
@@ -12,6 +13,8 @@ use App\Http\Controllers\Web\User\DashboardController;
 use App\Http\Controllers\Web\User\OrderController as UserOrderController;
 use App\Http\Controllers\Web\User\ProfileController;
 use App\Http\Controllers\Web\User\AddressController;
+use App\Http\Controllers\Web\PageController;
+use App\Http\Controllers\Branch\BranchDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +31,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/category/{id}', [ProductController::class, 'category'])->name('products.category');
+
+// Pages (About, Privacy Policy, etc.)
+Route::get('/page/{slug}', [PageController::class, 'show'])->name('pages.show');
 
 // Order Tracking (Guest)
 Route::get('/track-order', [OrderTrackingController::class, 'index'])->name('order.tracking.index');
@@ -51,7 +57,15 @@ Route::prefix('cart')->group(function () {
 Route::prefix('checkout')->group(function () {
     Route::get('/', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/payment/{order}', [CheckoutController::class, 'payment'])->name('checkout.payment');
     Route::get('/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+});
+
+// Paystack Payment Routes
+Route::prefix('paystack')->name('paystack.')->group(function () {
+    Route::post('/initialize', [PaystackPaymentController::class, 'initialize'])->name('initialize');
+    Route::post('/verify', [PaystackPaymentController::class, 'verify'])->name('verify');
+    Route::get('/callback', [PaystackPaymentController::class, 'callback'])->name('callback');
 });
 
 // Authenticated User Routes
@@ -72,4 +86,10 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(function () {
     Route::put('/addresses/{address}', [AddressController::class, 'update'])->name('addresses.update');
     Route::delete('/addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
     Route::post('/addresses/{address}/set-default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
+});
+
+// Branch Dashboard Routes (for branch staff)
+Route::middleware('auth')->prefix('branch')->name('branch.')->group(function () {
+    Route::get('/dashboard', [BranchDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/orders/{order}', [BranchDashboardController::class, 'show'])->name('orders.show');
 });

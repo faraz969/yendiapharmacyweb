@@ -20,6 +20,7 @@
                         <th>Image</th>
                         <th>Name</th>
                         <th>Products</th>
+                        <th>Margin</th>
                         <th>Sort Order</th>
                         <th>Status</th>
                         <th>Created</th>
@@ -41,6 +42,13 @@
                             </td>
                             <td>{{ $category->name }}</td>
                             <td>{{ $category->products()->count() }}</td>
+                            <td>
+                                @if($category->margin_display)
+                                    <span class="badge bg-info">{{ $category->margin_display }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                             <td>{{ $category->sort_order }}</td>
                             <td>
                                 @if($category->is_active)
@@ -65,7 +73,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center">No categories found. <a href="{{ route('admin.categories.create') }}">Create one</a></td>
+                            <td colspan="9" class="text-center">No categories found. <a href="{{ route('admin.categories.create') }}">Create one</a></td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -76,6 +76,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
 let itemCount = 0;
 
@@ -115,23 +116,36 @@ function addItem() {
     container.insertAdjacentHTML('beforeend', itemHtml);
     itemCount++;
     
+    // Initialize Select2 for the newly added product dropdown
+    const selectElement = container.querySelector(`[data-index="${itemCount - 1}"] .product-select`);
+    $(selectElement).select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Select Product',
+        allowClear: true,
+        width: '100%'
+    });
+    
     // Add event listener for product selection
-    const select = container.querySelector(`[data-index="${itemCount - 1}"] .product-select`);
-    select.addEventListener('change', function() {
-        const unit = this.options[this.selectedIndex].dataset.unit;
-        const row = this.closest('.item-row');
-        row.querySelector('.unit-display').textContent = unit || '';
+    $(selectElement).on('change', function() {
+        const selectedOption = $(this).find('option:selected');
+        const unit = selectedOption.data('unit') || selectedOption.attr('data-unit');
+        const row = $(this).closest('.item-row');
+        row.find('.unit-display').text(unit || '');
     });
 }
 
 function removeItem(btn) {
-    btn.closest('.item-row').remove();
+    const row = $(btn).closest('.item-row');
+    // Destroy Select2 before removing
+    row.find('.product-select').select2('destroy');
+    row.remove();
 }
 
 // Add first item on page load
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
     addItem();
 });
 </script>
+@endpush
 @endsection
 

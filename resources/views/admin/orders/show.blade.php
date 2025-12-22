@@ -4,6 +4,12 @@
 @section('page-title', 'Order Details')
 
 @section('content')
+@if(Auth::user()->isBranchStaff() && $order->branch)
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-building me-2"></i>
+        <strong>Branch:</strong> {{ $order->branch->name }}
+    </div>
+@endif
 <div class="row">
     <div class="col-md-8">
         <!-- Order Information -->

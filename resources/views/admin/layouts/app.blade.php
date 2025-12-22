@@ -10,6 +10,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <!-- Custom CSS -->
     <style>
         :root {
@@ -205,45 +208,70 @@
                 </a>
             </li>
             <li>
-                <a href="{{ route('admin.categories.index') }}" class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                    <i class="fas fa-folder"></i> Categories
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.products.index') }}" class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
-                    <i class="fas fa-cube"></i> Products
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.vendors.index') }}" class="{{ request()->routeIs('admin.vendors.*') ? 'active' : '' }}">
-                    <i class="fas fa-truck"></i> Vendors
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.purchase-orders.index') }}" class="{{ request()->routeIs('admin.purchase-orders.*') ? 'active' : '' }}">
-                    <i class="fas fa-shopping-cart"></i> Purchase Orders
-                </a>
-            </li>
-            <li>
                 <a href="{{ route('admin.orders.index') }}" class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                     <i class="fas fa-file-invoice"></i> Orders
                 </a>
             </li>
-            <li>
-                <a href="{{ route('admin.prescriptions.index') }}" class="{{ request()->routeIs('admin.prescriptions.*') ? 'active' : '' }}">
-                    <i class="fas fa-prescription"></i> Prescriptions
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.delivery-zones.index') }}" class="{{ request()->routeIs('admin.delivery-zones.*') ? 'active' : '' }}">
-                    <i class="fas fa-map-marker-alt"></i> Delivery Zones
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <i class="fas fa-users"></i> Users
-                </a>
-            </li>
+            
+            @if(!Auth::user()->isBranchStaff())
+                {{-- Only show these menu items for non-branch staff (admins/managers) --}}
+                <li>
+                    <a href="{{ route('admin.categories.index') }}" class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                        <i class="fas fa-folder"></i> Categories
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.products.index') }}" class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+                        <i class="fas fa-cube"></i> Products
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.vendors.index') }}" class="{{ request()->routeIs('admin.vendors.*') ? 'active' : '' }}">
+                        <i class="fas fa-truck"></i> Vendors
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.purchase-orders.index') }}" class="{{ request()->routeIs('admin.purchase-orders.*') ? 'active' : '' }}">
+                        <i class="fas fa-shopping-cart"></i> Purchase Orders
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.prescriptions.index') }}" class="{{ request()->routeIs('admin.prescriptions.*') ? 'active' : '' }}">
+                        <i class="fas fa-prescription"></i> Prescriptions
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.delivery-zones.index') }}" class="{{ request()->routeIs('admin.delivery-zones.*') ? 'active' : '' }}">
+                        <i class="fas fa-map-marker-alt"></i> Delivery Zones
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.branches.index') }}" class="{{ request()->routeIs('admin.branches.*') ? 'active' : '' }}">
+                        <i class="fas fa-building"></i> Branches
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.banners.index') }}" class="{{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">
+                        <i class="fas fa-image"></i> Banners
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.pages.index') }}" class="{{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
+                        <i class="fas fa-file-alt"></i> Pages
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.notifications.index') }}" class="{{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
+                        <i class="fas fa-bell"></i> Notifications
+                    </a>
+                </li>
+            @endif
+            
             <li>
                 <a href="{{ route('admin.logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -260,6 +288,9 @@
         <div class="header">
             <h1 class="page-title">@yield('page-title', 'Dashboard')</h1>
             <div class="user-menu">
+                @if(Auth::user()->isBranchStaff())
+                    <span class="me-3"><i class="fas fa-building"></i> {{ Auth::user()->branch->name ?? 'Branch Staff' }}</span>
+                @endif
                 <span><i class="fas fa-user"></i> {{ Auth::user()->name }}</span>
             </div>
         </div>
@@ -296,6 +327,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     @stack('scripts')
 </body>
 </html>

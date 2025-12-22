@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Branch;
 use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -20,7 +21,8 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::all();
-        return view('admin.users.create', compact('roles'));
+        $branches = Branch::active()->ordered()->get();
+        return view('admin.users.create', compact('roles', 'branches'));
     }
 
     public function store(Request $request)
@@ -31,12 +33,14 @@ class UserController extends Controller
             'password' => 'required|string|min:6|confirmed',
             'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,id',
+            'branch_id' => 'nullable|exists:branches,id',
         ]);
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'branch_id' => $validated['branch_id'] ?? null,
         ]);
 
         if ($request->has('roles')) {
@@ -51,8 +55,9 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::all();
-        $user->load('roles');
-        return view('admin.users.edit', compact('user', 'roles'));
+        $branches = Branch::active()->ordered()->get();
+        $user->load('roles', 'branch');
+        return view('admin.users.edit', compact('user', 'roles', 'branches'));
     }
 
     public function update(Request $request, User $user)
@@ -63,11 +68,13 @@ class UserController extends Controller
             'password' => 'nullable|string|min:6|confirmed',
             'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,id',
+            'branch_id' => 'nullable|exists:branches,id',
         ]);
 
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'branch_id' => $validated['branch_id'] ?? null,
         ]);
 
         if ($request->filled('password')) {

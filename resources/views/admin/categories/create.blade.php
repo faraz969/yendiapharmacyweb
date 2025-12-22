@@ -56,6 +56,46 @@
                 </div>
             </div>
 
+            <!-- Pricing Margin Section -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-percent me-2"></i>Pricing Margin</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">Set a default margin for products in this category. This can be used to automatically calculate selling prices based on cost prices.</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="margin_type" class="form-label">Margin Type</label>
+                                <select class="form-control @error('margin_type') is-invalid @enderror" id="margin_type" name="margin_type">
+                                    <option value="">None</option>
+                                    <option value="fixed" {{ old('margin_type') == 'fixed' ? 'selected' : '' }}>Fixed Amount ($)</option>
+                                    <option value="percentage" {{ old('margin_type') == 'percentage' ? 'selected' : '' }}>Percentage (%)</option>
+                                </select>
+                                @error('margin_type')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="margin_value" class="form-label">Margin Value</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="margin_symbol">$</span>
+                                    <input type="number" step="0.01" class="form-control @error('margin_value') is-invalid @enderror" id="margin_value" name="margin_value" value="{{ old('margin_value') }}" min="0">
+                                </div>
+                                @error('margin_value')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted" id="margin_help">
+                                    Enter the margin amount or percentage
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="d-flex justify-content-between">
                 <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Cancel
@@ -67,5 +107,33 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const marginType = document.getElementById('margin_type');
+    const marginSymbol = document.getElementById('margin_symbol');
+    const marginHelp = document.getElementById('margin_help');
+    
+    marginType.addEventListener('change', function() {
+        if (this.value === 'fixed') {
+            marginSymbol.textContent = '$';
+            marginHelp.textContent = 'Enter the fixed amount to add to cost price (e.g., 5.00 adds $5.00)';
+        } else if (this.value === 'percentage') {
+            marginSymbol.textContent = '%';
+            marginHelp.textContent = 'Enter the percentage to add to cost price (e.g., 20 adds 20%)';
+        } else {
+            marginSymbol.textContent = '$';
+            marginHelp.textContent = 'Enter the margin amount or percentage';
+        }
+    });
+    
+    // Trigger on page load if value is already set
+    if (marginType.value) {
+        marginType.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+@endpush
 @endsection
 

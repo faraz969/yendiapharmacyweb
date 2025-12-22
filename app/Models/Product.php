@@ -85,6 +85,32 @@ class Product extends Model
         return [];
     }
 
+    /**
+     * Generate a unique SKU
+     * Format: PRD-YYYYMMDD-XXXX (e.g., PRD-20251222-0001)
+     */
+    public static function generateUniqueSku(): string
+    {
+        $prefix = 'PRD-' . date('Ymd') . '-';
+        $counter = 1;
+        
+        do {
+            $sku = $prefix . str_pad($counter, 4, '0', STR_PAD_LEFT);
+            // Check including soft-deleted records to ensure absolute uniqueness
+            $exists = self::withTrashed()->where('sku', $sku)->exists();
+            $counter++;
+            
+            // Safety check to prevent infinite loop
+            if ($counter > 9999) {
+                // If we exceed 9999 for the day, add timestamp
+                $sku = $prefix . time() . '-' . rand(100, 999);
+                $exists = self::withTrashed()->where('sku', $sku)->exists();
+            }
+        } while ($exists);
+        
+        return $sku;
+    }
+
     // Relationships
     public function category()
     {

@@ -4,6 +4,12 @@
 @section('page-title', 'Orders')
 
 @section('content')
+@if(Auth::user()->isBranchStaff())
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-building me-2"></i>
+        <strong>Branch Staff View</strong> - You are viewing orders for <strong>{{ Auth::user()->branch->name ?? 'your branch' }}</strong>
+    </div>
+@endif
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-file-invoice me-2"></i>All Orders</h5>

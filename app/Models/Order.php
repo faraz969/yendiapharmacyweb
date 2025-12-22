@@ -11,6 +11,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'branch_id',
         'prescription_id',
         'delivery_address_id',
         'approved_by',
@@ -29,6 +30,10 @@ class Order extends Model
         'delivery_fee',
         'discount',
         'total_amount',
+        'payment_status',
+        'payment_method',
+        'payment_reference',
+        'paid_at',
         'approved_at',
         'packed_at',
         'delivered_at',
@@ -43,6 +48,7 @@ class Order extends Model
         'total_amount' => 'decimal:2',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'paid_at' => 'datetime',
         'approved_at' => 'datetime',
         'packed_at' => 'datetime',
         'delivered_at' => 'datetime',
@@ -82,6 +88,11 @@ class Order extends Model
     public function deliveryAddress()
     {
         return $this->belongsTo(DeliveryAddress::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     public function items()

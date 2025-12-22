@@ -4,6 +4,15 @@
 
 @section('content')
 <div class="container my-5">
+    @auth
+        @if(Auth::user()->isBranchStaff())
+            <div class="alert alert-info mb-4">
+                <i class="fas fa-info-circle me-2"></i>
+                You are assigned to a branch. 
+                <a href="{{ route('branch.dashboard') }}" class="alert-link">Go to Branch Dashboard</a> to manage branch orders.
+            </div>
+        @endif
+    @endauth
     <h2 class="mb-4">
         <i class="fas fa-tachometer-alt text-primary me-2"></i>My Dashboard
     </h2>

@@ -46,6 +46,30 @@
                     </div>
                 </div>
 
+                <!-- Branch Selection -->
+                <div class="card mb-4">
+                    <div class="card-header" style="background: var(--green-color); color: white;">
+                        <h5 class="mb-0"><i class="fas fa-building me-2"></i>Select Branch</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Choose a branch for order processing <span class="text-danger">*</span></label>
+                            <select name="branch_id" class="form-select @error('branch_id') is-invalid @enderror" required>
+                                <option value="">-- Select Branch --</option>
+                                @foreach($branches as $branch)
+                                    <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
+                                        {{ $branch->name }} - {{ $branch->city ?? $branch->address }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('branch_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="form-text text-muted">Select the branch nearest to your delivery address</small>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Saved Addresses (if authenticated) -->
                 @auth
                     @if($savedAddresses->isNotEmpty())

@@ -27,6 +27,8 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'sort_order' => 'nullable|integer|min:0',
+            'margin_type' => 'nullable|in:fixed,percentage',
+            'margin_value' => 'nullable|numeric|min:0|required_with:margin_type',
         ]);
 
         if ($request->hasFile('image')) {
@@ -35,6 +37,12 @@ class CategoryController extends Controller
 
         $validated['is_active'] = $request->has('is_active');
         $validated['sort_order'] = $request->input('sort_order', 0);
+
+        // Clear margin fields if margin_type is not set
+        if (empty($validated['margin_type'])) {
+            $validated['margin_type'] = null;
+            $validated['margin_value'] = null;
+        }
 
         Category::create($validated);
 
@@ -59,6 +67,8 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'sort_order' => 'nullable|integer|min:0',
+            'margin_type' => 'nullable|in:fixed,percentage',
+            'margin_value' => 'nullable|numeric|min:0|required_with:margin_type',
         ]);
 
         if ($request->hasFile('image')) {
@@ -70,6 +80,12 @@ class CategoryController extends Controller
 
         $validated['is_active'] = $request->has('is_active');
         $validated['sort_order'] = $request->input('sort_order', 0);
+
+        // Clear margin fields if margin_type is not set
+        if (empty($validated['margin_type'])) {
+            $validated['margin_type'] = null;
+            $validated['margin_value'] = null;
+        }
 
         $category->update($validated);
 

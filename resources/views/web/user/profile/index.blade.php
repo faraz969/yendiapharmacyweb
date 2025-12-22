@@ -156,6 +156,17 @@
                                 <i class="fas fa-map-marker-alt me-2"></i>Delivery Addresses
                             </a>
                         </li>
+                        <li class="mb-2">
+                            <hr>
+                        </li>
+                        <li class="mb-2">
+                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-link text-danger p-0 text-decoration-none">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </button>
+                            </form>
+                        </li>
                     </ul>
                 </div>
             </div>

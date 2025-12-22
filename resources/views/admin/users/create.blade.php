@@ -50,19 +50,40 @@
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label for="roles" class="form-label">Roles</label>
-                <select class="form-select @error('roles') is-invalid @enderror" id="roles" name="roles[]" multiple size="6">
-                    @foreach($roles as $role)
-                        <option value="{{ $role->id }}" {{ in_array($role->id, old('roles', [])) ? 'selected' : '' }}>
-                            {{ ucfirst($role->name) }}
-                        </option>
-                    @endforeach
-                </select>
-                <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple roles</small>
-                @error('roles')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="roles" class="form-label">Roles</label>
+                        <select class="form-select @error('roles') is-invalid @enderror" id="roles" name="roles[]" multiple size="6">
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}" {{ in_array($role->id, old('roles', [])) ? 'selected' : '' }}>
+                                    {{ ucfirst($role->name) }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple roles</small>
+                        @error('roles')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="branch_id" class="form-label">Branch (for branch staff)</label>
+                        <select class="form-select @error('branch_id') is-invalid @enderror" id="branch_id" name="branch_id">
+                            <option value="">-- No Branch (Admin/Manager) --</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
+                                    {{ $branch->name }} - {{ $branch->city ?? $branch->address }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">Assign user to a branch to make them branch staff</small>
+                        @error('branch_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
             </div>
 
             <div class="d-flex justify-content-between">

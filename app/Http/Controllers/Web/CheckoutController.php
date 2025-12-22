@@ -10,6 +10,7 @@ use App\Models\DeliveryZone;
 use App\Models\Prescription;
 use App\Models\Batch;
 use App\Models\DeliveryAddress;
+use App\Models\Branch;
 use App\Helpers\OrderHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +62,10 @@ class CheckoutController extends Controller
             $defaultAddress = Auth::user()->defaultDeliveryAddress;
         }
 
-        return view('web.checkout.index', compact('cartItems', 'subtotal', 'deliveryFee', 'total', 'deliveryZones', 'requiresPrescription', 'savedAddresses', 'defaultAddress'));
+        // Get active branches for selection
+        $branches = Branch::active()->ordered()->get();
+
+        return view('web.checkout.index', compact('cartItems', 'subtotal', 'deliveryFee', 'total', 'deliveryZones', 'requiresPrescription', 'savedAddresses', 'defaultAddress', 'branches'));
     }
 
     public function store(Request $request)
@@ -73,6 +77,7 @@ class CheckoutController extends Controller
         }
 
         $validated = $request->validate([
+            'branch_id' => 'required|exists:branches,id',
             'delivery_address_id' => 'nullable|exists:delivery_addresses,id',
             'customer_name' => 'required_without:delivery_address_id|string|max:255',
             'customer_phone' => 'required_without:delivery_address_id|string|max:255',
@@ -157,6 +162,7 @@ class CheckoutController extends Controller
             // Create order
             $order = Order::create([
                 'user_id' => auth()->id(), // Can be null for guest checkout
+                'branch_id' => $validated['branch_id'],
                 'prescription_id' => $prescription ? $prescription->id : null,
                 'delivery_address_id' => $deliveryAddressId,
                 'delivery_zone_id' => $request->delivery_zone_id,
@@ -214,11 +220,19 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            // Clear cart
-            session()->forget('cart');
+            // Don't clear cart yet - wait for payment confirmation
+            // Return order ID for payment processing
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'total_amount' => $order->total_amount,
+                ]);
+            }
 
-            return redirect()->route('checkout.success', $order->id)
-                ->with('success', 'Order placed successfully!');
+            // For web, redirect to payment page
+            return redirect()->route('checkout.payment', $order->id);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -226,9 +240,26 @@ class CheckoutController extends Controller
         }
     }
 
+    public function payment(Order $order)
+    {
+        if ($order->payment_status === 'paid') {
+            return redirect()->route('checkout.success', $order->id)
+                ->with('success', 'Order has already been paid.');
+        }
+
+        $order->load(['items.product', 'prescription']);
+        return view('web.checkout.payment', compact('order'));
+    }
+
     public function success(Order $order)
     {
         $order->load(['items.product', 'prescription']);
+        
+        // Clear cart if payment is successful
+        if ($order->payment_status === 'paid') {
+            session()->forget('cart');
+        }
+        
         return view('web.checkout.success', compact('order'));
     }
 }

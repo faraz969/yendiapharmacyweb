@@ -25,6 +25,7 @@ class User extends Authenticatable implements FilamentUserContract
         'email',
         'password',
         'phone',
+        'branch_id',
     ];
 
     /**
@@ -72,5 +73,15 @@ class User extends Authenticatable implements FilamentUserContract
     public function defaultDeliveryAddress()
     {
         return $this->hasOne(DeliveryAddress::class)->where('is_default', true);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function isBranchStaff()
+    {
+        return $this->branch_id !== null;
     }
 }

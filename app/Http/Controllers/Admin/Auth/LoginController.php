@@ -36,8 +36,8 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $user = Auth::user();
             
-            // Check if user has admin role
-            if (!$user->hasAnyRole(['admin', 'manager', 'staff'])) {
+            // Check if user has admin role OR is branch staff
+            if (!$user->hasAnyRole(['admin', 'manager', 'staff']) && !$user->isBranchStaff()) {
                 Auth::logout();
                 return back()->withErrors(['email' => 'You do not have permission to access the admin panel.'])->withInput();
             }

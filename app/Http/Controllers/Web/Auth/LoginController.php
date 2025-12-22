@@ -23,8 +23,11 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
             
-            // Check if user is trying to access admin panel
-            if (Auth::user()->hasAnyRole(['admin', 'manager', 'staff', 'pharmacist', 'delivery_person'])) {
+            $user = Auth::user();
+            
+            // Check if user is trying to access admin panel (has roles or is branch staff)
+            if ($user->hasAnyRole(['admin', 'manager', 'staff', 'pharmacist', 'delivery_person']) || $user->isBranchStaff()) {
+                // Branch staff should use admin login, but if they login from web, redirect to admin
                 return redirect()->intended(route('admin.dashboard'));
             }
             

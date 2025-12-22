@@ -58,13 +58,13 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'sku' => 'required|string|max:255|unique:products,sku',
+            'sku' => 'nullable|string|max:255|unique:products,sku',
             'barcode' => 'nullable|string|max:255|unique:products,barcode',
             'images' => 'nullable|array|max:5',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             'video' => 'nullable|mimes:mp4,avi,mov|max:10240',
             'selling_price' => 'required|numeric|min:0',
-            'cost_price' => 'nullable|numeric|min:0',
+            'cost_price' => 'required|numeric|min:0',
             'purchase_unit' => 'required|string|in:box,pack,bottle,piece',
             'selling_unit' => 'required|string|in:tablet,capsule,ml,piece',
             'conversion_factor' => 'required|integer|min:1',
@@ -85,6 +85,11 @@ class ProductController extends Controller
         // Handle video
         if ($request->hasFile('video')) {
             $validated['video'] = $request->file('video')->store('products/videos', 'public');
+        }
+
+        // Auto-generate SKU if not provided
+        if (empty($validated['sku'])) {
+            $validated['sku'] = Product::generateUniqueSku();
         }
 
         $validated['requires_prescription'] = $request->has('requires_prescription');
@@ -122,7 +127,7 @@ class ProductController extends Controller
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             'video' => 'nullable|mimes:mp4,avi,mov|max:10240',
             'selling_price' => 'required|numeric|min:0',
-            'cost_price' => 'nullable|numeric|min:0',
+            'cost_price' => 'required|numeric|min:0',
             'purchase_unit' => 'required|string|in:box,pack,bottle,piece',
             'selling_unit' => 'required|string|in:tablet,capsule,ml,piece',
             'conversion_factor' => 'required|integer|min:1',

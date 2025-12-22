@@ -21,9 +21,21 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with(['items.product', 'deliveryZone', 'prescription'])
-            ->where('user_id', Auth::id())
-            ->latest();
+        $user = Auth::user();
+        
+        // If user is branch staff, show only their branch orders
+        // Otherwise, show only their own orders
+        $query = Order::with(['items.product', 'deliveryZone', 'prescription', 'branch']);
+        
+        if ($user->isBranchStaff()) {
+            // Branch staff can see all orders for their branch
+            $query->where('branch_id', $user->branch_id);
+        } else {
+            // Regular users see only their own orders
+            $query->where('user_id', $user->id);
+        }
+        
+        $query->latest();
 
         $orders = $query->paginate($request->get('per_page', 15));
 
@@ -42,6 +54,7 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'branch_id' => 'required|exists:branches,id',
             'delivery_address_id' => 'nullable|exists:delivery_addresses,id',
             'customer_name' => 'required_without:delivery_address_id|string|max:255',
             'customer_phone' => 'required_without:delivery_address_id|string|max:20',
@@ -56,7 +69,7 @@ class OrderController extends Controller
 
         // If using saved address, get the address data
         $deliveryAddressId = null;
-        if ($request->delivery_address_id) {
+        if ($request->delivery_address_id && Auth::check()) {
             $savedAddress = DeliveryAddress::where('user_id', Auth::id())
                 ->findOrFail($request->delivery_address_id);
             
@@ -67,7 +80,10 @@ class OrderController extends Controller
             $deliveryAddressId = $savedAddress->id;
         }
 
-        return DB::transaction(function () use ($validated, $deliveryAddressId) {
+        // Get delivery_zone_id from request (may not be in validated if null)
+        $deliveryZoneId = $request->input('delivery_zone_id');
+
+        return DB::transaction(function () use ($validated, $deliveryAddressId, $deliveryZoneId) {
             // Calculate totals
             $subtotal = 0;
             foreach ($validated['items'] as $item) {
@@ -76,8 +92,8 @@ class OrderController extends Controller
 
             // Calculate delivery fee
             $deliveryFee = 0;
-            if ($validated['delivery_zone_id']) {
-                $deliveryZone = DeliveryZone::find($validated['delivery_zone_id']);
+            if ($deliveryZoneId) {
+                $deliveryZone = DeliveryZone::find($deliveryZoneId);
                 if ($deliveryZone) {
                     $deliveryFee = $deliveryZone->calculateDeliveryFee($subtotal);
                 }
@@ -87,9 +103,10 @@ class OrderController extends Controller
 
             // Create order
             $order = Order::create([
-                'user_id' => Auth::id(),
+                'user_id' => Auth::id(), // Will be null if not authenticated (but route requires auth)
+                'branch_id' => $validated['branch_id'],
                 'delivery_address_id' => $deliveryAddressId,
-                'delivery_zone_id' => $validated['delivery_zone_id'],
+                'delivery_zone_id' => $deliveryZoneId,
                 'order_number' => OrderHelper::generateOrderNumber(),
                 'status' => 'pending',
                 'customer_name' => $validated['customer_name'],

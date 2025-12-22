@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
+use App\Models\Category;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        // Share categories with all web views
+        View::composer('web.layouts.app', function ($view) {
+            $categories = Category::where('is_active', true)
+                ->orderBy('sort_order')
+                ->get();
+            $view->with('categories', $categories);
+        });
     }
 }

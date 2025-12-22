@@ -12,7 +12,13 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
         $query = Order::with(['user', 'items.product']);
+
+        // If branch staff, filter by their branch
+        if ($user->isBranchStaff()) {
+            $query->where('branch_id', $user->branch_id);
+        }
 
         // Filter by status
         if ($request->has('status') && $request->status !== '') {
@@ -37,12 +43,26 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['user', 'items.product', 'prescription', 'approvedBy', 'packedBy', 'deliveredBy', 'deliveryZone']);
+        $user = Auth::user();
+        
+        // If branch staff, ensure order belongs to their branch
+        if ($user->isBranchStaff() && $order->branch_id !== $user->branch_id) {
+            abort(403, 'Access denied. This order does not belong to your branch.');
+        }
+        
+        $order->load(['user', 'items.product', 'prescription', 'approvedBy', 'packedBy', 'deliveredBy', 'deliveryZone', 'branch']);
         return view('admin.orders.show', compact('order'));
     }
 
     public function approve(Request $request, Order $order)
     {
+        $user = Auth::user();
+        
+        // If branch staff, ensure order belongs to their branch
+        if ($user->isBranchStaff() && $order->branch_id !== $user->branch_id) {
+            abort(403, 'Access denied. This order does not belong to your branch.');
+        }
+        
         if ($order->status !== 'pending') {
             return back()->with('error', 'Only pending orders can be approved.');
         }
@@ -54,6 +74,13 @@ class OrderController extends Controller
 
     public function reject(Request $request, Order $order)
     {
+        $user = Auth::user();
+        
+        // If branch staff, ensure order belongs to their branch
+        if ($user->isBranchStaff() && $order->branch_id !== $user->branch_id) {
+            abort(403, 'Access denied. This order does not belong to your branch.');
+        }
+        
         if ($order->status !== 'pending') {
             return back()->with('error', 'Only pending orders can be rejected.');
         }
@@ -69,6 +96,13 @@ class OrderController extends Controller
 
     public function pack(Request $request, Order $order)
     {
+        $user = Auth::user();
+        
+        // If branch staff, ensure order belongs to their branch
+        if ($user->isBranchStaff() && $order->branch_id !== $user->branch_id) {
+            abort(403, 'Access denied. This order does not belong to your branch.');
+        }
+        
         if (!in_array($order->status, ['approved', 'packing'])) {
             return back()->with('error', 'Order must be approved before packing.');
         }
@@ -80,6 +114,13 @@ class OrderController extends Controller
 
     public function deliver(Request $request, Order $order)
     {
+        $user = Auth::user();
+        
+        // If branch staff, ensure order belongs to their branch
+        if ($user->isBranchStaff() && $order->branch_id !== $user->branch_id) {
+            abort(403, 'Access denied. This order does not belong to your branch.');
+        }
+        
         if ($order->status !== 'packed') {
             return back()->with('error', 'Order must be packed before delivery.');
         }
@@ -100,6 +141,13 @@ class OrderController extends Controller
 
     public function markDelivered(Order $order)
     {
+        $user = Auth::user();
+        
+        // If branch staff, ensure order belongs to their branch
+        if ($user->isBranchStaff() && $order->branch_id !== $user->branch_id) {
+            abort(403, 'Access denied. This order does not belong to your branch.');
+        }
+        
         if ($order->status !== 'out_for_delivery') {
             return back()->with('error', 'Order must be out for delivery.');
         }
@@ -111,6 +159,13 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request, Order $order)
     {
+        $user = Auth::user();
+        
+        // If branch staff, ensure order belongs to their branch
+        if ($user->isBranchStaff() && $order->branch_id !== $user->branch_id) {
+            abort(403, 'Access denied. This order does not belong to your branch.');
+        }
+        
         $request->validate([
             'status' => 'required|in:pending,approved,rejected,packing,packed,out_for_delivery,delivered,cancelled',
         ]);
