@@ -30,7 +30,12 @@ class AppServiceProvider extends ServiceProvider
             $categories = Category::where('is_active', true)
                 ->orderBy('sort_order')
                 ->get();
+            
+            // Get navbar categories from settings
+            $navbarCategories = \App\Models\Setting::getNavbarCategories();
+            
             $view->with('categories', $categories);
+            $view->with('navbarCategories', $navbarCategories);
         });
     }
 }

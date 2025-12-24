@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 
 /*
@@ -76,6 +77,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Notifications
         Route::resource('notifications', NotificationController::class);
+        
+        // Settings
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
     });
 });
 

@@ -288,11 +288,8 @@
                 <!-- Logo -->
                 <div class="col-md-2">
                     <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-                        <img src="{{ asset('logo.png') }}" alt="YENDIA Pharmacy" style="height: 50px; width: auto; margin-right: 10px;">
-                        <div>
-                            <div class="fw-bold mb-0" style="font-size: 1.1rem; line-height: 1.2; color: var(--green-color);">YENDIA</div>
-                            <div class="small" style="font-size: 0.75rem; color: var(--orange-color);">PHARMACY</div>
-                        </div>
+                        <img src="{{ \App\Models\Setting::getHeaderLogo() }}" alt="YENDIA Pharmacy" style="height: 50px; width: auto; margin-right: 10px;">
+                       
                     </a>
                 </div>
                 
@@ -421,7 +418,13 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{{ route('products.index') }}">All Products</a></li>
-                                <li><a class="dropdown-item" href="{{ route('products.index') }}?prescription=not_required">OTC Products</a></li>
+                                @if(isset($navbarCategories) && $navbarCategories->count() > 0)
+                                    @foreach($navbarCategories as $category)
+                                        <li><a class="dropdown-item" href="{{ route('products.index', ['category' => $category->id]) }}">{{ $category->name }}</a></li>
+                                    @endforeach
+                                @else
+                                    <li><a class="dropdown-item" href="{{ route('products.index') }}?prescription=not_required">OTC Products</a></li>
+                                @endif
                             </ul>
                         </li>
                         <li class="nav-item"><a href="{{ route('home') }}#contact" class="nav-link text-white">Contact</a></li>
@@ -457,13 +460,27 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="d-flex align-items-center mb-3">
-                        <img src="{{ asset('logo.png') }}" alt="YENDIA Pharmacy" style="height: 40px; width: auto; margin-right: 10px;">
-                        <div>
-                            <h5 class="mb-0" style="color: white;">YENDIA</h5>
-                            <small style="color: var(--orange-color);">PHARMACY</small>
-                        </div>
+                        <img src="{{ \App\Models\Setting::getFooterLogo() }}" alt="YENDIA Pharmacy" style="height: 40px; width: auto; margin-right: 10px;">
                     </div>
                     <p class="text-white-50">Your trusted online pharmacy for all your healthcare needs.</p>
+                    @php
+                        $appStoreUrl = \App\Models\Setting::getAppStoreUrl();
+                        $playStoreUrl = \App\Models\Setting::getPlayStoreUrl();
+                    @endphp
+                    @if($appStoreUrl || $playStoreUrl)
+                        <div class="mt-3 d-flex gap-2">
+                            @if($appStoreUrl)
+                                <a href="{{ $appStoreUrl }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                    <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&releaseDate=1289433600" alt="Download on the App Store" style="height: 40px; width: auto;">
+                                </a>
+                            @endif
+                            @if($playStoreUrl)
+                                <a href="{{ $playStoreUrl }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                    <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" style="height: 60px; width: auto;">
+                                </a>
+                            @endif
+                        </div>
+                    @endif
                 </div>
                 <div class="col-md-4">
                     <h5>Quick Links</h5>
@@ -493,7 +510,7 @@
             </div>
             <hr class="bg-white">
             <div class="text-center text-white-50">
-                <p>&copy; {{ date('Y') }} YENDIA Pharmacy. All rights reserved.</p>
+                <p>&copy; {{ \App\Models\Setting::getCopyrightYear() }} YENDIA Pharmacy. All rights reserved.</p>
             </div>
         </div>
     </footer>

@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Setting;
+use App\Models\Category;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+class SettingController extends Controller
+{
+    public function index()
+    {
+        $settings = Setting::all()->keyBy('key');
+        $categories = Category::where('is_active', true)->orderBy('name')->get();
+        
+        // Get selected navbar categories
+        $navbarCategoryIds = [];
+        if ($settings->has('navbar_categories') && $settings['navbar_categories']->value) {
+            $navbarCategoryIds = json_decode($settings['navbar_categories']->value, true) ?? [];
+        }
+
+        return view('admin.settings.index', compact('settings', 'categories', 'navbarCategoryIds'));
+    }
+
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            'header_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'footer_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'copyright_year' => 'required|string|max:10',
+            'navbar_categories' => 'nullable|array',
+            'navbar_categories.*' => 'exists:categories,id',
+            'app_store_url' => 'nullable|url|max:500',
+            'play_store_url' => 'nullable|url|max:500',
+        ]);
+
+        // Handle header logo
+        if ($request->hasFile('header_logo')) {
+            // Delete old logo if exists
+            $oldLogo = Setting::get('header_logo');
+            if ($oldLogo && Storage::disk('public')->exists($oldLogo)) {
+                Storage::disk('public')->delete($oldLogo);
+            }
+            $validated['header_logo'] = $request->file('header_logo')->store('settings', 'public');
+            Setting::set('header_logo', $validated['header_logo']);
+        }
+
+        // Handle footer logo
+        if ($request->hasFile('footer_logo')) {
+            // Delete old logo if exists
+            $oldLogo = Setting::get('footer_logo');
+            if ($oldLogo && Storage::disk('public')->exists($oldLogo)) {
+                Storage::disk('public')->delete($oldLogo);
+            }
+            $validated['footer_logo'] = $request->file('footer_logo')->store('settings', 'public');
+            Setting::set('footer_logo', $validated['footer_logo']);
+        }
+
+        // Handle remove logo options
+        if ($request->has('remove_header_logo')) {
+            $oldLogo = Setting::get('header_logo');
+            if ($oldLogo && Storage::disk('public')->exists($oldLogo)) {
+                Storage::disk('public')->delete($oldLogo);
+            }
+            Setting::set('header_logo', null);
+        }
+
+        if ($request->has('remove_footer_logo')) {
+            $oldLogo = Setting::get('footer_logo');
+            if ($oldLogo && Storage::disk('public')->exists($oldLogo)) {
+                Storage::disk('public')->delete($oldLogo);
+            }
+            Setting::set('footer_logo', null);
+        }
+
+        // Update copyright year
+        Setting::set('copyright_year', $validated['copyright_year']);
+
+        // Update navbar categories
+        $navbarCategories = $validated['navbar_categories'] ?? [];
+        Setting::set('navbar_categories', json_encode($navbarCategories));
+
+        // Update app store URLs
+        Setting::set('app_store_url', $validated['app_store_url'] ?? null);
+        Setting::set('play_store_url', $validated['play_store_url'] ?? null);
+
+        return redirect()->route('admin.settings.index')
+            ->with('success', 'Settings updated successfully.');
+    }
+}

@@ -270,6 +270,11 @@
                         <i class="fas fa-bell"></i> Notifications
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </li>
             @endif
             
             <li>
