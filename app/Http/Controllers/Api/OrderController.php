@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\DeliveryZone;
 use App\Models\DeliveryAddress;
 use App\Helpers\OrderHelper;
@@ -82,6 +83,36 @@ class OrderController extends Controller
 
         // Get delivery_zone_id from request (may not be in validated if null)
         $deliveryZoneId = $request->input('delivery_zone_id');
+
+        // Check if any product requires prescription
+        $requiresPrescription = false;
+        $prescriptionRequiredProducts = [];
+        foreach ($validated['items'] as $item) {
+            $product = Product::find($item['product_id']);
+            if ($product && $product->requires_prescription) {
+                $requiresPrescription = true;
+                $prescriptionRequiredProducts[] = $product->name;
+            }
+        }
+
+        // Validate prescription if required
+        if ($requiresPrescription) {
+            // Check if prescription images are provided (for mobile app, this might be sent as a flag or files)
+            $hasPrescription = $request->has('prescription_images') || 
+                              $request->hasFile('prescription_images') ||
+                              $request->has('prescription_uploaded') ||
+                              $request->input('prescription_uploaded', false);
+            
+            if (!$hasPrescription) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Prescription image(s) are required for the following products: ' . implode(', ', $prescriptionRequiredProducts),
+                    'errors' => [
+                        'prescription' => ['Prescription image(s) are required for prescription-required products.']
+                    ]
+                ], 422);
+            }
+        }
 
         return DB::transaction(function () use ($validated, $deliveryAddressId, $deliveryZoneId) {
             // Calculate totals
