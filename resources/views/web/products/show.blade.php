@@ -45,7 +45,7 @@
             @endif
 
             <div class="mb-4">
-                <h2 class="text-primary mb-0">${{ number_format($product->selling_price, 2) }}</h2>
+                <h2 class="text-primary mb-0">{{ \App\Models\Setting::formatPrice($product->selling_price) }}</h2>
                 @if($product->track_batch)
                     <p class="text-muted mb-0">
                         <i class="fas fa-check-circle text-success me-1"></i>
@@ -134,7 +134,7 @@
                             <div class="product-card-body">
                                 <h6 class="card-title">{{ Str::limit($relatedProduct->name, 40) }}</h6>
                                 <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <span class="product-price">${{ number_format($relatedProduct->selling_price, 2) }}</span>
+                                    <span class="product-price">{{ \App\Models\Setting::formatPrice($relatedProduct->selling_price) }}</span>
                                     <a href="{{ route('products.show', $relatedProduct->id) }}" class="btn btn-primary btn-sm">
                                         <i class="fas fa-eye"></i>
                                     </a>

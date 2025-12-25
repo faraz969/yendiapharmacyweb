@@ -99,4 +99,53 @@ class Setting extends Model
     {
         return self::get('play_store_url');
     }
+
+    /**
+     * Get contact phone
+     */
+    public static function getContactPhone()
+    {
+        return self::get('contact_phone', '+1 800 900');
+    }
+
+    /**
+     * Get contact email
+     */
+    public static function getContactEmail()
+    {
+        return self::get('contact_email', 'info@pharmacystore.com');
+    }
+
+    /**
+     * Get topbar tagline
+     */
+    public static function getTopbarTagline()
+    {
+        return self::get('topbar_tagline', 'Super Value Deals - Save more with coupons');
+    }
+
+    /**
+     * Get currency code
+     */
+    public static function getCurrency()
+    {
+        return self::get('currency', 'USD');
+    }
+
+    /**
+     * Get currency symbol
+     */
+    public static function getCurrencySymbol()
+    {
+        return self::get('currency_symbol', '$');
+    }
+
+    /**
+     * Format price with currency symbol
+     */
+    public static function formatPrice($amount, $decimals = 2)
+    {
+        $symbol = self::getCurrencySymbol();
+        return $symbol . number_format($amount, $decimals);
+    }
 }

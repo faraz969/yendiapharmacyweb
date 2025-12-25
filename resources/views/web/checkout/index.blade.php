@@ -136,9 +136,9 @@
                                 <option value="">Select Delivery Zone</option>
                                 @foreach($deliveryZones as $zone)
                                     <option value="{{ $zone->id }}" data-fee="{{ $zone->delivery_fee }}" data-min="{{ $zone->min_order_amount ?? 0 }}">
-                                        {{ $zone->name }} - ${{ number_format($zone->delivery_fee, 2) }} 
+                                        {{ $zone->name }} - {{ \App\Models\Setting::formatPrice($zone->delivery_fee) }} 
                                         @if($zone->min_order_amount)
-                                            (Free delivery over ${{ number_format($zone->min_order_amount, 2) }})
+                                            (Free delivery over {{ \App\Models\Setting::formatPrice($zone->min_order_amount) }})
                                         @endif
                                     </option>
                                 @endforeach
@@ -237,8 +237,8 @@
                                                 @endif
                                             </td>
                                             <td>{{ $item['quantity'] }}</td>
-                                            <td>${{ number_format($item['price'], 2) }}</td>
-                                            <td>${{ number_format($item['total'], 2) }}</td>
+                                            <td>{{ \App\Models\Setting::formatPrice($item['price']) }}</td>
+                                            <td>{{ \App\Models\Setting::formatPrice($item['total']) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -256,16 +256,16 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-3">
                             <span>Subtotal:</span>
-                            <span class="fw-bold">$<span id="subtotal">{{ number_format($subtotal, 2) }}</span></span>
+                            <span class="fw-bold">{{ \App\Models\Setting::getCurrencySymbol() }}<span id="subtotal">{{ number_format($subtotal, 2) }}</span></span>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <span>Delivery Fee:</span>
-                            <span class="fw-bold">$<span id="delivery_fee">{{ number_format($deliveryFee, 2) }}</span></span>
+                            <span class="fw-bold">{{ \App\Models\Setting::getCurrencySymbol() }}<span id="delivery_fee">{{ number_format($deliveryFee, 2) }}</span></span>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between mb-3">
                             <span class="fw-bold">Total:</span>
-                            <span class="fw-bold text-primary fs-4">$<span id="total">{{ number_format($total, 2) }}</span></span>
+                            <span class="fw-bold text-primary fs-4">{{ \App\Models\Setting::getCurrencySymbol() }}<span id="total">{{ number_format($total, 2) }}</span></span>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 btn-lg">
                             <i class="fas fa-check me-2"></i>Place Order

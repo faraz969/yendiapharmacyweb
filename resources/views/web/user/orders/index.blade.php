@@ -29,7 +29,7 @@
                                     <td><strong>{{ $order->order_number }}</strong></td>
                                     <td>{{ $order->created_at->format('M d, Y h:i A') }}</td>
                                     <td>{{ $order->items->count() }} item(s)</td>
-                                    <td>${{ number_format($order->total_amount, 2) }}</td>
+                                    <td>{{ \App\Models\Setting::formatPrice($order->total_amount) }}</td>
                                     <td>
                                         @if($order->status === 'pending')
                                             <span class="badge bg-warning">Pending</span>

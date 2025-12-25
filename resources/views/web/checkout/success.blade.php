@@ -51,25 +51,25 @@
                                             <tr>
                                                 <td>{{ $item->product->name }}</td>
                                                 <td>{{ $item->quantity }}</td>
-                                                <td>${{ number_format($item->unit_price, 2) }}</td>
-                                                <td>${{ number_format($item->total_price, 2) }}</td>
+                                                <td>{{ \App\Models\Setting::formatPrice($item->unit_price) }}</td>
+                                                <td>{{ \App\Models\Setting::formatPrice($item->total_price) }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
                                     <tfoot>
                                         <tr>
                                             <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
-                                            <td><strong>${{ number_format($order->subtotal, 2) }}</strong></td>
+                                            <td><strong>{{ \App\Models\Setting::formatPrice($order->subtotal) }}</strong></td>
                                         </tr>
                                         @if($order->delivery_fee > 0)
                                             <tr>
                                                 <td colspan="3" class="text-end"><strong>Delivery Fee:</strong></td>
-                                                <td><strong>${{ number_format($order->delivery_fee, 2) }}</strong></td>
+                                                <td><strong>{{ \App\Models\Setting::formatPrice($order->delivery_fee) }}</strong></td>
                                             </tr>
                                         @endif
                                         <tr class="table-primary">
                                             <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                            <td><strong>${{ number_format($order->total_amount, 2) }}</strong></td>
+                                            <td><strong>{{ \App\Models\Setting::formatPrice($order->total_amount) }}</strong></td>
                                         </tr>
                                     </tfoot>
                                 </table>

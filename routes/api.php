@@ -35,6 +35,9 @@ Route::get('/branches/{id}', [BranchController::class, 'show']);
 Route::get('/notifications', [NotificationController::class, 'index']);
 Route::get('/notifications/{id}', [NotificationController::class, 'show']);
 
+// Settings
+Route::get('/settings/currency', [\App\Http\Controllers\Api\SettingController::class, 'currency']);
+
 // Authentication routes
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);

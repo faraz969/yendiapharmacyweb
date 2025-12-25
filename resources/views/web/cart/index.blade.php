@@ -33,7 +33,7 @@
                                         @endif
                                     </div>
                                     <div class="col-md-2">
-                                        <span class="fw-bold">${{ number_format($item['price'], 2) }}</span>
+                                        <span class="fw-bold">{{ \App\Models\Setting::formatPrice($item['price']) }}</span>
                                     </div>
                                     <div class="col-md-2">
                                         <form action="{{ route('cart.update', $item['product']->id) }}" method="POST" class="d-inline">
@@ -44,7 +44,7 @@
                                     </div>
                                     <div class="col-md-2">
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <span class="fw-bold">${{ number_format($item['total'], 2) }}</span>
+                                            <span class="fw-bold">{{ \App\Models\Setting::formatPrice($item['total']) }}</span>
                                             <form action="{{ route('cart.remove', $item['product']->id) }}" method="POST" class="d-inline ms-2">
                                                 @csrf
                                                 @method('DELETE')
@@ -82,7 +82,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-3">
                             <span>Subtotal:</span>
-                            <span class="fw-bold">${{ number_format($total, 2) }}</span>
+                            <span class="fw-bold">{{ \App\Models\Setting::formatPrice($total) }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <span>Delivery Fee:</span>
@@ -91,7 +91,7 @@
                         <hr>
                         <div class="d-flex justify-content-between mb-3">
                             <span class="fw-bold">Total:</span>
-                            <span class="fw-bold text-primary fs-5">${{ number_format($total, 2) }}</span>
+                            <span class="fw-bold text-primary fs-5">{{ \App\Models\Setting::formatPrice($total) }}</span>
                         </div>
                         <a href="{{ route('checkout.index') }}" class="btn btn-primary w-100 btn-lg">
                             <i class="fas fa-credit-card me-2"></i>Proceed to Checkout

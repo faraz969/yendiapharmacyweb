@@ -271,10 +271,10 @@
                     </ul>
                 </div>
                 <div class="col-md-4 text-center">
-                    <p class="mb-0 small text-muted">Super Value Deals - Save more with coupons</p>
+                    <p class="mb-0 small text-muted">{{ \App\Models\Setting::getTopbarTagline() }}</p>
                 </div>
                 <div class="col-md-4 text-end">
-                    <span class="small text-muted me-3">Need help? Call Us: <strong>+1 800 900</strong></span>
+                    <span class="small text-muted me-3">Need help? Call Us: <strong>{{ \App\Models\Setting::getContactPhone() }}</strong></span>
                     
                 </div>
             </div>
@@ -396,13 +396,24 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-3">
-                    <button class="btn w-100 text-start py-3 fw-bold text-white" style="background: rgba(0,0,0,0.1);">
-                        <i class="fas fa-bars me-2"></i>Browse All Categories
-                    </button>
+                    <div class="dropdown">
+                        <button class="btn w-100 text-start py-3 fw-bold text-white dropdown-toggle" type="button" id="browseCategoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: rgba(0,0,0,0.1);">
+                            <i class="fas fa-bars me-2"></i>Browse All Categories
+                        </button>
+                        <ul class="dropdown-menu w-100" aria-labelledby="browseCategoriesDropdown">
+                            <li><a class="dropdown-item" href="{{ route('products.index') }}">All Products</a></li>
+                            @if(isset($categories) && $categories->count() > 0)
+                                @foreach($categories as $category)
+                                    <li><a class="dropdown-item" href="{{ route('products.index', ['category' => $category->id]) }}">{{ $category->name }}</a></li>
+                                @endforeach
+                            @else
+                                <li><a class="dropdown-item" href="{{ route('products.index') }}?prescription=not_required">OTC Products</a></li>
+                            @endif
+                        </ul>
+                    </div>
                 </div>
                 <div class="col-md-9">
                     <ul class="nav mb-0">
-                        <li class="nav-item"><a href="#" class="nav-link text-white">Deals</a></li>
                         <li class="nav-item"><a href="{{ route('home') }}" class="nav-link text-white">Home</a></li>
                         @php
                             $aboutPage = \App\Models\Page::where('slug', 'about-us')->where('is_active', true)->first();
@@ -412,21 +423,15 @@
                         @else
                             <li class="nav-item"><a href="{{ route('home') }}#about" class="nav-link text-white">About</a></li>
                         @endif
-                        <li class="nav-item dropdown">
-                            <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                Shop <i class="fas fa-chevron-down small"></i>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('products.index') }}">All Products</a></li>
-                                @if(isset($navbarCategories) && $navbarCategories->count() > 0)
-                                    @foreach($navbarCategories as $category)
-                                        <li><a class="dropdown-item" href="{{ route('products.index', ['category' => $category->id]) }}">{{ $category->name }}</a></li>
-                                    @endforeach
-                                @else
-                                    <li><a class="dropdown-item" href="{{ route('products.index') }}?prescription=not_required">OTC Products</a></li>
-                                @endif
-                            </ul>
-                        </li>
+                        
+                        @if(isset($navbarCategories) && $navbarCategories->count() > 0)
+                            @foreach($navbarCategories as $category)
+                                <li class="nav-item">
+                                    <a href="{{ route('products.index', ['category' => $category->id]) }}" class="nav-link text-white">{{ $category->name }}</a>
+                                </li>
+                            @endforeach
+                        @endif
+                        
                         <li class="nav-item"><a href="{{ route('home') }}#contact" class="nav-link text-white">Contact</a></li>
                     </ul>
                 </div>
@@ -503,8 +508,8 @@
                 <div class="col-md-4">
                     <h5>Contact</h5>
                     <p class="text-muted">
-                        <i class="fas fa-phone me-2"></i>+1 234 567 8900<br>
-                        <i class="fas fa-envelope me-2"></i>info@pharmacystore.com
+                        <i class="fas fa-phone me-2"></i>{{ \App\Models\Setting::getContactPhone() }}<br>
+                        <i class="fas fa-envelope me-2"></i>{{ \App\Models\Setting::getContactEmail() }}
                     </p>
                 </div>
             </div>

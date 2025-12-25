@@ -39,3 +39,10 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 }
+
+// Helper function for currency formatting (available globally)
+if (!function_exists('currency')) {
+    function currency($amount, $decimals = 2) {
+        return \App\Models\Setting::formatPrice($amount, $decimals);
+    }
+}

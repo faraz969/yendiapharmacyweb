@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
                 <div class="col-md-6">
                     <h1 class="display-3 fw-bold mb-3" style="color: #158d43; line-height: 1.2; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
                         {{ $firstBanner->title ?? 'Fresh & Healthy' }}<br>
-                        <span style="color: #ee7d09;">Big Discounts</span>
+                        
                     </h1>
                     <p class="lead mb-4" style="color: #333; font-weight: 500; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
                         {{ $firstBanner->description ?? 'Save up to 50% off on your first order' }}
@@ -70,50 +70,28 @@ use Illuminate\Support\Facades\Storage;
         <section class="featured-categories-section mb-5 py-4">
             <div class="container">
                 <!-- Section Title -->
-                <h2 class="mb-4 fw-bold" style="color: #1a237e; font-size: 2rem;">Featured Categories</h2>
                 
-                <!-- Category Filter Tabs -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="category-filters d-flex gap-3 flex-wrap">
-                        <button class="btn btn-sm px-3 py-2 category-filter-btn active" data-category="all" style="border: none; background: transparent; color: #666; font-weight: 500; border-bottom: 2px solid transparent;">
-                            All Categories
-                        </button>
-                        @foreach($featuredCategories->take(4) as $filterCategory)
-                            <button class="btn btn-sm px-3 py-2 category-filter-btn" data-category="{{ $filterCategory->id }}" style="border: none; background: transparent; color: #666; font-weight: 500; border-bottom: 2px solid transparent;">
-                                {{ $filterCategory->name }}
-                            </button>
-                        @endforeach
-                    </div>
-                    <!-- Navigation Arrows -->
-                    <div class="category-nav-arrows d-flex gap-2">
-                        <button class="btn btn-sm btn-outline-secondary rounded-circle category-scroll-btn" id="categoryScrollLeft" style="width: 40px; height: 40px; border: 1px solid #ddd;">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary rounded-circle category-scroll-btn" id="categoryScrollRight" style="width: 40px; height: 40px; border: 1px solid #ddd;">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
                 
-                <!-- Category Cards Container -->
-                <div class="category-cards-wrapper" style="position: relative; overflow: hidden;">
-                    <div class="category-cards-container d-flex gap-3" id="categoryCardsContainer" style="overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;">
+                <!-- Category Icons Container -->
+                <div class="category-icons-wrapper" style="position: relative; overflow: hidden;">
+                    <div class="category-icons-container d-flex gap-4 justify-content-center flex-wrap" id="categoryIconsContainer">
                         @foreach($featuredCategories as $index => $category)
-                            @php
-                                $colors = ['#e8f5e9', '#fff9c4', '#e8f5e9', '#fce4ec', '#fff9c4', '#e8f5e9', '#fce4ec', '#fff9c4', '#e8f5e9', '#fce4ec'];
-                                $bgColor = $colors[$index % count($colors)];
-                            @endphp
-                            <a href="{{ route('products.category', $category->id) }}" class="text-decoration-none category-card-link" style="flex: 0 0 auto; width: 200px;">
-                                <div class="category-card h-100" style="background: {{ $bgColor }}; border-radius: 15px; padding: 20px; text-align: center; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; height: 100%;">
-                                    <div class="category-image-wrapper mb-3" style="height: 150px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                            <a href="{{ route('products.category', $category->id) }}" class="text-decoration-none category-icon-link" style="flex: 0 0 auto; text-align: center; transition: transform 0.3s;">
+                                <div class="category-icon-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                                    <!-- Round Icon -->
+                                    <div class="category-icon-circle" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; border: 3px solid #158d43;">
                                         @if($category->image)
-                                            <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                                            <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" style="width: 70px; height: 70px; object-fit: contain; border-radius: 50%;">
                                         @else
-                                            <i class="fas fa-folder" style="font-size: 4rem; color: #158d43; opacity: 0.5;"></i>
+                                            <i class="fas fa-folder" style="font-size: 2.5rem; color: #158d43;"></i>
                                         @endif
                                     </div>
-                                    <h5 class="category-name mb-2 fw-bold" style="color: #333; font-size: 1rem; margin-bottom: 8px;">{{ $category->name }}</h5>
-                                    <p class="category-count mb-0 text-muted" style="font-size: 0.875rem; color: #666;">
+                                    <!-- Category Name -->
+                                    <h6 class="category-name mb-0 fw-semibold" style="color: #333; font-size: 0.9rem; max-width: 100px; text-align: center; line-height: 1.2;">
+                                        {{ $category->name }}
+                                    </h6>
+                                    <!-- Item Count -->
+                                    <p class="category-count mb-0 text-muted" style="font-size: 0.8rem; color: #666;">
                                         {{ $category->products_count ?? 0 }} items
                                     </p>
                                 </div>
@@ -125,52 +103,19 @@ use Illuminate\Support\Facades\Storage;
         </section>
         
         <style>
-            .category-cards-container::-webkit-scrollbar {
-                display: none;
+            .category-icon-link:hover {
+                text-decoration: none;
             }
             
-            .category-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            .category-icon-link:hover .category-icon-circle {
+                transform: scale(1.1);
+                box-shadow: 0 6px 20px rgba(21, 141, 67, 0.3);
             }
             
-            .category-filter-btn.active {
-                color: #158d43 !important;
-                border-bottom-color: #158d43 !important;
-                font-weight: 600 !important;
-            }
-            
-            .category-filter-btn:hover {
-                color: #158d43 !important;
+            .category-icon-link:hover .category-name {
+                color: #158d43;
             }
         </style>
-        
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const container = document.getElementById('categoryCardsContainer');
-                const scrollLeftBtn = document.getElementById('categoryScrollLeft');
-                const scrollRightBtn = document.getElementById('categoryScrollRight');
-                
-                if (container && scrollLeftBtn && scrollRightBtn) {
-                    scrollLeftBtn.addEventListener('click', function() {
-                        container.scrollBy({ left: -220, behavior: 'smooth' });
-                    });
-                    
-                    scrollRightBtn.addEventListener('click', function() {
-                        container.scrollBy({ left: 220, behavior: 'smooth' });
-                    });
-                    
-                    // Filter buttons
-                    document.querySelectorAll('.category-filter-btn').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            document.querySelectorAll('.category-filter-btn').forEach(b => b.classList.remove('active'));
-                            this.classList.add('active');
-                            // You can add filtering logic here if needed
-                        });
-                    });
-                }
-            });
-        </script>
     @endif
 
     <!-- Popular Products Section -->
@@ -178,7 +123,7 @@ use Illuminate\Support\Facades\Storage;
         <section class="popular-products-section mb-5 py-4">
             <div class="container">
                 <!-- Section Title -->
-                <h2 class="mb-4 fw-bold" style="color: #1a237e; font-size: 2rem;">Popular Products</h2>
+                
                 
                 <!-- Category Filter Tabs -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -283,11 +228,11 @@ use Illuminate\Support\Facades\Storage;
                                         <div class="d-flex justify-content-between align-items-center mt-3">
                                             <div>
                                                 <span class="fw-bold" style="font-size: 1.1rem; color: #158d43;">
-                                                    ${{ number_format($product->selling_price, 2) }}
+                                                    {{ \App\Models\Setting::formatPrice($product->selling_price) }}
                                                 </span>
                                                 @if($hasDiscount && $product->cost_price > $product->selling_price)
                                                     <span class="text-muted text-decoration-line-through ms-2" style="font-size: 0.85rem;">
-                                                        ${{ number_format($product->cost_price, 2) }}
+                                                        {{ \App\Models\Setting::formatPrice($product->cost_price) }}
                                                     </span>
                                                 @endif
                                             </div>

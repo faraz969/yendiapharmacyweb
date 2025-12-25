@@ -41,7 +41,7 @@
                                 </span>
                             @endif
                             <div class="d-flex justify-content-between align-items-center mt-3">
-                                <span class="product-price">${{ number_format($product->selling_price, 2) }}</span>
+                                <span class="product-price">{{ \App\Models\Setting::formatPrice($product->selling_price) }}</span>
                                 <form action="{{ route('cart.add') }}" method="POST" class="d-inline">
                                     @csrf
                                     <input type="hidden" name="product_id" value="{{ $product->id }}">

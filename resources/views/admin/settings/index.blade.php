@@ -132,6 +132,87 @@
                 </div>
             </div>
 
+            <!-- Contact Information -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-phone me-2"></i>Contact Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="contact_phone" class="form-label">Contact Phone Number</label>
+                                <input type="text" class="form-control @error('contact_phone') is-invalid @enderror" id="contact_phone" name="contact_phone" value="{{ old('contact_phone', $settings['contact_phone']->value ?? '+1 800 900') }}" placeholder="+1 800 900">
+                                @error('contact_phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted">Displayed in the top utility bar</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="contact_email" class="form-label">Contact Email</label>
+                                <input type="email" class="form-control @error('contact_email') is-invalid @enderror" id="contact_email" name="contact_email" value="{{ old('contact_email', $settings['contact_email']->value ?? 'info@pharmacystore.com') }}" placeholder="info@pharmacystore.com">
+                                @error('contact_email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="topbar_tagline" class="form-label">Topbar Tagline</label>
+                                <input type="text" class="form-control @error('topbar_tagline') is-invalid @enderror" id="topbar_tagline" name="topbar_tagline" value="{{ old('topbar_tagline', $settings['topbar_tagline']->value ?? 'Super Value Deals - Save more with coupons') }}" placeholder="Super Value Deals - Save more with coupons">
+                                @error('topbar_tagline')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted">Tagline displayed in the center of the top utility bar</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Currency Settings -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-dollar-sign me-2"></i>Currency Settings</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">Set the currency that will be used throughout the website and mobile app. The currency symbol will replace the $ sign wherever prices are displayed.</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="currency" class="form-label">Currency Code <span class="text-danger">*</span></label>
+                                <select class="form-select @error('currency') is-invalid @enderror" id="currency" name="currency" required>
+                                    <option value="USD" {{ old('currency', $settings['currency']->value ?? 'USD') == 'USD' ? 'selected' : '' }}>USD - US Dollar</option>
+                                    <option value="NGN" {{ old('currency', $settings['currency']->value ?? 'USD') == 'NGN' ? 'selected' : '' }}>NGN - Nigerian Naira</option>
+                                    <option value="EUR" {{ old('currency', $settings['currency']->value ?? 'USD') == 'EUR' ? 'selected' : '' }}>EUR - Euro</option>
+                                    <option value="GBP" {{ old('currency', $settings['currency']->value ?? 'USD') == 'GBP' ? 'selected' : '' }}>GBP - British Pound</option>
+                                    <option value="CAD" {{ old('currency', $settings['currency']->value ?? 'USD') == 'CAD' ? 'selected' : '' }}>CAD - Canadian Dollar</option>
+                                    <option value="AUD" {{ old('currency', $settings['currency']->value ?? 'USD') == 'AUD' ? 'selected' : '' }}>AUD - Australian Dollar</option>
+                                    <option value="GHS" {{ old('currency', $settings['currency']->value ?? 'USD') == 'GHS' ? 'selected' : '' }}>GHS - Ghana Cedi</option>
+                                </select>
+                                @error('currency')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="currency_symbol" class="form-label">Currency Symbol <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control @error('currency_symbol') is-invalid @enderror" id="currency_symbol" name="currency_symbol" value="{{ old('currency_symbol', $settings['currency_symbol']->value ?? '$') }}" placeholder="$" required maxlength="10">
+                                @error('currency_symbol')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted">Examples: $ (USD), ₦ (NGN), € (EUR), £ (GBP), ₵ (GHS)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Navbar Categories -->
             <div class="card mb-3">
                 <div class="card-header bg-light">

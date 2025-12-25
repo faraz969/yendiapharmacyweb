@@ -34,6 +34,11 @@ class SettingController extends Controller
             'navbar_categories.*' => 'exists:categories,id',
             'app_store_url' => 'nullable|url|max:500',
             'play_store_url' => 'nullable|url|max:500',
+            'contact_phone' => 'nullable|string|max:50',
+            'contact_email' => 'nullable|email|max:255',
+            'topbar_tagline' => 'nullable|string|max:255',
+            'currency' => 'required|string|max:10',
+            'currency_symbol' => 'required|string|max:10',
         ]);
 
         // Handle header logo
@@ -85,6 +90,15 @@ class SettingController extends Controller
         // Update app store URLs
         Setting::set('app_store_url', $validated['app_store_url'] ?? null);
         Setting::set('play_store_url', $validated['play_store_url'] ?? null);
+
+        // Update contact information
+        Setting::set('contact_phone', $validated['contact_phone'] ?? null);
+        Setting::set('contact_email', $validated['contact_email'] ?? null);
+        Setting::set('topbar_tagline', $validated['topbar_tagline'] ?? null);
+
+        // Update currency
+        Setting::set('currency', $validated['currency']);
+        Setting::set('currency_symbol', $validated['currency_symbol']);
 
         return redirect()->route('admin.settings.index')
             ->with('success', 'Settings updated successfully.');
