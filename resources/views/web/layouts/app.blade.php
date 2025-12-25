@@ -475,7 +475,7 @@
                     @if($appStoreUrl || $playStoreUrl)
                         <div class="mt-3 d-flex gap-2">
                             @if($appStoreUrl)
-                                <a href="{{ $appStoreUrl }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                <a href="{{ $appStoreUrl }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none" style="padding-top:10px;">
                                     <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&releaseDate=1289433600" alt="Download on the App Store" style="height: 40px; width: auto;">
                                 </a>
                             @endif
