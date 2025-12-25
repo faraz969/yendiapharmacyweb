@@ -249,12 +249,7 @@
                         @php
                             $aboutPage = \App\Models\Page::where('slug', 'about-us')->where('is_active', true)->first();
                         @endphp
-                        @if($aboutPage)
-                            <li class="list-inline-item"><a href="{{ route('pages.show', $aboutPage->slug) }}" class="text-decoration-none text-muted">About Us</a></li>
-                        @else
-                            <li class="list-inline-item"><a href="{{ route('home') }}#about" class="text-decoration-none text-muted">About Us</a></li>
-                        @endif
-                        <li class="list-inline-item"><span class="text-muted">|</span></li>
+                        
                         @auth
                             @if(Auth::user()->isBranchStaff())
                                 <li class="list-inline-item"><a href="{{ route('branch.dashboard') }}" class="text-decoration-none text-muted">Branch Dashboard</a></li>
@@ -266,7 +261,7 @@
                         @endauth
                         <li class="list-inline-item"><span class="text-muted">|</span></li>
                        
-                        <li class="list-inline-item"><span class="text-muted">|</span></li>
+                        
                         <li class="list-inline-item"><a href="{{ route('order.tracking.index') }}" class="text-decoration-none text-muted">Order Tracking</a></li>
                     </ul>
                 </div>
@@ -378,13 +373,7 @@
                                 <i class="fas fa-user-circle fs-5"></i>
                             </a>
                         @endauth
-                        <div class="ms-3">
-                            <i class="fas fa-phone me-2" style="color: var(--green-color);"></i>
-                            <div class="d-inline-block">
-                                <div class="fw-bold small" style="color: var(--green-color);">1900 - 888</div>
-                                <div class="small text-muted">24/7 Support Center</div>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -475,8 +464,8 @@
                     @if($appStoreUrl || $playStoreUrl)
                         <div class="mt-3 d-flex gap-2">
                             @if($appStoreUrl)
-                                <a href="{{ $appStoreUrl }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none" style="padding-top:10px;">
-                                    <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&releaseDate=1289433600" alt="Download on the App Store" style="height: 40px; width: auto;">
+                                <a href="{{ $appStoreUrl }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none" style="padding-top:10px; display: inline-block;">
+                                    <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us.svg?style=flat" alt="Download on the App Store" style="height: 40px; width: auto; display: block;" onerror="this.onerror=null; this.src='https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg';">
                                 </a>
                             @endif
                             @if($playStoreUrl)

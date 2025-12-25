@@ -175,32 +175,31 @@ use Illuminate\Support\Facades\Storage;
                                 }
                             @endphp
                             <div class="product-card-wrapper" style="flex: 0 0 auto; width: 280px;">
-                                <div class="card product-card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s;">
-                                    <!-- Product Image with Badge -->
-                                    <div class="position-relative" style="height: 220px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                        @if($product->images && is_array($product->images) && count($product->images) > 0)
-                                            <img src="{{ asset('storage/' . $product->images[0]) }}" alt="{{ $product->name }}" style="max-width: 100%; max-height: 100%; object-fit: contain; padding: 15px;">
-                                        @else
-                                            <i class="fas fa-image fa-4x text-muted"></i>
-                                        @endif
-                                        @if($badgeLabel)
-                                            <span class="position-absolute top-0 start-0 m-2 px-2 py-1 text-white fw-bold" style="background: {{ $badgeColor }}; border-radius: 5px; font-size: 0.75rem;">
-                                                {{ $badgeLabel }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                    
-                                    <!-- Product Card Body -->
-                                    <div class="card-body p-3">
-                                        <!-- Category -->
-                                        <p class="text-muted small mb-1" style="font-size: 0.75rem; color: #999;">{{ $product->category->name ?? 'Uncategorized' }}</p>
+                                <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none" style="color: inherit;">
+                                    <div class="card product-card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer;">
+                                        <!-- Product Image with Badge -->
+                                        <div class="position-relative" style="height: 220px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                            @if($product->images && is_array($product->images) && count($product->images) > 0)
+                                                <img src="{{ asset('storage/' . $product->images[0]) }}" alt="{{ $product->name }}" style="max-width: 100%; max-height: 100%; object-fit: contain; padding: 15px;">
+                                            @else
+                                                <i class="fas fa-image fa-4x text-muted"></i>
+                                            @endif
+                                            @if($badgeLabel)
+                                                <span class="position-absolute top-0 start-0 m-2 px-2 py-1 text-white fw-bold" style="background: {{ $badgeColor }}; border-radius: 5px; font-size: 0.75rem;">
+                                                    {{ $badgeLabel }}
+                                                </span>
+                                            @endif
+                                        </div>
                                         
-                                        <!-- Product Name -->
-                                        <h6 class="card-title mb-2 fw-bold" style="font-size: 0.95rem; color: #333; line-height: 1.3; min-height: 38px;">
-                                            <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none text-dark">
+                                        <!-- Product Card Body -->
+                                        <div class="card-body p-3">
+                                            <!-- Category -->
+                                            <p class="text-muted small mb-1" style="font-size: 0.75rem; color: #999;">{{ $product->category->name ?? 'Uncategorized' }}</p>
+                                            
+                                            <!-- Product Name -->
+                                            <h6 class="card-title mb-2 fw-bold" style="font-size: 0.95rem; color: #333; line-height: 1.3; min-height: 38px;">
                                                 {{ Str::limit($product->name, 60) }}
-                                            </a>
-                                        </h6>
+                                            </h6>
                                         
                                         <!-- Rating -->
                                         <div class="mb-2">
@@ -236,7 +235,7 @@ use Illuminate\Support\Facades\Storage;
                                                     </span>
                                                 @endif
                                             </div>
-                                            <form action="{{ route('cart.add') }}" method="POST" class="d-inline">
+                                            <form action="{{ route('cart.add') }}" method="POST" class="d-inline" onclick="event.stopPropagation();">
                                                 @csrf
                                                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                                                 <input type="hidden" name="quantity" value="1">
@@ -255,6 +254,7 @@ use Illuminate\Support\Facades\Storage;
                                         @endif
                                     </div>
                                 </div>
+                                </a>
                             </div>
                         @endforeach
                     </div>
@@ -270,6 +270,15 @@ use Illuminate\Support\Facades\Storage;
             .product-card:hover {
                 transform: translateY(-5px);
                 box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+            }
+            .product-card-wrapper > a {
+                display: block;
+                text-decoration: none;
+                color: inherit;
+            }
+            .product-card-wrapper > a:hover {
+                text-decoration: none;
+                color: inherit;
             }
             
             .product-filter-btn.active {
