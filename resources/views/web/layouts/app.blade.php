@@ -451,7 +451,7 @@
                         @if($aboutPage)
                             <li class="nav-item"><a href="{{ route('pages.show', $aboutPage->slug) }}" class="nav-link" style="color: var(--text-dark) !important;">About</a></li>
                         @else
-                            <li class="nav-item"><a href="{{ route('home') }}#about" class="nav-link" style="color: var(--text-dark) !important;">About</a></li>
+                            <li class="nav-item"><a href="https://yendiapharmacy.com/about/" class="nav-link" style="color: var(--text-dark) !important;">About</a></li>
                         @endif
                         
                         @if(isset($navbarCategories) && $navbarCategories->count() > 0)
@@ -461,8 +461,11 @@
                                 </li>
                             @endforeach
                         @endif
+                        <li class="nav-item"><a href="https://yendiapharmacy.com/services/" class="nav-link" style="color: var(--text-dark) !important;">Marketing</a></li>
+                        <li class="nav-item"><a href="https://yendiapharmacy.com/why-parter-us/" class="nav-link" style="color: var(--text-dark) !important;">Why Partner Us?</a></li>
+
                         
-                        <li class="nav-item"><a href="{{ route('home') }}#contact" class="nav-link" style="color: var(--text-dark) !important;">Contact</a></li>
+                        <li class="nav-item"><a href="https://yendiapharmacy.com/contact/" class="nav-link" style="color: var(--text-dark) !important;">Contact</a></li>
                     </ul>
                 </div>
             </div>

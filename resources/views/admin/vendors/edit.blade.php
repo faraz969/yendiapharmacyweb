@@ -19,6 +19,12 @@
                 <div>
                     <img src="{{ Storage::url($vendor->logo) }}" alt="{{ $vendor->name }}" style="max-height: 80px; border-radius: 5px;">
                 </div>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="remove_logo" name="remove_logo">
+                    <label class="form-check-label" for="remove_logo">
+                        Remove logo
+                    </label>
+                </div>
             </div>
             @endif
             

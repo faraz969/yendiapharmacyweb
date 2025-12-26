@@ -76,6 +76,14 @@ class VendorController extends Controller
             $validated['logo'] = $request->file('logo')->store('vendors', 'public');
         }
 
+        // Handle remove logo option
+        if ($request->has('remove_logo')) {
+            if ($vendor->logo && Storage::disk('public')->exists($vendor->logo)) {
+                Storage::disk('public')->delete($vendor->logo);
+            }
+            $validated['logo'] = null;
+        }
+
         $validated['is_active'] = $request->has('is_active');
         $vendor->update($validated);
 
