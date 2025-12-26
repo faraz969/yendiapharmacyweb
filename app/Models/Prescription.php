@@ -11,11 +11,14 @@ class Prescription extends Model
 
     protected $fillable = [
         'user_id',
+        'branch_id',
         'approved_by',
         'prescription_number',
         'doctor_name',
         'patient_name',
         'prescription_date',
+        'customer_phone',
+        'customer_email',
         'status',
         'file_path',
         'notes',
@@ -31,6 +34,11 @@ class Prescription extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     public function approvedBy()

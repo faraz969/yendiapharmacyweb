@@ -19,6 +19,7 @@ class Product extends Model
         'images',
         'video',
         'selling_price',
+        'discount',
         'cost_price',
         'purchase_unit',
         'selling_unit',
@@ -36,6 +37,7 @@ class Product extends Model
     protected $casts = [
         'images' => 'array',
         'selling_price' => 'decimal:2',
+        'discount' => 'decimal:2',
         'cost_price' => 'decimal:2',
         'conversion_factor' => 'integer',
         'requires_prescription' => 'boolean',

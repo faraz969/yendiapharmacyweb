@@ -162,6 +162,21 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="discount" class="form-label">Discount Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" step="0.01" class="form-control @error('discount') is-invalid @enderror" id="discount" name="discount" value="{{ old('discount', $product->discount) }}" min="0">
+                                </div>
+                                @error('discount')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted">Enter discount amount (e.g., 10.00 for $10 off)</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -70,11 +70,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}/track', [OrderController::class, 'track']);
     });
     
-    // Prescriptions
+    // Prescriptions (can be accessed by guests)
     Route::prefix('prescriptions')->group(function () {
         Route::get('/', [PrescriptionController::class, 'index']);
         Route::post('/', [PrescriptionController::class, 'store']);
         Route::get('/{id}', [PrescriptionController::class, 'show']);
+    });
+    
+    // Item Requests (can be accessed by guests)
+    Route::prefix('item-requests')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\ItemRequestController::class, 'index']);
+        Route::post('/', [\App\Http\Controllers\Api\ItemRequestController::class, 'store']);
+        Route::get('/{id}', [\App\Http\Controllers\Api\ItemRequestController::class, 'show']);
     });
     
     // Profile

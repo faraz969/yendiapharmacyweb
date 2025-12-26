@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\ItemRequestController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 
 /*
@@ -59,6 +60,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('prescriptions', PrescriptionController::class);
         Route::post('/prescriptions/{prescription}/approve', [PrescriptionController::class, 'approve'])->name('prescriptions.approve');
         Route::post('/prescriptions/{prescription}/reject', [PrescriptionController::class, 'reject'])->name('prescriptions.reject');
+        Route::get('/prescriptions/{prescription}/download', [PrescriptionController::class, 'download'])->name('prescriptions.download');
+        
+        // Item Requests
+        Route::resource('item-requests', ItemRequestController::class);
+        Route::post('/item-requests/{itemRequest}/update-status', [ItemRequestController::class, 'updateStatus'])->name('item-requests.update-status');
         
         // Delivery Zones
         Route::resource('delivery-zones', DeliveryZoneController::class);
