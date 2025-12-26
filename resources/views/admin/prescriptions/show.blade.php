@@ -19,17 +19,32 @@
                         <strong>Patient Name:</strong> {{ $prescription->patient_name }}
                     </div>
                     <div class="col-md-6">
-                        <strong>Doctor Name:</strong> {{ $prescription->doctor_name }}
+                        <strong>Doctor Name:</strong> {{ $prescription->doctor_name ?? 'N/A' }}
                     </div>
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <strong>Prescription Date:</strong> {{ $prescription->prescription_date->format('M d, Y') }}
+                        <strong>Customer Phone:</strong> {{ $prescription->customer_phone ?? 'N/A' }}
                     </div>
                     <div class="col-md-6">
-                        <strong>Submitted By:</strong> {{ $prescription->user->name ?? 'N/A' }}
+                        <strong>Customer Email:</strong> {{ $prescription->customer_email ?? 'N/A' }}
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Prescription Date:</strong> {{ $prescription->prescription_date ? $prescription->prescription_date->format('M d, Y') : 'N/A' }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Submitted By:</strong> {{ $prescription->user->name ?? 'Guest' }}
+                    </div>
+                </div>
+                @if($prescription->branch)
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Branch:</strong> {{ $prescription->branch->name }}
+                    </div>
+                </div>
+                @endif
                 @if($prescription->notes)
                     <div class="mb-3">
                         <strong>Notes:</strong>
@@ -145,4 +160,5 @@
     </a>
 </div>
 @endsection
+
 

@@ -12,10 +12,22 @@
         <!-- Filters -->
         <form method="GET" action="{{ route('admin.prescriptions.index') }}" class="mb-4">
             <div class="row g-3">
-                <div class="col-md-8">
-                    <input type="text" name="search" class="form-control" placeholder="Search by prescription number, doctor name, or patient name..." value="{{ request('search') }}">
+                <div class="col-md-6">
+                    <input type="text" name="search" class="form-control" placeholder="Search by prescription number, doctor name, patient name, or phone..." value="{{ request('search') }}">
                 </div>
-                <div class="col-md-3">
+                @if(isset($branches) && $branches)
+                <div class="col-md-2">
+                    <select name="branch_id" class="form-select">
+                        <option value="">All Branches</option>
+                        @foreach($branches as $branch)
+                            <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>
+                                {{ $branch->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+                <div class="col-md-2">
                     <select name="status" class="form-select">
                         <option value="">All Status</option>
                         @foreach($statuses as $status)
@@ -25,9 +37,9 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-1">
+                <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-filter"></i>
+                        <i class="fas fa-filter"></i> Filter
                     </button>
                 </div>
             </div>
@@ -39,6 +51,7 @@
                     <tr>
                         <th>Prescription #</th>
                         <th>Patient</th>
+                        <th>Phone</th>
                         <th>Doctor</th>
                         <th>Date</th>
                         <th>User</th>
@@ -51,8 +64,9 @@
                         <tr>
                             <td><code>{{ $prescription->prescription_number }}</code></td>
                             <td>{{ $prescription->patient_name }}</td>
-                            <td>{{ $prescription->doctor_name }}</td>
-                            <td>{{ $prescription->prescription_date->format('M d, Y') }}</td>
+                            <td>{{ $prescription->customer_phone ?? 'N/A' }}</td>
+                            <td>{{ $prescription->doctor_name ?? 'N/A' }}</td>
+                            <td>{{ $prescription->prescription_date ? $prescription->prescription_date->format('M d, Y') : 'N/A' }}</td>
                             <td>{{ $prescription->user->name ?? 'N/A' }}</td>
                             <td>
                                 @php
@@ -75,7 +89,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center">No prescriptions found.</td>
+                            <td colspan="8" class="text-center">No prescriptions found.</td>
                         </tr>
                     @endforelse
                 </tbody>
