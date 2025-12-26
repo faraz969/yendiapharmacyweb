@@ -61,7 +61,7 @@
                 </div>
 
                 <div class="mt-3">
-                    <a href="{{ route('products.index') }}" class="btn btn-outline-primary">
+                    <a href="{{ route('products.index') }}" class="btn btn-primary">
                         <i class="fas fa-arrow-left me-2"></i>Continue Shopping
                     </a>
                     <form action="{{ route('cart.clear') }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to clear your cart?');">
@@ -76,7 +76,7 @@
 
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header  text-white" style="background-color:#dc8423;">
                         <h5 class="mb-0">Order Summary</h5>
                     </div>
                     <div class="card-body">
@@ -91,7 +91,7 @@
                         <hr>
                         <div class="d-flex justify-content-between mb-3">
                             <span class="fw-bold">Total:</span>
-                            <span class="fw-bold text-primary fs-5">{{ \App\Models\Setting::formatPrice($total) }}</span>
+                            <span class="fw-bold  fs-5" style="color:#dc8423;">{{ \App\Models\Setting::formatPrice($total) }}</span>
                         </div>
                         <a href="{{ route('checkout.index') }}" class="btn btn-primary w-100 btn-lg">
                             <i class="fas fa-credit-card me-2"></i>Proceed to Checkout

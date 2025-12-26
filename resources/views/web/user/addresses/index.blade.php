@@ -6,7 +6,7 @@
 <div class="container my-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>
-            <i class="fas fa-map-marker-alt text-primary me-2"></i>Delivery Addresses
+            <i class="fas fa-map-marker-alt  me-2" style="color:#dc8423;"></i>Delivery Addresses
         </h2>
         <a href="{{ route('user.addresses.create') }}" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>Add New Address
@@ -22,10 +22,10 @@
         <div class="row">
             @foreach($addresses as $address)
                 <div class="col-md-6 mb-4">
-                    <div class="card h-100 {{ $address->is_default ? 'border-primary' : '' }}">
+                    <div class="card h-100 {{ $address->is_default ? 'border-dc8423' : '' }}">
                         <div class="card-body">
                             @if($address->is_default)
-                                <span class="badge bg-primary mb-2">Default Address</span>
+                                <span class="badge " style="background-color:#dc8423;">Default Address</span>
                             @endif
                             @if($address->label)
                                 <h5 class="card-title">{{ $address->label }}</h5>

@@ -5,7 +5,7 @@
 @section('content')
 <div class="container my-5">
     <h2 class="mb-4">
-        <i class="fas fa-shopping-bag text-primary me-2"></i>My Orders
+        <i class="fas fa-shopping-bag  me-2" style="color:#dc8423;"></i>My Orders
     </h2>
 
     <div class="card shadow">

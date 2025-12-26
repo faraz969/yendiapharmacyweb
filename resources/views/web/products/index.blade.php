@@ -8,7 +8,7 @@
         <!-- Sidebar Filters -->
         <div class="col-md-3">
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header  text-white" style="background-color: #dc8423">
                     <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filters</h5>
                 </div>
                 <div class="card-body">
@@ -99,7 +99,7 @@
                                             </button>
                                         </form>
                                     </div>
-                                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-primary btn-sm w-100 mt-2">
+                                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-primary btn-sm w-100 mt-2">
                                         View Details
                                     </a>
                                 </div>

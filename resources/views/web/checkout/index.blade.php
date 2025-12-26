@@ -12,7 +12,7 @@
             <div class="col-md-8">
                 <!-- Customer Information -->
                 <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header  text-white" style="background-color:#dc8423;">
                         <h5 class="mb-0"><i class="fas fa-user me-2"></i>Customer Information</h5>
                     </div>
                     <div class="card-body">
@@ -91,7 +91,7 @@
                                                         <label class="form-check-label" for="address_{{ $address->id }}">
                                                             <strong>{{ $address->label ?: 'Address #' . $address->id }}</strong>
                                                             @if($address->is_default)
-                                                                <span class="badge bg-primary ms-2">Default</span>
+                                                                <span class="badge  ms-2" style="background-color:#dc8423;">Default</span>
                                                             @endif
                                                             <br>
                                                             <small class="text-muted">
@@ -126,7 +126,7 @@
 
                 <!-- Delivery Information -->
                 <div class="card mb-4" id="deliveryForm">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header  text-white" style="background-color:#dc8423;">
                         <h5 class="mb-0"><i class="fas fa-truck me-2"></i>Delivery Information</h5>
                     </div>
                     <div class="card-body">
@@ -213,7 +213,7 @@
 
                 <!-- Order Items -->
                 <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header  text-white" style="background-color:#dc8423;">
                         <h5 class="mb-0"><i class="fas fa-shopping-bag me-2"></i>Order Items</h5>
                     </div>
                     <div class="card-body">
@@ -250,7 +250,7 @@
 
             <div class="col-md-4">
                 <div class="card sticky-top" style="top: 20px;">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header  text-white" style="background-color:#dc8423;">
                         <h5 class="mb-0">Order Summary</h5>
                     </div>
                     <div class="card-body">
@@ -265,7 +265,7 @@
                         <hr>
                         <div class="d-flex justify-content-between mb-3">
                             <span class="fw-bold">Total:</span>
-                            <span class="fw-bold text-primary fs-4">{{ \App\Models\Setting::getCurrencySymbol() }}<span id="total">{{ number_format($total, 2) }}</span></span>
+                            <span class="fw-bold  fs-4" style="color:#dc8423;">{{ \App\Models\Setting::getCurrencySymbol() }}<span id="total">{{ number_format($total, 2) }}</span></span>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 btn-lg">
                             <i class="fas fa-check me-2"></i>Place Order

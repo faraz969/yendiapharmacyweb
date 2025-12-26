@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card shadow">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <div class="card-header  text-white d-flex justify-content-between align-items-center" style="background-color:#dc8423;">
                     <h4 class="mb-0">
                         <i class="fas fa-shopping-bag me-2"></i>Order Details
                     </h4>

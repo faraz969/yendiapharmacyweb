@@ -5,7 +5,7 @@
 @section('content')
 <div class="container my-5">
     <h2 class="mb-4">
-        <i class="fas fa-plus text-primary me-2"></i>Add New Address
+        <i class="fas fa-plus  me-2" style="color:#dc8423;"></i>Add New Address
     </h2>
 
     <div class="row">

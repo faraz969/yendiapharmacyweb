@@ -14,13 +14,13 @@
         @endif
     @endauth
     <h2 class="mb-4">
-        <i class="fas fa-tachometer-alt text-primary me-2"></i>My Dashboard
+        <i class="fas fa-tachometer-alt  me-2" style="color:#dc8423;"></i>My Dashboard
     </h2>
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
         <div class="col-md-4">
-            <div class="card bg-primary text-white">
+            <div class="card  text-white" style="background-color:#dc8423;">
                 <div class="card-body">
                     <h5 class="card-title">
                         <i class="fas fa-shopping-bag me-2"></i>Total Orders
@@ -101,7 +101,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('user.orders.show', $order->id) }}" class="btn btn-sm btn-primary">
+                                        <a href="{{ route('user.orders.show', $order->id) }}" class="btn btn-sm btn-primary" ">
                                             <i class="fas fa-eye"></i> View
                                         </a>
                                     </td>
@@ -126,8 +126,8 @@
     </div>
 
     <div class="mt-3">
-        <a href="{{ route('user.orders.index') }}" class="btn btn-outline-primary">
-            <i class="fas fa-list me-2"></i>View All Orders
+        <a href="{{ route('user.orders.index') }}" class="btn " style="color:#dc8423; border-color:#dc8423;">
+            <i class="fas fa-list me-2" style="color:#dc8423;"></i>View All Orders
         </a>
     </div>
 </div>

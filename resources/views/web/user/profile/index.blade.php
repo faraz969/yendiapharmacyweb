@@ -5,7 +5,7 @@
 @section('content')
 <div class="container my-5">
     <h2 class="mb-4">
-        <i class="fas fa-user text-primary me-2"></i>My Profile
+        <i class="fas fa-user  me-2" style="color:#dc8423;"></i>My Profile
     </h2>
 
     <div class="row">
@@ -50,7 +50,7 @@
                                 <label for="date_of_birth" class="form-label">Date of Birth</label>
                                 <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror" 
                                        id="date_of_birth" name="date_of_birth" 
-                                       value="{{ old('date_of_birth', $profile->date_of_birth?->format('Y-m-d') ?? '') }}">
+                                       value="{{ old('date_of_birth', $profile && $profile->date_of_birth ? $profile->date_of_birth->format('Y-m-d') : '') }}">
                                 @error('date_of_birth')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -142,18 +142,18 @@
                     <h5 class="card-title">Quick Links</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2">
-                            <a href="{{ route('user.dashboard') }}" class="text-decoration-none">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            <a href="{{ route('user.dashboard') }}" class="text-decoration-none" style="color:#dc8423;">
+                                <i class="fas fa-tachometer-alt me-2" style="color:#dc8423;"></i>Dashboard
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="{{ route('user.orders.index') }}" class="text-decoration-none">
-                                <i class="fas fa-shopping-bag me-2"></i>My Orders
+                            <a href="{{ route('user.orders.index') }}" class="text-decoration-none" style="color:#dc8423;">
+                                <i class="fas fa-shopping-bag me-2" style="color:#dc8423;"></i>My Orders
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="{{ route('user.addresses.index') }}" class="text-decoration-none">
-                                <i class="fas fa-map-marker-alt me-2"></i>Delivery Addresses
+                            <a href="{{ route('user.addresses.index') }}" class="text-decoration-none" style="color:#dc8423;">
+                                <i class="fas fa-map-marker-alt me-2" style="color:#dc8423;"></i>Delivery Addresses
                             </a>
                         </li>
                         <li class="mb-2">

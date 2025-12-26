@@ -45,7 +45,7 @@
             @endif
 
             <div class="mb-4">
-                <h2 class="text-primary mb-0">{{ \App\Models\Setting::formatPrice($product->selling_price) }}</h2>
+                <h2 class=" mb-0" style="color: #dc8423">{{ \App\Models\Setting::formatPrice($product->selling_price) }}</h2>
                 @if($product->track_batch)
                     <p class="text-muted mb-0">
                         <i class="fas fa-check-circle text-success me-1"></i>
