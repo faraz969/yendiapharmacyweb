@@ -212,6 +212,19 @@
                     <i class="fas fa-file-invoice"></i> Orders
                 </a>
             </li>
+            @if(Auth::user()->isBranchStaff())
+                {{-- Branch staff menu items --}}
+                <li>
+                    <a href="{{ route('branch.prescriptions.index') }}" class="{{ request()->routeIs('branch.prescriptions.*') ? 'active' : '' }}">
+                        <i class="fas fa-prescription"></i> Prescriptions
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('branch.item-requests.index') }}" class="{{ request()->routeIs('branch.item-requests.*') ? 'active' : '' }}">
+                        <i class="fas fa-inbox"></i> Item Requests
+                    </a>
+                </li>
+            @endif
             
             @if(!Auth::user()->isBranchStaff())
                 {{-- Only show these menu items for non-branch staff (admins/managers) --}}
@@ -238,6 +251,11 @@
                 <li>
                     <a href="{{ route('admin.prescriptions.index') }}" class="{{ request()->routeIs('admin.prescriptions.*') ? 'active' : '' }}">
                         <i class="fas fa-prescription"></i> Prescriptions
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.item-requests.index') }}" class="{{ request()->routeIs('admin.item-requests.*') ? 'active' : '' }}">
+                        <i class="fas fa-inbox"></i> Item Requests
                     </a>
                 </li>
                 <li>

@@ -92,4 +92,15 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(function () {
 Route::middleware('auth')->prefix('branch')->name('branch.')->group(function () {
     Route::get('/dashboard', [BranchDashboardController::class, 'index'])->name('dashboard');
     Route::get('/orders/{order}', [BranchDashboardController::class, 'show'])->name('orders.show');
+    
+    // Prescriptions
+    Route::get('/prescriptions', [BranchDashboardController::class, 'prescriptions'])->name('prescriptions.index');
+    Route::get('/prescriptions/{prescription}', [BranchDashboardController::class, 'showPrescription'])->name('prescriptions.show');
+    Route::post('/prescriptions/{prescription}/approve', [BranchDashboardController::class, 'approvePrescription'])->name('prescriptions.approve');
+    Route::post('/prescriptions/{prescription}/reject', [BranchDashboardController::class, 'rejectPrescription'])->name('prescriptions.reject');
+    
+    // Item Requests
+    Route::get('/item-requests', [BranchDashboardController::class, 'itemRequests'])->name('item-requests.index');
+    Route::get('/item-requests/{itemRequest}', [BranchDashboardController::class, 'showItemRequest'])->name('item-requests.show');
+    Route::post('/item-requests/{itemRequest}/update-status', [BranchDashboardController::class, 'updateItemRequestStatus'])->name('item-requests.update-status');
 });
