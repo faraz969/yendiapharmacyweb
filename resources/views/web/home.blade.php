@@ -161,7 +161,7 @@ use Illuminate\Support\Facades\Storage;
                                 <div class="row align-items-center w-100 g-0">
                                     <!-- Left Side: Text Content -->
                                     <div class="col-6">
-                                        <h3 class="mb-2 fw-bold" style="color: #1f2937; font-size: 1.3rem; line-height: 1.3;">
+                                        <h3 class="mb-2 fw-bold" style="color: #1f2937; font-size: 1rem; line-height: 1.3;">
                                             {{ $marketingBanner->title }}
                                         </h3>
                                         @if($marketingBanner->description)
