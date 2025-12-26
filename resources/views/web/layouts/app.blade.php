@@ -445,14 +445,11 @@
                 <div class="col-md-9">
                     <ul class="nav mb-0">
                         <li class="nav-item"><a href="{{ route('home') }}" class="nav-link" style="color: var(--text-dark) !important;">Home</a></li>
-                        @php
-                            $aboutPage = \App\Models\Page::where('slug', 'about-us')->where('is_active', true)->first();
-                        @endphp
-                        @if($aboutPage)
-                            <li class="nav-item"><a href="{{ route('pages.show', $aboutPage->slug) }}" class="nav-link" style="color: var(--text-dark) !important;">About</a></li>
-                        @else
+                       
+                           
+                        
                             <li class="nav-item"><a href="https://yendiapharmacy.com/about/" class="nav-link" style="color: var(--text-dark) !important;">About</a></li>
-                        @endif
+                        
                         
                         @if(isset($navbarCategories) && $navbarCategories->count() > 0)
                             @foreach($navbarCategories as $category)
@@ -581,7 +578,7 @@
                             $privacyPage = \App\Models\Page::where('slug', 'privacy-policy')->where('is_active', true)->first();
                         @endphp
                         @if($aboutPage)
-                            <li><a href="{{ route('pages.show', $aboutPage->slug) }}" class="text-white-50">About Us</a></li>
+                            <li><a href="https://yendiapharmacy.com/about/" class="text-white-50">About Us</a></li>
                         @endif
                         @if($privacyPage)
                             <li><a href="{{ route('pages.show', $privacyPage->slug) }}" class="text-white-50">Privacy Policy</a></li>
