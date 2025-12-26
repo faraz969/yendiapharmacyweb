@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
         $firstBanner = $banners->first();
         $bannerImage = $firstBanner && $firstBanner->image ? Storage::url($firstBanner->image) : null;
     @endphp
-    <section class="hero-banner-section mb-4" style="background: linear-gradient(135deg, rgba(21, 141, 67, 0.1) 0%, rgba(21, 141, 67, 0.05) 100%), url('{{ $bannerImage }}') center center/cover no-repeat; padding: 80px 0; position: relative; overflow: hidden; min-height: 450px; margin-top:20px; border-radius:50px; margin-left:8px; margin-right:8px;">
+    <section class="hero-banner-section mb-4" style="background: linear-gradient(135deg, rgba(21, 141, 67, 0.1) 0%, rgba(21, 141, 67, 0.05) 100%), url('{{ $bannerImage }}') center center/cover no-repeat; padding: 80px 0; position: relative; overflow: hidden; min-height: 450px; margin-top:20px; border-radius:30px; margin-left:8px; margin-right:8px;">
         <div class="container position-relative" style="z-index: 2;">
             <div class="row align-items-center">
                 <div class="col-md-6">
