@@ -241,6 +241,28 @@
         .search-box button:hover {
             background: #0f6b32;
         }
+        
+        /* New Search Bar Styles */
+        .search-bar-form {
+            width: 100%;
+        }
+        
+        .search-bar-container:focus-within {
+            border-color: #158d43 !important;
+            box-shadow: 0 0 0 2px rgba(21, 141, 67, 0.1);
+        }
+        
+        .search-category-dropdown select:focus {
+            outline: none;
+        }
+        
+        .search-input-wrapper input:focus {
+            outline: none;
+        }
+        
+        .search-icon-wrapper button:hover {
+            color: #158d43 !important;
+        }
     </style>
     @stack('styles')
 </head>
@@ -284,9 +306,9 @@
     <!-- Main Header -->
     <header class="main-header bg-white border-bottom py-3">
         <div class="container">
-            <div class="row align-items-center">
+            <div class="row align-items-center g-0">
                 <!-- Logo -->
-                <div class="col-md-2">
+                <div class="col-md-2 col-lg-2">
                     <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
                         <img src="{{ \App\Models\Setting::getHeaderLogo() }}" alt="YENDIA Pharmacy" style="height: 50px; width: auto; margin-right: 10px;">
                        
@@ -294,40 +316,53 @@
                 </div>
                 
                 <!-- Search Bar -->
-                <div class="col-md-6">
-                    <form action="{{ route('products.index') }}" method="GET" class="d-flex" style="margin: 0 20px;">
-                        <select class="form-select rounded-0 rounded-start" name="category" style="max-width: 150px; border: 2px solid var(--green-color);">
-                            <option value="">All Categories</option>
-                            @if(isset($categories))
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
-                                @endforeach
-                            @endif
-                        </select>
-                        <input type="text" name="search" class="form-control rounded-0" placeholder="Search for items..." value="{{ request('search') }}" style="border: 2px solid var(--green-color); border-left: none; border-right: none;">
-                        <button type="submit" class="btn rounded-0 rounded-end" style="background: var(--green-color); border: 2px solid var(--green-color); border-left: none; color: white;">
-                            <i class="fas fa-search"></i>
-                        </button>
+                <div class="col-md-7 col-lg-7">
+                    <form action="{{ route('products.index') }}" method="GET" class="search-bar-form" style="margin: 0 10px;">
+                        <div class="search-bar-container" style="display: flex; align-items: center; background: white; border: 1px solid #a5d6a7; border-radius: 8px; padding: 0; overflow: hidden;">
+                            <!-- All Categories Dropdown -->
+                            <div class="search-category-dropdown" style="position: relative; padding: 10px 15px; border-right: 1px solid #e5e7eb;">
+                                <select name="category" class="form-select border-0 shadow-none" style="padding: 0; font-size: 0.95rem; color: #1e3a8a; background: transparent; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23999\"><path d=\"M7 10l5 5 5-5z\"/></svg>'); background-repeat: no-repeat; background-position: right 0 center; background-size: 16px; padding-right: 25px;">
+                                    <option value="">All Categories</option>
+                                    @if(isset($categories))
+                                        @foreach($categories as $category)
+                                            <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <!-- Search Input -->
+                            <div class="search-input-wrapper" style="flex: 1; position: relative;">
+                                <input type="text" name="search" class="form-control border-0 shadow-none" placeholder="Search for items..." value="{{ request('search') }}" style="padding: 10px 15px; font-size: 0.95rem; background: transparent;">
+                            </div>
+                            <!-- Search Icon -->
+                            <div class="search-icon-wrapper" style="padding: 10px 15px; border-left: 1px solid #e5e7eb;">
+                                <button type="submit" class="btn border-0 shadow-none p-0" style="background: transparent; color: #999;">
+                                    <i class="fas fa-search" style="font-size: 1rem;"></i>
+                                </button>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 
                 <!-- User Actions -->
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center justify-content-end">
+                <div class="col-md-3 col-lg-3">
+                    <div class="d-flex align-items-center justify-content-end gap-4">
                        
-                        <a href="{{ route('cart.index') }}" class="text-decoration-none text-dark me-4 position-relative">
-                            <i class="fas fa-shopping-cart fs-5"></i>
+                        <a href="{{ route('cart.index') }}" class="text-decoration-none d-flex align-items-center position-relative" style="color: #4b5563;">
+                            <i class="fas fa-shopping-cart" style="font-size: 1.25rem; color: #4b5563;"></i>
                             @php
                                 $cartCount = count(session()->get('cart', []));
                             @endphp
                             @if($cartCount > 0)
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">{{ $cartCount }}</span>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #158d43; font-size: 0.65rem; padding: 2px 6px; margin-left: -8px; margin-top: -5px;">{{ $cartCount }}</span>
                             @endif
+                            <span class="ms-2" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Cart</span>
                         </a>
                         @auth
-                            <div class="dropdown me-4">
-                                <a href="#" class="text-decoration-none text-dark dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle fs-5"></i>
+                            <div class="dropdown">
+                                <a href="#" class="text-decoration-none d-flex align-items-center dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #4b5563;">
+                                    <i class="fas fa-user" style="font-size: 1.25rem; color: #4b5563;"></i>
+                                    <span class="ms-2" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Account</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li>
@@ -374,8 +409,9 @@
                                 </ul>
                             </div>
                         @else
-                            <a href="{{ route('login') }}" class="text-decoration-none text-dark me-4">
-                                <i class="fas fa-user-circle fs-5"></i>
+                            <a href="{{ route('login') }}" class="text-decoration-none d-flex align-items-center" style="color: #4b5563;">
+                                <i class="fas fa-user" style="font-size: 1.25rem; color: #4b5563;"></i>
+                                <span class="ms-2" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Account</span>
                             </a>
                         @endauth
                         
@@ -386,10 +422,10 @@
     </header>
 
     <!-- Main Navigation Bar -->
-    <nav class="main-navbar" style="background: white !important; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
+    <nav class="main-navbar" style="background: white !important; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; padding-top:10px; padding-bottom:10px;">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-3">
+                <div class="col-md-3" style="border-right: 1px solid #e5e7eb;">
                     <div class="dropdown">
                         <button class="btn w-100 text-start py-3 fw-bold text-white dropdown-toggle" type="button" id="browseCategoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: var(--green-color); border: none;">
                             <i class="fas fa-bars me-2"></i>Browse All Categories

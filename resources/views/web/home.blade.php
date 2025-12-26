@@ -73,10 +73,10 @@ use Illuminate\Support\Facades\Storage;
                 
                 
                 <!-- Category Icons Container -->
-                <div class="category-icons-wrapper" style="position: relative; overflow: hidden;">
+                <div class="category-icons-wrapper" style="position: relative; overflow: visible; padding: 20px 0;">
                     <div class="category-icons-container d-flex gap-4 justify-content-center flex-wrap" id="categoryIconsContainer">
                         @foreach($featuredCategories as $index => $category)
-                            <a href="{{ route('products.category', $category->id) }}" class="text-decoration-none category-icon-link" style="flex: 0 0 auto; text-align: center; transition: transform 0.3s;">
+                            <a href="{{ route('products.category', $category->id) }}" class="text-decoration-none category-icon-link" style="flex: 0 0 auto; text-align: center; transition: transform 0.3s; padding: 10px;">
                                 <div class="category-icon-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
                                     <!-- Round Icon -->
                                     <div class="category-icon-circle" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; border: 3px solid #a5d6a7;">
@@ -110,10 +110,16 @@ use Illuminate\Support\Facades\Storage;
             .category-icon-link:hover .category-icon-circle {
                 transform: scale(1.1);
                 box-shadow: 0 6px 20px rgba(21, 141, 67, 0.3);
+                z-index: 10;
+                position: relative;
             }
             
             .category-icon-link:hover .category-name {
                 color: #158d43;
+            }
+            
+            .category-icon-wrapper {
+                position: relative;
             }
         </style>
     @endif
