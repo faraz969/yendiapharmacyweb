@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Pharmacy E-Commerce') - Your Trusted Pharmacy</title>
+    <link rel="icon" type="image/x-icon" href="{{ \App\Models\Setting::getFavicon() }}">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,6 +13,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Geist Sans Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -32,7 +37,7 @@
         }
         
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: "Inter", "Geist Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             color: var(--text-dark);
             background-color: #ffffff;
         }
@@ -72,14 +77,14 @@
         }
         
         .main-navbar .nav-link {
-            color: white !important;
+            color: var(--text-dark) !important;
             padding: 1rem 1.5rem !important;
             font-weight: 500;
-            transition: background 0.3s;
+            transition: color 0.3s;
         }
         
         .main-navbar .nav-link:hover {
-            background: rgba(0,0,0,0.1);
+            color: var(--green-color) !important;
         }
         
         .main-navbar .dropdown-menu {
@@ -290,8 +295,8 @@
                 
                 <!-- Search Bar -->
                 <div class="col-md-6">
-                    <form action="{{ route('products.index') }}" method="GET" class="d-flex">
-                        <select class="form-select rounded-0 rounded-start" name="category" style="max-width: 150px;">
+                    <form action="{{ route('products.index') }}" method="GET" class="d-flex" style="margin: 0 20px;">
+                        <select class="form-select rounded-0 rounded-start" name="category" style="max-width: 150px; border: 2px solid var(--green-color);">
                             <option value="">All Categories</option>
                             @if(isset($categories))
                                 @foreach($categories as $category)
@@ -299,8 +304,8 @@
                                 @endforeach
                             @endif
                         </select>
-                        <input type="text" name="search" class="form-control rounded-0" placeholder="Search for items..." value="{{ request('search') }}">
-                        <button type="submit" class="btn rounded-0 rounded-end" style="background: var(--green-color); border-color: var(--green-color); color: white;">
+                        <input type="text" name="search" class="form-control rounded-0" placeholder="Search for items..." value="{{ request('search') }}" style="border: 2px solid var(--green-color); border-left: none; border-right: none;">
+                        <button type="submit" class="btn rounded-0 rounded-end" style="background: var(--green-color); border: 2px solid var(--green-color); border-left: none; color: white;">
                             <i class="fas fa-search"></i>
                         </button>
                     </form>
@@ -381,12 +386,12 @@
     </header>
 
     <!-- Main Navigation Bar -->
-    <nav class="main-navbar bg-success">
+    <nav class="main-navbar" style="background: white !important; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-3">
                     <div class="dropdown">
-                        <button class="btn w-100 text-start py-3 fw-bold text-white dropdown-toggle" type="button" id="browseCategoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: rgba(0,0,0,0.1);">
+                        <button class="btn w-100 text-start py-3 fw-bold text-white dropdown-toggle" type="button" id="browseCategoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: var(--green-color); border: none;">
                             <i class="fas fa-bars me-2"></i>Browse All Categories
                         </button>
                         <ul class="dropdown-menu w-100" aria-labelledby="browseCategoriesDropdown">
@@ -403,25 +408,25 @@
                 </div>
                 <div class="col-md-9">
                     <ul class="nav mb-0">
-                        <li class="nav-item"><a href="{{ route('home') }}" class="nav-link text-white">Home</a></li>
+                        <li class="nav-item"><a href="{{ route('home') }}" class="nav-link" style="color: var(--text-dark) !important;">Home</a></li>
                         @php
                             $aboutPage = \App\Models\Page::where('slug', 'about-us')->where('is_active', true)->first();
                         @endphp
                         @if($aboutPage)
-                            <li class="nav-item"><a href="{{ route('pages.show', $aboutPage->slug) }}" class="nav-link text-white">About</a></li>
+                            <li class="nav-item"><a href="{{ route('pages.show', $aboutPage->slug) }}" class="nav-link" style="color: var(--text-dark) !important;">About</a></li>
                         @else
-                            <li class="nav-item"><a href="{{ route('home') }}#about" class="nav-link text-white">About</a></li>
+                            <li class="nav-item"><a href="{{ route('home') }}#about" class="nav-link" style="color: var(--text-dark) !important;">About</a></li>
                         @endif
                         
                         @if(isset($navbarCategories) && $navbarCategories->count() > 0)
                             @foreach($navbarCategories as $category)
                                 <li class="nav-item">
-                                    <a href="{{ route('products.index', ['category' => $category->id]) }}" class="nav-link text-white">{{ $category->name }}</a>
+                                    <a href="{{ route('products.index', ['category' => $category->id]) }}" class="nav-link" style="color: var(--text-dark) !important;">{{ $category->name }}</a>
                                 </li>
                             @endforeach
                         @endif
                         
-                        <li class="nav-item"><a href="{{ route('home') }}#contact" class="nav-link text-white">Contact</a></li>
+                        <li class="nav-item"><a href="{{ route('home') }}#contact" class="nav-link" style="color: var(--text-dark) !important;">Contact</a></li>
                     </ul>
                 </div>
             </div>
@@ -447,6 +452,56 @@
     <main>
         @yield('content')
     </main>
+
+    <!-- Vendor/Manufacturer Logos Section -->
+    @php
+        $vendors = \App\Models\Vendor::where('is_active', true)->whereNotNull('logo')->get();
+    @endphp
+    @if($vendors->count() > 0)
+        <section class="vendor-logos-section py-4" style="background: #f8f9fa; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
+            <div class="container">
+                <div class="vendor-logos-container" style="overflow-x: auto; overflow-y: hidden; white-space: nowrap; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;">
+                    <div class="d-flex align-items-center gap-4" style="display: inline-flex;">
+                        @foreach($vendors as $vendor)
+                            <div class="vendor-logo-item" style="flex: 0 0 auto; text-align: center; min-width: 150px;">
+                                <img src="{{ asset('storage/' . $vendor->logo) }}" alt="{{ $vendor->name }}" style="max-height: 60px; max-width: 150px; object-fit: contain; filter: grayscale(100%); opacity: 0.7; transition: all 0.3s;">
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <style>
+            .vendor-logos-container::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .vendor-logo-item img:hover {
+                filter: grayscale(0%) !important;
+                opacity: 1 !important;
+                transform: scale(1.1);
+            }
+            
+            /* Auto-scroll animation */
+            @keyframes scroll {
+                0% {
+                    transform: translateX(0);
+                }
+                100% {
+                    transform: translateX(-50%);
+                }
+            }
+            
+            .vendor-logos-container > div {
+                animation: scroll 30s linear infinite;
+            }
+            
+            .vendor-logos-container:hover > div {
+                animation-play-state: paused;
+            }
+        </style>
+    @endif
 
     <!-- Footer -->
     <footer class="footer">

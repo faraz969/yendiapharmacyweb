@@ -44,10 +44,10 @@
                                 <a href="{{ route('pages.show', $page->slug) }}" target="_blank" class="btn btn-sm btn-info" title="View">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('admin.pages.edit', $page->id) }}" class="btn btn-sm btn-primary">
+                                <a href="{{ route('admin.pages.edit', $page->slug) }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form action="{{ route('admin.pages.destroy', $page->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this page?');">
+                                <form action="{{ route('admin.pages.destroy', $page->slug) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this page?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger">

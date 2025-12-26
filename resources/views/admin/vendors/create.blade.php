@@ -9,7 +9,7 @@
         <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Create New Vendor</h5>
     </div>
     <div class="card-body">
-        <form action="{{ route('admin.vendors.store') }}" method="POST">
+        <form action="{{ route('admin.vendors.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="row">
                 <div class="col-md-6">
@@ -19,6 +19,16 @@
                         @error('name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="logo" class="form-label">Vendor Logo</label>
+                        <input type="file" class="form-control @error('logo') is-invalid @enderror" id="logo" name="logo" accept="image/*">
+                        @error('logo')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted">Max size: 2MB. Formats: JPEG, PNG, JPG, GIF, WEBP, SVG. Logo will be displayed in the vendor slider on the website.</small>
                     </div>
                 </div>
                 <div class="col-md-6">

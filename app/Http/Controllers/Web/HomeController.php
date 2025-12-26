@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Banner;
+use App\Models\MarketingBanner;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -46,6 +47,12 @@ class HomeController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        return view('web.home', compact('banners', 'featuredCategories', 'featuredProducts', 'categories'));
+        // Get marketing banners (limit to 3 for perfect 3-per-row layout)
+        $marketingBanners = MarketingBanner::where('is_active', true)
+            ->orderBy('order', 'asc')
+            ->take(3)
+            ->get();
+
+        return view('web.home', compact('banners', 'featuredCategories', 'featuredProducts', 'categories', 'marketingBanners'));
     }
 }

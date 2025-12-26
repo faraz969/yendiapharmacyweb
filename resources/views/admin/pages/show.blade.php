@@ -11,7 +11,7 @@
             <a href="{{ route('pages.show', $page->slug) }}" target="_blank" class="btn btn-info btn-sm">
                 <i class="fas fa-eye me-2"></i>View on Site
             </a>
-            <a href="{{ route('admin.pages.edit', $page->id) }}" class="btn btn-primary btn-sm">
+            <a href="{{ route('admin.pages.edit', $page->slug) }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-edit me-2"></i>Edit
             </a>
         </div>
@@ -55,7 +55,7 @@
                 <i class="fas fa-arrow-left me-2"></i>Back to List
             </a>
             <div>
-                <a href="{{ route('admin.pages.edit', $page->id) }}" class="btn btn-primary">
+                <a href="{{ route('admin.pages.edit', $page->slug) }}" class="btn btn-primary">
                     <i class="fas fa-edit me-2"></i>Edit Page
                 </a>
             </div>

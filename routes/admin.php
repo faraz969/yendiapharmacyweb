@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ItemRequestController;
+use App\Http\Controllers\Admin\MarketingBannerController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 
 /*
@@ -74,6 +75,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Banners
         Route::resource('banners', BannerController::class);
+        
+        // Marketing Banners
+        Route::resource('marketing-banners', MarketingBannerController::class);
         
         // Pages
         Route::resource('pages', PageController::class);

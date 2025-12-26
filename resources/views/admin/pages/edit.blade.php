@@ -9,7 +9,7 @@
         <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Page</h5>
     </div>
     <div class="card-body">
-        <form action="{{ route('admin.pages.update', $page->id) }}" method="POST">
+        <form action="{{ route('admin.pages.update', $page->slug) }}" method="POST">
             @csrf
             @method('PUT')
             <div class="mb-3">

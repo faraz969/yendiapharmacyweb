@@ -148,4 +148,16 @@ class Setting extends Model
         $symbol = self::getCurrencySymbol();
         return $symbol . number_format($amount, $decimals);
     }
+
+    /**
+     * Get favicon URL
+     */
+    public static function getFavicon()
+    {
+        $favicon = self::get('favicon');
+        if ($favicon) {
+            return asset('storage/' . $favicon);
+        }
+        return asset('favicon.ico'); // Default favicon
+    }
 }

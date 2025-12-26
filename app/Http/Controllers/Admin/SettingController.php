@@ -27,6 +27,7 @@ class SettingController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
+            'favicon' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,ico|max:512',
             'header_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'footer_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'copyright_year' => 'required|string|max:10',
@@ -40,6 +41,26 @@ class SettingController extends Controller
             'currency' => 'required|string|max:10',
             'currency_symbol' => 'required|string|max:10',
         ]);
+
+        // Handle favicon
+        if ($request->hasFile('favicon')) {
+            // Delete old favicon if exists
+            $oldFavicon = Setting::get('favicon');
+            if ($oldFavicon && Storage::disk('public')->exists($oldFavicon)) {
+                Storage::disk('public')->delete($oldFavicon);
+            }
+            $validated['favicon'] = $request->file('favicon')->store('settings', 'public');
+            Setting::set('favicon', $validated['favicon']);
+        }
+
+        // Handle remove favicon option
+        if ($request->has('remove_favicon')) {
+            $oldFavicon = Setting::get('favicon');
+            if ($oldFavicon && Storage::disk('public')->exists($oldFavicon)) {
+                Storage::disk('public')->delete($oldFavicon);
+            }
+            Setting::set('favicon', null);
+        }
 
         // Handle header logo
         if ($request->hasFile('header_logo')) {

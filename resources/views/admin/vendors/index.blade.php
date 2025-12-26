@@ -17,6 +17,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Logo</th>
                         <th>Name</th>
                         <th>Contact Person</th>
                         <th>Email</th>
@@ -30,6 +31,13 @@
                     @forelse($vendors as $vendor)
                         <tr>
                             <td>{{ $vendor->id }}</td>
+                            <td>
+                                @if($vendor->logo)
+                                    <img src="{{ Storage::url($vendor->logo) }}" alt="{{ $vendor->name }}" style="max-height: 50px; max-width: 100px; object-fit: contain;">
+                                @else
+                                    <span class="text-muted">No logo</span>
+                                @endif
+                            </td>
                             <td><strong>{{ $vendor->name }}</strong></td>
                             <td>{{ $vendor->contact_person ?? 'N/A' }}</td>
                             <td>{{ $vendor->email ?? 'N/A' }}</td>

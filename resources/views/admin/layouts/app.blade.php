@@ -279,6 +279,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.marketing-banners.index') }}" class="{{ request()->routeIs('admin.marketing-banners.*') ? 'active' : '' }}">
+                        <i class="fas fa-ad"></i> Marketing Banners
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.pages.index') }}" class="{{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i> Pages
                     </a>

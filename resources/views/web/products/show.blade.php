@@ -69,9 +69,6 @@
                         <li><strong>Barcode:</strong> {{ $product->barcode }}</li>
                     @endif
                     <li><strong>Unit:</strong> {{ ucfirst($product->selling_unit) }}</li>
-                    @if($product->track_batch)
-                        <li><strong>Conversion:</strong> 1 {{ $product->purchase_unit }} = {{ $product->conversion_factor }} {{ $product->selling_unit }}s</li>
-                    @endif
                 </ul>
             </div>
 

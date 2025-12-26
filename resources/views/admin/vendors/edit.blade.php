@@ -9,9 +9,19 @@
         <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Vendor</h5>
     </div>
     <div class="card-body">
-        <form action="{{ route('admin.vendors.update', $vendor->id) }}" method="POST">
+        <form action="{{ route('admin.vendors.update', $vendor->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            
+            @if($vendor->logo)
+            <div class="mb-3">
+                <label class="form-label">Current Logo</label>
+                <div>
+                    <img src="{{ Storage::url($vendor->logo) }}" alt="{{ $vendor->name }}" style="max-height: 80px; border-radius: 5px;">
+                </div>
+            </div>
+            @endif
+            
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
@@ -22,6 +32,19 @@
                         @enderror
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="logo" class="form-label">Vendor Logo</label>
+                        <input type="file" class="form-control @error('logo') is-invalid @enderror" id="logo" name="logo" accept="image/*">
+                        @error('logo')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted">Leave empty to keep current logo. Max size: 2MB. Formats: JPEG, PNG, JPG, GIF, WEBP, SVG.</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="contact_person" class="form-label">Contact Person</label>

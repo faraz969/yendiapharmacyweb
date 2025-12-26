@@ -79,11 +79,11 @@ use Illuminate\Support\Facades\Storage;
                             <a href="{{ route('products.category', $category->id) }}" class="text-decoration-none category-icon-link" style="flex: 0 0 auto; text-align: center; transition: transform 0.3s;">
                                 <div class="category-icon-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
                                     <!-- Round Icon -->
-                                    <div class="category-icon-circle" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; border: 3px solid #158d43;">
+                                    <div class="category-icon-circle" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; border: 3px solid #a5d6a7;">
                                         @if($category->image)
                                             <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" style="width: 70px; height: 70px; object-fit: contain; border-radius: 50%;">
                                         @else
-                                            <i class="fas fa-folder" style="font-size: 2.5rem; color: #158d43;"></i>
+                                            <i class="fas fa-folder" style="font-size: 2.5rem; color: #66bb6a;"></i>
                                         @endif
                                     </div>
                                     <!-- Category Name -->
@@ -114,6 +114,71 @@ use Illuminate\Support\Facades\Storage;
             
             .category-icon-link:hover .category-name {
                 color: #158d43;
+            }
+        </style>
+    @endif
+
+    <!-- Marketing Banners Section -->
+    @if(isset($marketingBanners) && $marketingBanners->count() > 0)
+        <section class="marketing-banners-section mb-5 py-4">
+            <div class="container">
+                <div class="row g-4 justify-content-center">
+                    @foreach($marketingBanners->take(3) as $marketingBanner)
+                        <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="marketing-banner-card" style="background-color: {{ $marketingBanner->background_color ?? '#f5f5f5' }}; border-radius: 15px; overflow: hidden; padding: 25px 20px; position: relative; height: 200px; display: flex; align-items: center; transition: transform 0.3s, box-shadow 0.3s;">
+                                <div class="row align-items-center w-100 g-0">
+                                    <!-- Left Side: Text Content -->
+                                    <div class="col-6">
+                                        <h3 class="mb-2 fw-bold" style="color: #1f2937; font-size: 1.3rem; line-height: 1.3;">
+                                            {{ $marketingBanner->title }}
+                                        </h3>
+                                        @if($marketingBanner->description)
+                                            <p class="mb-3 text-muted" style="font-size: 0.85rem; line-height: 1.5;">
+                                                {{ Str::limit($marketingBanner->description, 50) }}
+                                            </p>
+                                        @endif
+                                        <a href="{{ $marketingBanner->link ?? '#' }}" class="btn text-white fw-semibold d-inline-flex align-items-center" style="background-color: #158d43; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.9rem; transition: all 0.3s; white-space: nowrap;">
+                                            <span style="white-space: nowrap;">{{ $marketingBanner->button_text ?? 'Shop Now' }}</span>
+                                            <i class="fas fa-arrow-right ms-2"></i>
+                                        </a>
+                                    </div>
+                                    <!-- Right Side: Product Image -->
+                                    <div class="col-6 text-center">
+                                        @if($marketingBanner->image)
+                                            <img src="{{ asset('storage/' . $marketingBanner->image) }}" alt="{{ $marketingBanner->title }}" style="max-width: 100%; max-height: 180px; object-fit: contain;">
+                                        @else
+                                            <div style="width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; color: #999;">
+                                                <i class="fas fa-image fa-3x"></i>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+        
+        <style>
+            .marketing-banner-card {
+                width: 100%;
+            }
+            
+            .marketing-banner-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 12px 30px rgba(0,0,0,0.15) !important;
+            }
+            
+            .marketing-banner-card .btn {
+                white-space: nowrap !important;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .marketing-banner-card .btn:hover {
+                background-color: #0f6b32 !important;
+                transform: translateX(5px);
             }
         </style>
     @endif
@@ -174,7 +239,7 @@ use Illuminate\Support\Facades\Storage;
                                     $badgeColor = '#ee7d09';
                                 }
                             @endphp
-                            <div class="product-card-wrapper" style="flex: 0 0 auto; width: 280px;">
+                            <div class="product-card-wrapper" style="flex: 0 0 auto; width: 280px;" data-category-id="{{ $product->category_id }}">
                                 <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none" style="color: inherit;">
                                     <div class="card product-card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer;">
                                         <!-- Product Image with Badge -->
@@ -313,7 +378,21 @@ use Illuminate\Support\Facades\Storage;
                             document.querySelectorAll('.product-filter-btn').forEach(b => b.classList.remove('active'));
                             this.classList.add('active');
                             const categoryId = this.getAttribute('data-category');
-                            // You can add filtering logic here if needed
+                            
+                            // Filter products
+                            const productCards = document.querySelectorAll('.product-card-wrapper');
+                            productCards.forEach(card => {
+                                if (categoryId === 'all') {
+                                    card.style.display = 'block';
+                                } else {
+                                    const cardCategoryId = card.getAttribute('data-category-id');
+                                    if (cardCategoryId === categoryId) {
+                                        card.style.display = 'block';
+                                    } else {
+                                        card.style.display = 'none';
+                                    }
+                                }
+                            });
                         });
                     });
                 }

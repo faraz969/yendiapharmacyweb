@@ -25,9 +25,11 @@ class ProductController extends Controller
             });
         }
 
-        // Filter by category
-        if ($request->has('category_id')) {
+        // Filter by category (support both category_id and category for compatibility)
+        if ($request->has('category_id') && $request->category_id) {
             $query->where('category_id', $request->category_id);
+        } elseif ($request->has('category') && $request->category) {
+            $query->where('category_id', $request->category);
         }
 
         // Filter by prescription requirement

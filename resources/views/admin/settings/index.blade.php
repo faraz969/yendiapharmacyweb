@@ -16,11 +16,40 @@
             <!-- Logo Settings -->
             <div class="card mb-3">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="fas fa-image me-2"></i>Logo Settings</h6>
+                    <h6 class="mb-0"><i class="fas fa-image me-2"></i>Logo & Favicon Settings</h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="favicon" class="form-label">Favicon</label>
+                                @php
+                                    $favicon = $settings['favicon']->value ?? null;
+                                @endphp
+                                @if($favicon)
+                                    <div class="mb-2">
+                                        <img src="{{ Storage::url($favicon) }}" alt="Favicon" style="max-height: 32px; max-width: 32px; border-radius: 5px;">
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="remove_favicon" name="remove_favicon">
+                                        <label class="form-check-label" for="remove_favicon">
+                                            Remove favicon (use default)
+                                        </label>
+                                    </div>
+                                @else
+                                    <div class="mb-2">
+                                        <i class="fas fa-globe fa-2x text-muted"></i>
+                                        <small class="d-block text-muted mt-1">Currently using default favicon</small>
+                                    </div>
+                                @endif
+                                <input type="file" class="form-control @error('favicon') is-invalid @enderror" id="favicon" name="favicon" accept="image/*">
+                                @error('favicon')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted">Max size: 512KB. Formats: ICO, PNG. Recommended: 32x32px or 16x16px</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label for="header_logo" class="form-label">Header Logo</label>
                                 @php
@@ -49,7 +78,7 @@
                                 <small class="form-text text-muted">Max size: 2MB. Formats: JPEG, PNG, JPG, GIF, WEBP</small>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label for="footer_logo" class="form-label">Footer Logo</label>
                                 @php
