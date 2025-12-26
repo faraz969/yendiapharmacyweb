@@ -202,7 +202,7 @@ use Illuminate\Support\Facades\Storage;
                         <button class="btn btn-sm px-3 py-2 product-filter-btn active" data-category="all" style="border: none; background: transparent; color: #666; font-weight: 500; border-bottom: 2px solid transparent;">
                             All
                         </button>
-                        @foreach($featuredCategories->take(6) as $filterCategory)
+                        @foreach($featuredCategories->take(9) as $filterCategory)
                             <button class="btn btn-sm px-3 py-2 product-filter-btn" data-category="{{ $filterCategory->id }}" style="border: none; background: transparent; color: #666; font-weight: 500; border-bottom: 2px solid transparent;">
                                 {{ $filterCategory->name }}
                             </button>
