@@ -430,11 +430,11 @@
                         <button class="btn w-100 text-start py-3 fw-bold text-white dropdown-toggle" type="button" id="browseCategoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: var(--green-color); border: none;">
                             <i class="fas fa-bars me-2"></i>Browse All Categories
                         </button>
-                        <ul class="dropdown-menu w-100" aria-labelledby="browseCategoriesDropdown">
+                        <ul class="dropdown-menu w-100" aria-labelledby="browseCategoriesDropdown" style="padding-right:5px;padding-left:5px;">
                             <li><a class="dropdown-item" href="{{ route('products.index') }}">All Products</a></li>
                             @if(isset($categories) && $categories->count() > 0)
                                 @foreach($categories as $category)
-                                    <li><a class="dropdown-item" href="{{ route('products.index', ['category' => $category->id]) }}">{{ $category->name }}</a></li>
+                                    <li style="border-bottom:1px solid #e5e7eb;"><a class="dropdown-item" href="{{ route('products.index', ['category' => $category->id]) }}">{{ $category->name }}</a></li>
                                 @endforeach
                             @else
                                 <li><a class="dropdown-item" href="{{ route('products.index') }}?prescription=not_required">OTC Products</a></li>

@@ -9,37 +9,58 @@ use Illuminate\Support\Facades\Storage;
 @section('content')
 <!-- Hero Banner Section -->
 @if($banners->count() > 0)
-    @php
-        $firstBanner = $banners->first();
-        $bannerImage = $firstBanner && $firstBanner->image ? Storage::url($firstBanner->image) : null;
-    @endphp
-    <section class="hero-banner-section mb-4" style="background: linear-gradient(135deg, rgba(21, 141, 67, 0.1) 0%, rgba(21, 141, 67, 0.05) 100%), url('{{ $bannerImage }}') center center/cover no-repeat; padding: 80px 0; position: relative; overflow: hidden; min-height: 450px; margin-top:20px; border-radius:30px; margin-left:8px; margin-right:8px;">
-        <div class="container position-relative" style="z-index: 2;">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1 class="display-3 fw-bold mb-3" style="color: #158d43; line-height: 1.2; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
-                        {{ $firstBanner->title ?? 'Fresh & Healthy' }}<br>
-                        
-                    </h1>
-                    <p class="lead mb-4" style="color: #333; font-weight: 500; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
-                        {{ $firstBanner->description ?? 'Save up to 50% off on your first order' }}
-                    </p>
-                    <form class="d-flex mb-3" style="max-width: 400px;">
-                        <input type="email" class="form-control rounded-0 rounded-start" placeholder="Your email address" required style="background: rgba(255,255,255,0.95);">
-                        <button type="submit" class="btn rounded-0 rounded-end px-4" style="background: #158d43; border-color: #158d43; color: white;">Subscribe</button>
-                    </form>
-                </div>
+    <section class="hero-banner-section mb-4" style="margin-top:20px; border-radius:30px; margin-left:8px; margin-right:8px; overflow: hidden; position: relative; min-height: 450px;">
+        <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+            <div class="carousel-inner">
+                @foreach($banners as $index => $banner)
+                    @php
+                        $bannerImage = $banner && $banner->image ? Storage::url($banner->image) : null;
+                    @endphp
+                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }}" style="background: linear-gradient(135deg, rgba(21, 141, 67, 0.1) 0%, rgba(21, 141, 67, 0.05) 100%), url('{{ $bannerImage }}') center center/cover no-repeat; padding: 80px 0; position: relative; min-height: 450px;">
+                        <div class="container position-relative" style="z-index: 2;">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h1 class="display-3 fw-bold mb-3" style="color: #158d43; line-height: 1.2; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
+                                        {{ $banner->title ?? 'Fresh & Healthy' }}<br>
+                                    </h1>
+                                    <p class="lead mb-4" style="color: #333; font-weight: 500; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
+                                        {{ $banner->description ?? 'Save up to 50% off on your first order' }}
+                                    </p>
+                                    <form class="subscribe-form mb-3" style="max-width: 450px;">
+                                        <div class="subscribe-input-group" style="display: flex; background: white; border-radius: 50px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                            <div class="input-wrapper" style="flex: 1; display: flex; align-items: center; padding: 12px 20px;">
+                                                <i class="fas fa-paper-plane me-2" style="color: #999; font-size: 0.9rem;"></i>
+                                                <input type="email" class="form-control border-0 shadow-none" placeholder="Your email address" required style="padding: 0; background: transparent; color: #333; font-size: 0.95rem;">
+                                            </div>
+                                            <button type="submit" class="btn border-0 px-4" style="background: #158d43; color: white; font-weight: 500; border-radius: 50px 50px 50px 50px; white-space: nowrap;">Subscribe</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Overlay for better text readability -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, rgba(21, 141, 67, 0.1) 0%, rgba(21, 141, 67, 0.05) 50%, transparent 100%); z-index: 1;"></div>
+                    </div>
+                @endforeach
             </div>
             @if($banners->count() > 1)
-                <div class="text-center mt-4">
+                <!-- Carousel Controls -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev" style="width: 5%;">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next" style="width: 5%;">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+                <!-- Carousel Indicators -->
+                <div class="carousel-indicators" style="bottom: 20px;">
                     @foreach($banners as $index => $banner)
-                        <span class="banner-dot {{ $index === 0 ? 'active' : '' }}" data-bs-target="#bannerCarousel" data-bs-slide-to="{{ $index }}" style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: {{ $index === 0 ? '#158d43' : 'rgba(21, 141, 67, 0.3)' }}; margin: 0 5px; cursor: pointer; transition: all 0.3s;"></span>
+                        <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}"></button>
                     @endforeach
                 </div>
             @endif
         </div>
-        <!-- Overlay for better text readability -->
-        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, rgba(21, 141, 67, 0.1) 0%, rgba(21, 141, 67, 0.05) 50%, transparent 100%); z-index: 1;"></div>
     </section>
 @else
     <!-- Default Hero Banner -->
@@ -54,9 +75,14 @@ use Illuminate\Support\Facades\Storage;
                     <p class="lead mb-4" style="color: #666;">
                         Save up to 50% off on your first order. Get all your prescription and over-the-counter medications delivered to your doorstep.
                     </p>
-                    <form class="d-flex mb-3" style="max-width: 400px;">
-                        <input type="email" class="form-control rounded-0 rounded-start" placeholder="Your email address" required>
-                        <button type="submit" class="btn rounded-0 rounded-end px-4" style="background: #158d43; border-color: #158d43; color: white;">Subscribe</button>
+                    <form class="subscribe-form mb-3" style="max-width: 450px;">
+                        <div class="subscribe-input-group" style="display: flex; background: white; border-radius: 50px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div class="input-wrapper" style="flex: 1; display: flex; align-items: center; padding: 12px 20px;">
+                                <i class="fas fa-paper-plane me-2" style="color: #999; font-size: 0.9rem;"></i>
+                                <input type="email" class="form-control border-0 shadow-none" placeholder="Your email address" required style="padding: 0; background: transparent; color: #333; font-size: 0.95rem;">
+                            </div>
+                            <button type="submit" class="btn border-0 px-4" style="background: #158d43; color: white; font-weight: 500; border-radius: 0 50px 50px 0; white-space: nowrap;">Subscribe</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -405,6 +431,49 @@ use Illuminate\Support\Facades\Storage;
             });
         </script>
     @endif
+
+    <style>
+        /* Banner Carousel Styles */
+        .hero-banner-section .carousel-indicators {
+            margin-bottom: 20px;
+        }
+        
+        .hero-banner-section .carousel-indicators button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(21, 141, 67, 0.3);
+            border: none;
+            margin: 0 5px;
+        }
+        
+        .hero-banner-section .carousel-indicators button.active {
+            background-color: #158d43;
+        }
+        
+        .hero-banner-section .carousel-control-prev,
+        .hero-banner-section .carousel-control-next {
+            opacity: 0.7;
+        }
+        
+        .hero-banner-section .carousel-control-prev:hover,
+        .hero-banner-section .carousel-control-next:hover {
+            opacity: 1;
+        }
+        
+        /* Subscribe Form Styles */
+        .subscribe-input-group:focus-within {
+            box-shadow: 0 4px 12px rgba(21, 141, 67, 0.2) !important;
+        }
+        
+        .subscribe-input-group input:focus {
+            outline: none;
+        }
+        
+        .subscribe-input-group button:hover {
+            background: #0f6b32 !important;
+        }
+    </style>
 
     <!-- Features -->
     <section class="mb-5">
