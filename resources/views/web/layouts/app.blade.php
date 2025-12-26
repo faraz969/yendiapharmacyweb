@@ -310,7 +310,7 @@
                 <!-- Logo -->
                 <div class="col-md-2 col-lg-2">
                     <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-                        <img src="{{ \App\Models\Setting::getHeaderLogo() }}" alt="YENDIA Pharmacy" style="height: 50px; width: auto; margin-right: 10px;">
+                        <img src="{{ \App\Models\Setting::getHeaderLogo() }}" alt="YENDIA Pharmacy" style="height: 79px; width: auto; margin-right: 10px;">
                        
                     </a>
                 </div>
