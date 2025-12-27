@@ -149,11 +149,14 @@ class CheckoutController extends Controller
                 $filePath = $request->file('prescription_file')->store('prescriptions', 'public');
                 
                 $prescription = Prescription::create([
-                    'user_id' => auth()->id(),
+                    'user_id' => auth()->id(), // Can be null for guest checkout
+                    'branch_id' => $validated['branch_id'],
                     'prescription_number' => OrderHelper::generatePrescriptionNumber(),
                     'doctor_name' => $validated['doctor_name'] ?? null,
                     'patient_name' => $validated['patient_name'] ?? $validated['customer_name'],
                     'prescription_date' => $validated['prescription_date'] ?? now(),
+                    'customer_phone' => $validated['customer_phone'],
+                    'customer_email' => $validated['customer_email'] ?? null,
                     'file_path' => $filePath,
                     'status' => 'pending',
                 ]);
