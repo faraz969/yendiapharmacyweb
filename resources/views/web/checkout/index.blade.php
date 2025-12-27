@@ -20,7 +20,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="customer_name" class="form-control @error('customer_name') is-invalid @enderror" value="{{ old('customer_name') }}" required>
+                                    <input type="text" name="customer_name" class="form-control @error('customer_name') is-invalid @enderror" value="{{ old('customer_name', $user ? $user->name : '') }}" required>
                                     @error('customer_name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -29,7 +29,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Phone <span class="text-danger">*</span></label>
-                                    <input type="text" name="customer_phone" class="form-control @error('customer_phone') is-invalid @enderror" value="{{ old('customer_phone') }}" required>
+                                    <input type="text" name="customer_phone" class="form-control @error('customer_phone') is-invalid @enderror" value="{{ old('customer_phone', $user ? ($user->phone ?? ($user->profile ? $user->profile->phone : '')) : '') }}" required>
                                     @error('customer_phone')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -38,7 +38,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" name="customer_email" class="form-control @error('customer_email') is-invalid @enderror" value="{{ old('customer_email') }}">
+                            <input type="email" name="customer_email" class="form-control @error('customer_email') is-invalid @enderror" value="{{ old('customer_email', $user ? $user->email : '') }}">
                             @error('customer_email')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -149,7 +149,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Delivery Address <span class="text-danger">*</span></label>
-                            <textarea name="delivery_address" class="form-control @error('delivery_address') is-invalid @enderror" rows="3" required>{{ old('delivery_address') }}</textarea>
+                            <textarea name="delivery_address" class="form-control @error('delivery_address') is-invalid @enderror" rows="3" required>{{ old('delivery_address', $defaultAddress ? $defaultAddress->full_address : '') }}</textarea>
                             @error('delivery_address')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

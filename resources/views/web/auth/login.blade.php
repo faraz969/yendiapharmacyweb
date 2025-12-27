@@ -20,10 +20,11 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email Address</label>
-                            <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                                   id="email" name="email" value="{{ old('email') }}" required autofocus>
-                            @error('email')
+                            <label for="email_or_phone" class="form-label">Email or Phone Number</label>
+                            <input type="text" class="form-control @error('email_or_phone') is-invalid @enderror" 
+                                   id="email_or_phone" name="email_or_phone" value="{{ old('email_or_phone') }}" required autofocus
+                                   placeholder="Enter your email or phone number">
+                            @error('email_or_phone')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

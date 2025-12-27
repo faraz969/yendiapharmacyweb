@@ -51,6 +51,134 @@
             color: var(--primary-color) !important;
         }
         
+        /* Mobile Responsive Styles */
+        @media (max-width: 767.98px) {
+            .top-utility-bar {
+                font-size: 0.75rem;
+                padding: 0.5rem 0 !important;
+            }
+            
+            .top-utility-bar .row > div {
+                margin-bottom: 0.5rem;
+            }
+            
+            .top-utility-bar .text-center,
+            .top-utility-bar .text-end {
+                text-align: center !important;
+            }
+            
+            .main-header {
+                padding: 1rem 0 !important;
+            }
+            
+            .main-header .row {
+                margin: 0;
+            }
+            
+            .main-header .col-md-2,
+            .main-header .col-md-7,
+            .main-header .col-md-3 {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .main-header .navbar-brand img {
+                height: 50px !important;
+            }
+            
+            .search-bar-container {
+                flex-direction: column !important;
+                border-radius: 8px !important;
+            }
+            
+            .search-category-dropdown {
+                border-right: none !important;
+                border-bottom: 1px solid #e5e7eb !important;
+                width: 100% !important;
+            }
+            
+            .search-input-wrapper {
+                width: 100% !important;
+            }
+            
+            .search-icon-wrapper {
+                border-left: none !important;
+                border-top: 1px solid #e5e7eb !important;
+                width: 100% !important;
+                text-align: center !important;
+            }
+            
+            .main-navbar .col-md-3,
+            .main-navbar .col-md-9 {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .main-navbar .col-md-3 {
+                border-right: none !important;
+                border-bottom: 1px solid #e5e7eb !important;
+                margin-bottom: 0.5rem;
+            }
+            
+            .main-navbar .nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .main-navbar .nav-link {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.875rem;
+            }
+            
+            .main-navbar .collapse {
+                border-top: 1px solid #e5e7eb;
+                margin-top: 0.5rem;
+            }
+            
+            .main-navbar .nav.flex-column .nav-link {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.95rem;
+            }
+            
+            .main-navbar .nav.flex-column .nav-link:hover {
+                background-color: #f9fafb;
+            }
+            
+            .main-navbar .fa-chevron-down {
+                transition: transform 0.3s ease;
+            }
+            
+            .main-header .search-bar-form {
+                margin: 0.5rem 0 !important;
+            }
+            
+            .main-header .d-flex.gap-2 {
+                gap: 0.5rem !important;
+            }
+            
+            .main-header .d-flex.gap-4 {
+                gap: 1rem !important;
+            }
+        }
+        
+        @media (max-width: 575.98px) {
+            .main-header .navbar-brand img {
+                height: 40px !important;
+            }
+            
+            .main-header .col-6 {
+                padding: 0.25rem 0.5rem;
+            }
+            
+            .search-bar-container {
+                border-radius: 6px !important;
+            }
+            
+            .search-category-dropdown,
+            .search-input-wrapper,
+            .search-icon-wrapper {
+                padding: 8px 12px !important;
+            }
+        }
+        
         /* Main Header */
         .main-header {
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -96,6 +224,37 @@
         .badge {
             font-size: 0.65rem;
             padding: 0.25em 0.5em;
+        }
+        
+        /* Pagination Styles */
+        .pagination {
+            margin: 1.5rem 0;
+        }
+        
+        .pagination .page-link {
+            color: var(--green-color);
+            border-color: #dee2e6;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .pagination .page-link:hover {
+            color: #0f6b32;
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+        }
+        
+        .pagination .page-item.active .page-link {
+            background-color: var(--green-color);
+            border-color: var(--green-color);
+            color: white;
+        }
+        
+        .pagination .page-item.disabled .page-link {
+            color: #6c757d;
+            pointer-events: none;
+            cursor: auto;
+            background-color: #fff;
+            border-color: #dee2e6;
         }
         
         /* Hero Section */
@@ -279,7 +438,7 @@
 </head>
 <body>
     <!-- Top Utility Bar -->
-    <div class="top-utility-bar bg-light border-bottom py-2">
+    <div class="top-utility-bar bg-light border-bottom py-2 d-none d-md-block">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-4">
@@ -313,21 +472,47 @@
             </div>
         </div>
     </div>
+    
+    <!-- Mobile Top Bar -->
+    <div class="top-utility-bar bg-light border-bottom py-2 d-block d-md-none">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-2">
+                    <span class="small text-muted">Need help? Call: <strong>{{ \App\Models\Setting::getContactPhone() }}</strong></span>
+                </div>
+                <div class="col-12">
+                    <ul class="list-inline mb-0 small text-center">
+                        @auth
+                            @if(Auth::user()->isBranchStaff())
+                                <li class="list-inline-item"><a href="{{ route('branch.dashboard') }}" class="text-decoration-none text-muted">Branch Dashboard</a></li>
+                            @else
+                                <li class="list-inline-item"><a href="{{ route('user.dashboard') }}" class="text-decoration-none text-muted">My Account</a></li>
+                            @endif
+                        @else
+                            <li class="list-inline-item"><a href="{{ route('login') }}" class="text-decoration-none text-muted">My Account</a></li>
+                        @endauth
+                        <li class="list-inline-item"><span class="text-muted">|</span></li>
+                        <li class="list-inline-item"><a href="{{ route('order.tracking.index') }}" class="text-decoration-none text-muted">Order Tracking</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Header -->
     <header class="main-header bg-white border-bottom py-3">
         <div class="container">
             <div class="row align-items-center g-0">
                 <!-- Logo -->
-                <div class="col-md-2 col-lg-2">
+                <div class="col-6 col-md-2 col-lg-2">
                     <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-                        <img src="{{ \App\Models\Setting::getHeaderLogo() }}" alt="YENDIA Pharmacy" style="height: 79px; width: auto; margin-right: 10px;">
+                        <img src="{{ \App\Models\Setting::getHeaderLogo() }}" alt="YENDIA Pharmacy" style="height: 79px; width: auto; margin-right: 10px;" class="img-fluid">
                        
                     </a>
                 </div>
                 
                 <!-- Search Bar -->
-                <div class="col-md-7 col-lg-7">
+                <div class="col-12 col-md-7 col-lg-7 order-3 order-md-2">
                     <form action="{{ route('products.index') }}" method="GET" class="search-bar-form" style="margin: 0 10px;">
                         <div class="search-bar-container" style="display: flex; align-items: center; background: white; border: 1px solid #a5d6a7; border-radius: 8px; padding: 0; overflow: hidden;">
                             <!-- All Categories Dropdown -->
@@ -356,8 +541,8 @@
                 </div>
                 
                 <!-- User Actions -->
-                <div class="col-md-3 col-lg-3">
-                    <div class="d-flex align-items-center justify-content-end gap-4">
+                <div class="col-6 col-md-3 col-lg-3 order-2 order-md-3">
+                    <div class="d-flex align-items-center justify-content-end gap-2 gap-md-4">
                        
                         <a href="{{ route('cart.index') }}" class="text-decoration-none d-flex align-items-center position-relative" style="color: #4b5563;">
                             <i class="fas fa-shopping-cart" style="font-size: 1.25rem; color: #4b5563;"></i>
@@ -367,13 +552,13 @@
                             @if($cartCount > 0)
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #158d43; font-size: 0.65rem; padding: 2px 6px; margin-left: -8px; margin-top: -5px;">{{ $cartCount }}</span>
                             @endif
-                            <span class="ms-2" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Cart</span>
+                            <span class="ms-2 d-none d-md-inline" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Cart</span>
                         </a>
                         @auth
                             <div class="dropdown">
                                 <a href="#" class="text-decoration-none d-flex align-items-center dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #4b5563;">
                                     <i class="fas fa-user" style="font-size: 1.25rem; color: #4b5563;"></i>
-                                    <span class="ms-2" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Account</span>
+                                    <span class="ms-2 d-none d-md-inline" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Account</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li>
@@ -422,7 +607,7 @@
                         @else
                             <a href="{{ route('login') }}" class="text-decoration-none d-flex align-items-center" style="color: #4b5563;">
                                 <i class="fas fa-user" style="font-size: 1.25rem; color: #4b5563;"></i>
-                                <span class="ms-2" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Account</span>
+                                <span class="ms-2 d-none d-md-inline" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Account</span>
                             </a>
                         @endauth
                         
@@ -436,9 +621,9 @@
     <nav class="main-navbar" style="background: white !important; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; padding-top:10px; padding-bottom:10px;">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-3" style="border-right: 1px solid #e5e7eb;">
+                <div class="col-12 col-md-3" style="border-right: 1px solid #e5e7eb;">
                     <div class="dropdown">
-                        <button class="btn w-100 text-start py-3 fw-bold text-white dropdown-toggle" type="button" id="browseCategoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: var(--green-color); border: none;">
+                        <button class="btn w-100 text-start py-2 py-md-3 fw-bold text-white dropdown-toggle" type="button" id="browseCategoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: var(--green-color); border: none;">
                             <i class="fas fa-bars me-2"></i>Browse All Categories
                         </button>
                         <ul class="dropdown-menu w-100" aria-labelledby="browseCategoriesDropdown" style="padding-right:5px;padding-left:5px;">
@@ -453,7 +638,8 @@
                         </ul>
                     </div>
                 </div>
-                <div class="col-md-9">
+                <!-- Desktop Navigation -->
+                <div class="col-md-9 d-none d-md-block">
                     <ul class="nav mb-0">
                         <li class="nav-item"><a href="{{ route('home') }}" class="nav-link" style="color: var(--text-dark) !important;">Home</a></li>
                        
@@ -474,6 +660,56 @@
 
                         
                         <li class="nav-item"><a href="https://yendiapharmacy.com/contact/" class="nav-link" style="color: var(--text-dark) !important;">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Mobile Navigation Toggle Button -->
+                <div class="col-12 d-md-none mt-2">
+                    <button class="btn w-100 text-start fw-bold text-white" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu" aria-expanded="false" aria-controls="mobileNavMenu" style="background: var(--green-color); border: none;">
+                        <i class="fas fa-bars me-2"></i>Menu
+                        <i class="fas fa-chevron-down float-end mt-1"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Collapsible Navigation Menu -->
+            <div class="collapse d-md-none" id="mobileNavMenu">
+                <div class="mt-3 pb-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a href="{{ route('home') }}" class="nav-link py-2" style="color: var(--text-dark) !important; border-bottom: 1px solid #e5e7eb;">
+                                <i class="fas fa-home me-2"></i>Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="https://yendiapharmacy.com/about/" class="nav-link py-2" style="color: var(--text-dark) !important; border-bottom: 1px solid #e5e7eb;">
+                                <i class="fas fa-info-circle me-2"></i>About
+                            </a>
+                        </li>
+                        @if(isset($navbarCategories) && $navbarCategories->count() > 0)
+                            @foreach($navbarCategories as $category)
+                                <li class="nav-item">
+                                    <a href="{{ route('products.index', ['category' => $category->id]) }}" class="nav-link py-2" style="color: var(--text-dark) !important; border-bottom: 1px solid #e5e7eb;">
+                                        <i class="fas fa-tag me-2"></i>{{ $category->name }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        @endif
+                        <li class="nav-item">
+                            <a href="https://yendiapharmacy.com/services/" class="nav-link py-2" style="color: var(--text-dark) !important; border-bottom: 1px solid #e5e7eb;">
+                                <i class="fas fa-bullhorn me-2"></i>Marketing
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="https://yendiapharmacy.com/why-parter-us/" class="nav-link py-2" style="color: var(--text-dark) !important; border-bottom: 1px solid #e5e7eb;">
+                                <i class="fas fa-handshake me-2"></i>Why Partner Us?
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="https://yendiapharmacy.com/contact/" class="nav-link py-2" style="color: var(--text-dark) !important;">
+                                <i class="fas fa-envelope me-2"></i>Contact
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -615,6 +851,28 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        // Mobile menu toggle chevron rotation
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileNavToggle = document.querySelector('[data-bs-target="#mobileNavMenu"]');
+            const chevronIcon = mobileNavToggle?.querySelector('.fa-chevron-down');
+            
+            if (mobileNavToggle && chevronIcon) {
+                // Listen to Bootstrap collapse events
+                const mobileNavMenu = document.getElementById('mobileNavMenu');
+                if (mobileNavMenu) {
+                    mobileNavMenu.addEventListener('show.bs.collapse', function() {
+                        chevronIcon.style.transform = 'rotate(180deg)';
+                    });
+                    mobileNavMenu.addEventListener('hide.bs.collapse', function() {
+                        chevronIcon.style.transform = 'rotate(0deg)';
+                    });
+                }
+            }
+        });
+    </script>
+    
     @stack('scripts')
 </body>
 </html>

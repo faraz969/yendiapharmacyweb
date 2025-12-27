@@ -15,15 +15,23 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
+        $request->validate([
+            'email_or_phone' => 'required|string',
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
+        $emailOrPhone = $request->email_or_phone;
+        $password = $request->password;
+
+        // Determine if input is email or phone
+        $isEmail = filter_var($emailOrPhone, FILTER_VALIDATE_EMAIL);
+        
+        // Try to find user by email or phone
+        $user = User::where($isEmail ? 'email' : 'phone', $emailOrPhone)->first();
+
+        if ($user && Hash::check($password, $user->password)) {
+            Auth::login($user, $request->filled('remember'));
             $request->session()->regenerate();
-            
-            $user = Auth::user();
             
             // Check if user is trying to access admin panel (has roles or is branch staff)
             if ($user->hasAnyRole(['admin', 'manager', 'staff', 'pharmacist', 'delivery_person']) || $user->isBranchStaff()) {
@@ -36,8 +44,8 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+            'email_or_phone' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email_or_phone');
     }
 
     public function logout(Request $request)

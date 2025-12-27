@@ -19,7 +19,7 @@ class OrderController extends Controller
         $orders = Order::where('user_id', Auth::id())
             ->with(['items.product', 'deliveryZone', 'prescription'])
             ->latest()
-            ->paginate(10);
+            ->paginate(8);
 
         return view('web.user.orders.index', compact('orders'));
     }

@@ -57,15 +57,17 @@ class CheckoutController extends Controller
         // Get saved addresses if user is authenticated
         $savedAddresses = [];
         $defaultAddress = null;
+        $user = null;
         if (Auth::check()) {
-            $savedAddresses = Auth::user()->deliveryAddresses()->latest()->get();
-            $defaultAddress = Auth::user()->defaultDeliveryAddress;
+            $user = Auth::user()->load('profile');
+            $savedAddresses = $user->deliveryAddresses()->latest()->get();
+            $defaultAddress = $user->defaultDeliveryAddress;
         }
 
         // Get active branches for selection
         $branches = Branch::active()->ordered()->get();
 
-        return view('web.checkout.index', compact('cartItems', 'subtotal', 'deliveryFee', 'total', 'deliveryZones', 'requiresPrescription', 'savedAddresses', 'defaultAddress', 'branches'));
+        return view('web.checkout.index', compact('cartItems', 'subtotal', 'deliveryFee', 'total', 'deliveryZones', 'requiresPrescription', 'savedAddresses', 'defaultAddress', 'branches', 'user'));
     }
 
     public function store(Request $request)
