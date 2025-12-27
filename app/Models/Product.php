@@ -47,6 +47,13 @@ class Product extends Model
         'is_expired' => 'boolean',
     ];
 
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['total_stock'];
+
     // Accessor to ensure images is always an array
     public function getImagesAttribute($value)
     {
@@ -141,9 +148,14 @@ class Product extends Model
             return 0; // For non-batch tracked items, implement separate stock tracking
         }
 
-        return $this->batches()
+        // Always query batches directly (same as admin panel)
+        // This ensures consistent calculation regardless of eager loading
+        $total = $this->batches()
             ->where('is_expired', false)
-            ->sum('available_quantity') * $this->conversion_factor;
+            ->where('available_quantity', '>', 0)
+            ->sum('available_quantity');
+
+        return (float) ($total * $this->conversion_factor);
     }
 
     public function getTotalStockInSellingUnitAttribute()

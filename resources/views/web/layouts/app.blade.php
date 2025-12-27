@@ -113,6 +113,8 @@
             overflow: hidden;
             transition: transform 0.3s, box-shadow 0.3s;
             height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         
         .product-card:hover {
@@ -125,10 +127,19 @@
             height: 250px;
             object-fit: cover;
             background: #f3f4f6;
+            flex-shrink: 0;
         }
         
         .product-card-body {
             padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        
+        .product-card-body .mt-2,
+        .product-card-body .mt-3 {
+            margin-top: auto !important;
         }
         
         .product-price {

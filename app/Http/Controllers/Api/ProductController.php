@@ -32,6 +32,13 @@ class ProductController extends Controller
 
         $products = $query->paginate($request->get('per_page', 15));
 
+        // Ensure total_stock is included for each product
+        $products->getCollection()->transform(function ($product) {
+            $productArray = $product->toArray();
+            $productArray['total_stock'] = $product->total_stock;
+            return $productArray;
+        });
+
         return response()->json([
             'success' => true,
             'data' => $products,
@@ -48,9 +55,13 @@ class ProductController extends Controller
         ->where('is_active', true)
         ->findOrFail($id);
 
+        // Ensure total_stock is included in the response
+        $productData = $product->toArray();
+        $productData['total_stock'] = $product->total_stock;
+
         return response()->json([
             'success' => true,
-            'data' => $product,
+            'data' => $productData,
         ]);
     }
 

@@ -271,11 +271,11 @@ use Illuminate\Support\Facades\Storage;
                                     $badgeColor = '#ee7d09';
                                 }
                             @endphp
-                            <div class="product-card-wrapper" style="flex: 0 0 auto; width: 280px;" data-category-id="{{ $product->category_id }}">
-                                <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none" style="color: inherit;">
-                                    <div class="card product-card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer;">
+                            <div class="product-card-wrapper" style="flex: 0 0 auto; width: 280px; height: 100%;" data-category-id="{{ $product->category_id }}">
+                                <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none" style="color: inherit; display: flex; height: 100%;">
+                                    <div class="card product-card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; display: flex; flex-direction: column; width: 100%;">
                                         <!-- Product Image with Badge -->
-                                        <div class="position-relative" style="height: 220px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                        <div class="position-relative" style="height: 220px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
                                             @if($product->images && is_array($product->images) && count($product->images) > 0)
                                                 <img src="{{ asset('storage/' . $product->images[0]) }}" alt="{{ $product->name }}" style="max-width: 100%; max-height: 100%; object-fit: contain; padding: 15px;">
                                             @else
@@ -289,7 +289,7 @@ use Illuminate\Support\Facades\Storage;
                                         </div>
                                         
                                         <!-- Product Card Body -->
-                                        <div class="card-body p-3">
+                                        <div class="card-body p-3" style="display: flex; flex-direction: column; flex-grow: 1;">
                                             <!-- Category -->
                                             <p class="text-muted small mb-1" style="font-size: 0.75rem; color: #999;">{{ $product->category->name ?? 'Uncategorized' }}</p>
                                             
@@ -321,7 +321,7 @@ use Illuminate\Support\Facades\Storage;
                                         </p>
                                         
                                         <!-- Price and Add Button -->
-                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <div class="d-flex justify-content-between align-items-center mt-auto">
                                             <div>
                                                 <span class="fw-bold" style="font-size: 1.1rem; color: #158d43;">
                                                     {{ \App\Models\Setting::formatPrice($product->selling_price) }}
@@ -343,7 +343,7 @@ use Illuminate\Support\Facades\Storage;
                                         </div>
                                         
                                         @if($product->requires_prescription)
-                                            <div class="mt-2">
+                                            <div class="mt-2" style="margin-top: auto !important;">
                                                 <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">
                                                     <i class="fas fa-prescription me-1"></i>Rx Required
                                                 </span>
@@ -364,18 +364,37 @@ use Illuminate\Support\Facades\Storage;
                 display: none;
             }
             
-            .product-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+            .product-card-wrapper {
+                height: 100%;
             }
+            
             .product-card-wrapper > a {
-                display: block;
+                display: flex;
+                height: 100%;
                 text-decoration: none;
                 color: inherit;
             }
+            
             .product-card-wrapper > a:hover {
                 text-decoration: none;
                 color: inherit;
+            }
+            
+            .product-card-wrapper .product-card {
+                display: flex !important;
+                flex-direction: column !important;
+                min-height: 480px;
+            }
+            
+            .product-card-wrapper .product-card .card-body {
+                display: flex !important;
+                flex-direction: column !important;
+                flex-grow: 1 !important;
+            }
+            
+            .product-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
             }
             
             .product-filter-btn.active {

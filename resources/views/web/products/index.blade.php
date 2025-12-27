@@ -72,7 +72,7 @@
                 <div class="row g-4">
                     @foreach($products as $product)
                         <div class="col-md-4">
-                            <div class="card product-card">
+                            <div class="card product-card h-100">
                                 @if($product->images && is_array($product->images) && count($product->images) > 0)
                                     <img src="{{ asset('storage/' . $product->images[0]) }}" class="product-image" alt="{{ $product->name }}">
                                 @else
@@ -81,26 +81,26 @@
                                     </div>
                                 @endif
                                 <div class="product-card-body">
-                                    <h6 class="card-title">{{ Str::limit($product->name, 50) }}</h6>
+                                    <h6 class="card-title" style="min-height: 48px;">{{ Str::limit($product->name, 50) }}</h6>
                                     <p class="text-muted small mb-2">{{ $product->category->name }}</p>
                                     @if($product->requires_prescription)
                                         <span class="badge-prescription mb-2">
                                             <i class="fas fa-prescription me-1"></i>Rx Required
                                         </span>
                                     @endif
-                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <div class="d-flex justify-content-between align-items-center mt-auto">
                                         <span class="product-price">{{ \App\Models\Setting::formatPrice($product->selling_price) }}</span>
                                         <form action="{{ route('cart.add') }}" method="POST" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="product_id" value="{{ $product->id }}">
                                             <input type="hidden" name="quantity" value="1">
                                             <button type="submit" class="btn btn-primary btn-sm">
-                                                <i class="fas fa-cart-plus"></i>
+                                                <i class="fas fa-cart-plus me-1"></i>ADD
                                             </button>
                                         </form>
                                     </div>
-                                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-primary btn-sm w-100 mt-2">
-                                        View Details
+                                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-link btn-sm w-100 mt-2 text-decoration-none d-flex align-items-center justify-content-center" style="background: transparent; border: none; color: #158d43; padding: 8px;">
+                                        View Details <i class="fas fa-arrow-right ms-2"></i>
                                     </a>
                                 </div>
                             </div>
