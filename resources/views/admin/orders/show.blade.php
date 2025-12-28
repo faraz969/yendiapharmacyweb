@@ -301,24 +301,63 @@
 <script>
     function printPrescription(imageUrl) {
         var printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert('Please allow popups to print the prescription');
+            return;
+        }
+        
         printWindow.document.write(`
+            <!DOCTYPE html>
             <html>
                 <head>
                     <title>Print Prescription</title>
                     <style>
+                        @media print {
+                            @page {
+                                margin: 0;
+                            }
+                            body {
+                                margin: 0;
+                                padding: 0;
+                            }
+                        }
                         body {
                             margin: 0;
                             padding: 20px;
                             text-align: center;
+                            font-family: Arial, sans-serif;
                         }
                         img {
                             max-width: 100%;
                             height: auto;
+                            display: block;
+                            margin: 0 auto;
                         }
                     </style>
                 </head>
                 <body>
-                    <img src="${imageUrl}" alt="Prescription" onload="window.print(); window.close();">
+                    <img src="${imageUrl}" alt="Prescription" id="prescriptionImg">
+                    <script>
+                        (function() {
+                            var img = document.getElementById('prescriptionImg');
+                            img.onload = function() {
+                                setTimeout(function() {
+                                    window.print();
+                                    setTimeout(function() {
+                                        window.close();
+                                    }, 100);
+                                }, 250);
+                            };
+                            img.onerror = function() {
+                                alert('Failed to load prescription image. Please try again.');
+                                window.close();
+                            };
+                            // If image is already loaded (cached)
+                            if (img.complete && img.naturalHeight !== 0) {
+                                img.onload();
+                            }
+                        })();
+                    <\/script>
                 </body>
             </html>
         `);
