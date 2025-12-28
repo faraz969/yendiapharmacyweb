@@ -68,24 +68,45 @@
                     </div>
 
                     @if($order->prescription)
-                        <div class="alert alert-info mb-4">
-                            <h6><i class="fas fa-prescription me-2"></i>Prescription Information</h6>
-                            <p class="mb-1"><strong>Prescription Number:</strong> {{ $order->prescription->prescription_number }}</p>
-                            <p class="mb-1"><strong>Status:</strong> 
-                                @if($order->prescription->status === 'approved')
-                                    <span class="badge bg-success">Approved</span>
-                                @elseif($order->prescription->status === 'rejected')
-                                    <span class="badge bg-danger">Rejected</span>
-                                @else
-                                    <span class="badge bg-warning">Pending</span>
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-prescription me-2"></i>Prescription Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-2"><strong>Prescription Number:</strong> {{ $order->prescription->prescription_number }}</p>
+                                <p class="mb-2"><strong>Status:</strong> 
+                                    @if($order->prescription->status === 'approved')
+                                        <span class="badge bg-success">Approved</span>
+                                    @elseif($order->prescription->status === 'rejected')
+                                        <span class="badge bg-danger">Rejected</span>
+                                    @else
+                                        <span class="badge bg-warning">Pending</span>
+                                    @endif
+                                </p>
+                                @if($order->prescription->doctor_name)
+                                    <p class="mb-2"><strong>Doctor:</strong> {{ $order->prescription->doctor_name }}</p>
                                 @endif
-                            </p>
-                            @if($order->prescription->doctor_name)
-                                <p class="mb-1"><strong>Doctor:</strong> {{ $order->prescription->doctor_name }}</p>
-                            @endif
-                            @if($order->prescription->rejection_reason)
-                                <p class="mb-0"><strong>Rejection Reason:</strong> {{ $order->prescription->rejection_reason }}</p>
-                            @endif
+                                @if($order->prescription->patient_name)
+                                    <p class="mb-2"><strong>Patient:</strong> {{ $order->prescription->patient_name }}</p>
+                                @endif
+                                @if($order->prescription->rejection_reason)
+                                    <p class="mb-3"><strong>Rejection Reason:</strong> {{ $order->prescription->rejection_reason }}</p>
+                                @endif
+                                @if($order->prescription->file_path)
+                                    <div class="mt-3">
+                                        <div class="prescription-preview mb-3" style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; background: #f9f9f9; max-width: 100%;">
+                                            <img src="{{ Storage::url($order->prescription->file_path) }}" 
+                                                 alt="Prescription Preview" 
+                                                 class="img-fluid" 
+                                                 style="max-width: 100%; height: auto; border-radius: 4px;"
+                                                 id="prescriptionImage">
+                                        </div>
+                                        <button type="button" class="btn btn-primary" onclick="printPrescription('{{ Storage::url($order->prescription->file_path) }}')">
+                                            <i class="fas fa-print me-2"></i>Print Prescription
+                                        </button>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     @endif
 
@@ -168,5 +189,35 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    function printPrescription(imageUrl) {
+        var printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Print Prescription</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 20px;
+                            text-align: center;
+                        }
+                        img {
+                            max-width: 100%;
+                            height: auto;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <img src="${imageUrl}" alt="Prescription" onload="window.print(); window.close();">
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+</script>
+@endpush
 @endsection
 

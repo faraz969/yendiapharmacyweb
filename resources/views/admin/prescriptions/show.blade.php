@@ -59,9 +59,18 @@
                 @if($prescription->file_path)
                     <div class="mb-3">
                         <strong>Prescription File:</strong><br>
-                        <a href="{{ Storage::url($prescription->file_path) }}" target="_blank" class="btn btn-primary mt-2">
-                            <i class="fas fa-file-pdf me-2"></i>View Prescription
-                        </a>
+                        <div class="mt-3">
+                            <div class="prescription-preview mb-3" style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; background: #f9f9f9; max-width: 100%;">
+                                <img src="{{ Storage::url($prescription->file_path) }}" 
+                                     alt="Prescription Preview" 
+                                     class="img-fluid" 
+                                     style="max-width: 100%; height: auto; border-radius: 4px;"
+                                     id="prescriptionImage">
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="printPrescription('{{ Storage::url($prescription->file_path) }}')">
+                                <i class="fas fa-print me-2"></i>Print Prescription
+                            </button>
+                        </div>
                     </div>
                 @endif
             </div>
@@ -159,6 +168,55 @@
         <i class="fas fa-arrow-left me-2"></i>Back to Prescriptions
     </a>
 </div>
+
+@push('scripts')
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .prescription-preview, .prescription-preview * {
+            visibility: visible;
+        }
+        .prescription-preview {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
+<script>
+    function printPrescription(imageUrl) {
+        var printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Print Prescription</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 20px;
+                            text-align: center;
+                        }
+                        img {
+                            max-width: 100%;
+                            height: auto;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <img src="${imageUrl}" alt="Prescription" onload="window.print(); window.close();">
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+</script>
+@endpush
 @endsection
 
 
