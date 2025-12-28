@@ -212,6 +212,13 @@
                     <i class="fas fa-file-invoice"></i> Orders
                 </a>
             </li>
+            @if(!Auth::user()->isBranchStaff())
+            <li>
+                <a href="{{ route('admin.reports.profit-loss') }}" class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                    <i class="fas fa-chart-line"></i> Reports
+                </a>
+            </li>
+            @endif
             @if(Auth::user()->isBranchStaff())
                 {{-- Branch staff menu items --}}
                 <li>

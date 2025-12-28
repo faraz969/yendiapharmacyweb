@@ -18,10 +18,22 @@
         <!-- Filters -->
         <form method="GET" action="{{ route('admin.orders.index') }}" class="mb-4">
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <input type="text" name="search" class="form-control" placeholder="Search by order number, customer name, or phone..." value="{{ request('search') }}">
                 </div>
-                <div class="col-md-4">
+                @if(!Auth::user()->isBranchStaff())
+                <div class="col-md-3">
+                    <select name="branch_id" class="form-select">
+                        <option value="">All Branches</option>
+                        @foreach($branches as $branch)
+                            <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>
+                                {{ $branch->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+                <div class="col-md-3">
                     <select name="status" class="form-select">
                         <option value="">All Status</option>
                         @foreach($statuses as $status)
@@ -37,6 +49,13 @@
                     </button>
                 </div>
             </div>
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                    <a href="{{ route('admin.orders.index', array_merge(request()->all(), ['export' => 'excel'])) }}" class="btn btn-success">
+                        <i class="fas fa-file-excel me-2"></i>Export to Excel
+                    </a>
+                </div>
+            </div>
         </form>
 
         <div class="table-responsive">
@@ -44,6 +63,9 @@
                 <thead>
                     <tr>
                         <th>Order #</th>
+                        @if(!Auth::user()->isBranchStaff())
+                        <th>Branch</th>
+                        @endif
                         <th>Customer</th>
                         <th>Items</th>
                         <th>Amount</th>
@@ -56,12 +78,21 @@
                     @forelse($orders as $order)
                         <tr>
                             <td><code>{{ $order->order_number }}</code></td>
+                            @if(!Auth::user()->isBranchStaff())
+                            <td>
+                                @if($order->branch)
+                                    <span class="badge bg-info">{{ $order->branch->name }}</span>
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
+                            @endif
                             <td>
                                 <strong>{{ $order->customer_name }}</strong><br>
                                 <small class="text-muted">{{ $order->customer_phone }}</small>
                             </td>
                             <td>{{ $order->items->count() }} item(s)</td>
-                            <td>${{ number_format($order->total_amount, 2) }}</td>
+                            <td>{{ \App\Models\Setting::formatPrice($order->total_amount) }}</td>
                             <td>
                                 @php
                                     $badgeColors = [
@@ -89,7 +120,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center">No orders found.</td>
+                            <td colspan="{{ Auth::user()->isBranchStaff() ? '7' : '8' }}" class="text-center">No orders found.</td>
                         </tr>
                     @endforelse
                 </tbody>

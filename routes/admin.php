@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ItemRequestController;
 use App\Http\Controllers\Admin\MarketingBannerController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 
 /*
@@ -91,6 +92,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Settings
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+        
+        // Reports
+        Route::get('/reports/profit-loss', [ReportController::class, 'profitLoss'])->name('reports.profit-loss');
     });
 });
 

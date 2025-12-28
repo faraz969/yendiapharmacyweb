@@ -6,19 +6,26 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\Notification;
+use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
     public function index(Request $request)
     {
         $user = Auth::user();
-        $query = Order::with(['user', 'items.product']);
+        $query = Order::with(['user', 'items.product', 'branch']);
 
         // If branch staff, filter by their branch
         if ($user->isBranchStaff()) {
             $query->where('branch_id', $user->branch_id);
+        }
+
+        // Filter by branch
+        if ($request->has('branch_id') && $request->branch_id !== '') {
+            $query->where('branch_id', $request->branch_id);
         }
 
         // Filter by status
@@ -36,10 +43,78 @@ class OrderController extends Controller
             });
         }
 
+        // Export to Excel
+        if ($request->has('export') && $request->export === 'excel') {
+            return $this->exportToExcel($query);
+        }
+
         $orders = $query->latest()->paginate(20);
         $statuses = ['pending', 'approved', 'rejected', 'packing', 'packed', 'out_for_delivery', 'delivered', 'cancelled'];
+        $branches = Branch::active()->orderBy('name')->get();
 
-        return view('admin.orders.index', compact('orders', 'statuses'));
+        return view('admin.orders.index', compact('orders', 'statuses', 'branches'));
+    }
+
+    private function exportToExcel($query)
+    {
+        $orders = $query->with(['branch', 'items.product'])->get();
+        
+        $filename = 'orders_' . date('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($orders) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for UTF-8
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Headers
+            fputcsv($file, [
+                'Order Number',
+                'Branch',
+                'Customer Name',
+                'Customer Phone',
+                'Customer Email',
+                'Items Count',
+                'Subtotal',
+                'Delivery Fee',
+                'Discount',
+                'Total Amount',
+                'Payment Status',
+                'Payment Method',
+                'Status',
+                'Order Date',
+                'Delivery Address'
+            ]);
+
+            // Data rows
+            foreach ($orders as $order) {
+                fputcsv($file, [
+                    $order->order_number,
+                    $order->branch ? $order->branch->name : 'N/A',
+                    $order->customer_name,
+                    $order->customer_phone,
+                    $order->customer_email ?? 'N/A',
+                    $order->items->count(),
+                    number_format($order->subtotal, 2),
+                    number_format($order->delivery_fee, 2),
+                    number_format($order->discount, 2),
+                    number_format($order->total_amount, 2),
+                    $order->payment_status ?? 'N/A',
+                    $order->payment_method ?? 'N/A',
+                    ucfirst(str_replace('_', ' ', $order->status)),
+                    $order->created_at->format('Y-m-d H:i:s'),
+                    $order->delivery_address
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function show(Order $order)
