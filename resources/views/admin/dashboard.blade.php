@@ -35,7 +35,7 @@
     <div class="col-md-3">
         <div class="stat-card purple">
             <div class="stat-label">Total Revenue</div>
-            <div class="stat-value">${{ number_format($stats['total_revenue'], 2) }}</div>
+            <div class="stat-value">{{ \App\Models\Setting::formatPrice($stats['total_revenue']) }}</div>
             <i class="fas fa-dollar-sign fa-2x" style="opacity: 0.3; float: right; margin-top: -40px;"></i>
         </div>
     </div>
@@ -65,7 +65,7 @@
                                 <tr>
                                     <td>{{ $order->order_number }}</td>
                                     <td>{{ $order->customer_name }}</td>
-                                    <td>${{ number_format($order->total_amount, 2) }}</td>
+                                    <td>{{ \App\Models\Setting::formatPrice($order->total_amount) }}</td>
                                     <td>
                                         <span class="badge bg-{{ $order->status === 'delivered' ? 'success' : ($order->status === 'pending' ? 'warning' : 'info') }}">
                                             {{ ucfirst($order->status) }}
