@@ -38,6 +38,13 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
         
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated',
+            ], 401);
+        }
+        
         $notifications = Notification::where('user_id', $user->id)
             ->orderBy('is_read', 'asc')
             ->orderBy('created_at', 'desc')
@@ -56,6 +63,14 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
         
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated',
+                'count' => 0,
+            ], 401);
+        }
+        
         $count = Notification::where('user_id', $user->id)
             ->where('is_read', false)
             ->count();
@@ -72,6 +87,13 @@ class NotificationController extends Controller
     public function markAsRead($id)
     {
         $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated',
+            ], 401);
+        }
         
         $notification = Notification::where('user_id', $user->id)
             ->findOrFail($id);
@@ -91,6 +113,13 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
         
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated',
+            ], 401);
+        }
+        
         Notification::where('user_id', $user->id)
             ->where('is_read', false)
             ->update(['is_read' => true]);
@@ -107,6 +136,13 @@ class NotificationController extends Controller
     public function destroy($id)
     {
         $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated',
+            ], 401);
+        }
         
         $notification = Notification::where('user_id', $user->id)
             ->findOrFail($id);
@@ -126,6 +162,13 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
         
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated',
+            ], 401);
+        }
+        
         Notification::where('user_id', $user->id)->delete();
         
         return response()->json([
@@ -141,15 +184,24 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
         
-        $notification = Notification::where(function($query) use ($user) {
-            $query->whereNull('user_id')
+        // Build query based on authentication status
+        $query = Notification::where('is_active', true);
+        
+        if ($user) {
+            // If authenticated, show public notifications or user's notifications
+            $query->where(function($q) use ($user) {
+                $q->whereNull('user_id')
                   ->orWhere('user_id', $user->id);
-        })
-        ->where('is_active', true)
-        ->findOrFail($id);
+            });
+        } else {
+            // If not authenticated, only show public notifications
+            $query->whereNull('user_id');
+        }
+        
+        $notification = $query->findOrFail($id);
         
         // Mark as read if it's a user notification
-        if ($notification->user_id == $user->id && !$notification->is_read) {
+        if ($user && $notification->user_id && $notification->user_id == $user->id && !$notification->is_read) {
             $notification->update(['is_read' => true]);
         }
         
