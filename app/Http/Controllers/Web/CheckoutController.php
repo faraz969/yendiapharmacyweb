@@ -12,7 +12,6 @@ use App\Models\Batch;
 use App\Models\DeliveryAddress;
 use App\Models\Branch;
 use App\Models\Notification;
-use App\Services\SmsService;
 use App\Helpers\OrderHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -227,13 +226,9 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            // Create notification and send SMS for user when order is placed (if user is logged in)
+            // Create notification for user when order is placed (if user is logged in)
+            // SMS will be sent after payment is confirmed
             if ($order->user_id) {
-                // Load user relationship if not already loaded
-                if (!$order->relationLoaded('user')) {
-                    $order->load('user');
-                }
-                
                 $notificationMessage = "Your order #{$order->order_number} has been placed successfully. Total amount: " . \App\Models\Setting::formatPrice($order->total_amount);
                 
                 Notification::create([
@@ -246,20 +241,6 @@ class CheckoutController extends Controller
                     'is_active' => true,
                     'is_read' => false,
                 ]);
-
-                // Send SMS notification
-                try {
-                    $smsService = app(SmsService::class);
-                    $phoneNumber = $order->customer_phone ?? $order->user->phone ?? null;
-                    if ($phoneNumber) {
-                        $smsService->sendSms($phoneNumber, $notificationMessage);
-                    }
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Failed to send SMS for order placement', [
-                        'order_id' => $order->id,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
             }
 
             // Don't clear cart yet - wait for payment confirmation

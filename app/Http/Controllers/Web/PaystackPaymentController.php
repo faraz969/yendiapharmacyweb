@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Notification;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -156,11 +158,61 @@ class PaystackPaymentController extends Controller
                     // Verify amount matches
                     $amountPaid = $data['data']['amount'] / 100; // Convert from kobo
                     if (abs($amountPaid - $order->total_amount) < 0.01) {
-                                // Update order payment status
+                        // Update order payment status
                         $order->update([
                             'payment_status' => 'paid',
                             'paid_at' => now(),
                         ]);
+                        
+                        // Send SMS notification after payment is confirmed (only for authenticated users)
+                        if ($order->user_id) {
+                            // Load user relationship if not already loaded
+                            if (!$order->relationLoaded('user')) {
+                                $order->load('user');
+                            }
+                            
+                            $notificationMessage = "Your order #{$order->order_number} has been placed successfully. Total amount: " . \App\Models\Setting::formatPrice($order->total_amount) . ". Payment confirmed.";
+                            
+                            // Update or create notification with payment confirmation
+                            $existingNotification = Notification::where('order_id', $order->id)
+                                ->where('user_id', $order->user_id)
+                                ->where('title', 'Order Placed Successfully')
+                                ->first();
+                            
+                            if ($existingNotification) {
+                                $existingNotification->update([
+                                    'message' => $notificationMessage,
+                                ]);
+                            } else {
+                                // Use relative path for mobile app compatibility
+                                $link = '/orders/' . $order->id;
+                                
+                                Notification::create([
+                                    'user_id' => $order->user_id,
+                                    'order_id' => $order->id,
+                                    'title' => 'Order Placed Successfully',
+                                    'message' => $notificationMessage,
+                                    'type' => 'success',
+                                    'link' => $link,
+                                    'is_active' => true,
+                                    'is_read' => false,
+                                ]);
+                            }
+                            
+                            // Send SMS notification
+                            try {
+                                $smsService = app(SmsService::class);
+                                $phoneNumber = $order->customer_phone ?? $order->user->phone ?? null;
+                                if ($phoneNumber) {
+                                    $smsService->sendSms($phoneNumber, $notificationMessage);
+                                }
+                            } catch (\Exception $e) {
+                                Log::error('Failed to send SMS for order placement', [
+                                    'order_id' => $order->id,
+                                    'error' => $e->getMessage(),
+                                ]);
+                            }
+                        }
                         
                         // Clear cart session
                         session()->forget('cart');
