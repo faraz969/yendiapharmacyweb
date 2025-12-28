@@ -543,21 +543,6 @@
                 <!-- User Actions -->
                 <div class="col-6 col-md-3 col-lg-3 order-2 order-md-3">
                     <div class="d-flex align-items-center justify-content-end gap-2 gap-md-4">
-                        @auth
-                            @php
-                                $unreadNotifications = \App\Models\Notification::where('user_id', Auth::id())
-                                    ->where('is_read', false)
-                                    ->count();
-                            @endphp
-                            <a href="{{ route('user.notifications.index') }}" class="text-decoration-none d-flex align-items-center position-relative" style="color: #4b5563;">
-                                <i class="fas fa-bell" style="font-size: 1.25rem; color: #4b5563;"></i>
-                                @if($unreadNotifications > 0)
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #158d43; font-size: 0.65rem; padding: 2px 6px; margin-left: -8px; margin-top: -5px;">{{ $unreadNotifications }}</span>
-                                @endif
-                                <span class="ms-2 d-none d-md-inline" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Notifications</span>
-                            </a>
-                        @endauth
-                       
                         <a href="{{ route('cart.index') }}" class="text-decoration-none d-flex align-items-center position-relative" style="color: #4b5563;">
                             <i class="fas fa-shopping-cart" style="font-size: 1.25rem; color: #4b5563;"></i>
                             @php
@@ -569,9 +554,17 @@
                             <span class="ms-2 d-none d-md-inline" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Cart</span>
                         </a>
                         @auth
+                            @php
+                                $unreadNotifications = \App\Models\Notification::where('user_id', Auth::id())
+                                    ->where('is_read', false)
+                                    ->count();
+                            @endphp
                             <div class="dropdown">
-                                <a href="#" class="text-decoration-none d-flex align-items-center dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #4b5563;">
+                                <a href="#" class="text-decoration-none d-flex align-items-center dropdown-toggle position-relative" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #4b5563;">
                                     <i class="fas fa-user" style="font-size: 1.25rem; color: #4b5563;"></i>
+                                    @if($unreadNotifications > 0)
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #158d43; font-size: 0.65rem; padding: 2px 6px; margin-left: -8px; margin-top: -5px;">{{ $unreadNotifications }}</span>
+                                    @endif
                                     <span class="ms-2 d-none d-md-inline" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Account</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
