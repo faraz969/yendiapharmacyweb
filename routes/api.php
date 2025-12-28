@@ -33,7 +33,7 @@ Route::get('/banners', [BannerController::class, 'index']);
 Route::get('/branches', [BranchController::class, 'index']);
 Route::get('/branches/{id}', [BranchController::class, 'show']);
 Route::get('/notifications', [NotificationController::class, 'index']);
-Route::get('/notifications/{id}', [NotificationController::class, 'show']);
+Route::get('/notifications/{id}', [NotificationController::class, 'show'])->where('id', '[0-9]+');
 
 // Settings
 Route::get('/settings/currency', [\App\Http\Controllers\Api\SettingController::class, 'currency']);
@@ -100,11 +100,14 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // User Notifications
     Route::prefix('notifications')->group(function () {
+        // Specific routes must come before parameterized routes
         Route::get('/user', [NotificationController::class, 'userNotifications']);
         Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
-        Route::post('/{id}/read', [NotificationController::class, 'markAsRead']);
         Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
-        Route::delete('/{id}', [NotificationController::class, 'destroy']);
         Route::delete('/clear/all', [NotificationController::class, 'clearAll']);
+        // Parameterized routes come after specific routes
+        Route::get('/{id}', [NotificationController::class, 'show']);
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::delete('/{id}', [NotificationController::class, 'destroy']);
     });
 });
