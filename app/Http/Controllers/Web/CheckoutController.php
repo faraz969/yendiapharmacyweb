@@ -11,6 +11,7 @@ use App\Models\Prescription;
 use App\Models\Batch;
 use App\Models\DeliveryAddress;
 use App\Models\Branch;
+use App\Models\Notification;
 use App\Helpers\OrderHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -224,6 +225,20 @@ class CheckoutController extends Controller
             }
 
             DB::commit();
+
+            // Create notification for user when order is placed (if user is logged in)
+            if ($order->user_id) {
+                Notification::create([
+                    'user_id' => $order->user_id,
+                    'order_id' => $order->id,
+                    'title' => 'Order Placed Successfully',
+                    'message' => "Your order #{$order->order_number} has been placed successfully. Total amount: " . \App\Models\Setting::formatPrice($order->total_amount),
+                    'type' => 'success',
+                    'link' => route('user.orders.show', $order->id),
+                    'is_active' => true,
+                    'is_read' => false,
+                ]);
+            }
 
             // Don't clear cart yet - wait for payment confirmation
             // Return order ID for payment processing

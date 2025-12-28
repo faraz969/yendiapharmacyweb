@@ -8,6 +8,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\DeliveryZone;
 use App\Models\DeliveryAddress;
+use App\Models\Notification;
 use App\Helpers\OrderHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -162,6 +163,20 @@ class OrderController extends Controller
             }
 
             $order->load(['items.product', 'deliveryZone', 'prescription']);
+
+            // Create notification for user when order is placed
+            if ($order->user_id) {
+                Notification::create([
+                    'user_id' => $order->user_id,
+                    'order_id' => $order->id,
+                    'title' => 'Order Placed Successfully',
+                    'message' => "Your order #{$order->order_number} has been placed successfully. Total amount: " . \App\Models\Setting::formatPrice($order->total_amount),
+                    'type' => 'success',
+                    'link' => '/orders/' . $order->id,
+                    'is_active' => true,
+                    'is_read' => false,
+                ]);
+            }
 
             return response()->json([
                 'success' => true,

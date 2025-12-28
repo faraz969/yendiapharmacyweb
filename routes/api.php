@@ -97,4 +97,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [AddressController::class, 'destroy']);
         Route::post('/{id}/set-default', [AddressController::class, 'setDefault']);
     });
+    
+    // User Notifications
+    Route::prefix('notifications')->group(function () {
+        Route::get('/user', [NotificationController::class, 'userNotifications']);
+        Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/{id}', [NotificationController::class, 'destroy']);
+        Route::delete('/clear/all', [NotificationController::class, 'clearAll']);
+    });
 });

@@ -11,6 +11,8 @@ class Notification extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id',
+        'order_id',
         'title',
         'message',
         'type',
@@ -20,13 +22,31 @@ class Notification extends Model
         'start_date',
         'end_date',
         'priority',
+        'is_read',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_read' => 'boolean',
         'start_date' => 'datetime',
         'end_date' => 'datetime',
     ];
+
+    /**
+     * Get the user that owns the notification
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the order associated with the notification
+     */
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
 
     /**
      * Scope to get active notifications

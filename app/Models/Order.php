@@ -164,4 +164,67 @@ class Order extends Model
             $query->where('requires_prescription', true);
         })->exists();
     }
+
+    /**
+     * Create a notification for the user about order status change
+     */
+    public function notifyStatusChange($oldStatus = null)
+    {
+        if (!$this->user_id) {
+            return; // No user to notify for guest orders
+        }
+
+        $statusMessages = [
+            'pending' => 'Your order is pending approval',
+            'approved' => 'Your order has been approved and is being processed',
+            'rejected' => 'Your order has been rejected',
+            'packing' => 'Your order is being packed',
+            'packed' => 'Your order has been packed and is ready for delivery',
+            'out_for_delivery' => 'Your order is out for delivery',
+            'delivered' => 'Your order has been delivered',
+            'cancelled' => 'Your order has been cancelled',
+        ];
+
+        $statusTitles = [
+            'pending' => 'Order Pending',
+            'approved' => 'Order Approved',
+            'rejected' => 'Order Rejected',
+            'packing' => 'Order Being Packed',
+            'packed' => 'Order Packed',
+            'out_for_delivery' => 'Order Out for Delivery',
+            'delivered' => 'Order Delivered',
+            'cancelled' => 'Order Cancelled',
+        ];
+
+        $typeMap = [
+            'pending' => 'info',
+            'approved' => 'success',
+            'rejected' => 'error',
+            'packing' => 'info',
+            'packed' => 'success',
+            'out_for_delivery' => 'info',
+            'delivered' => 'success',
+            'cancelled' => 'warning',
+        ];
+
+        $message = $statusMessages[$this->status] ?? 'Your order status has been updated';
+        $title = $statusTitles[$this->status] ?? 'Order Status Updated';
+        $type = $typeMap[$this->status] ?? 'info';
+
+        // Only create notification if status actually changed
+        if ($oldStatus && $oldStatus === $this->status) {
+            return;
+        }
+
+        Notification::create([
+            'user_id' => $this->user_id,
+            'order_id' => $this->id,
+            'title' => $title,
+            'message' => "Order #{$this->order_number}: {$message}",
+            'type' => $type,
+            'link' => '/orders/' . $this->id, // Use relative path for mobile app compatibility
+            'is_active' => true,
+            'is_read' => false,
+        ]);
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -67,7 +68,9 @@ class OrderController extends Controller
             return back()->with('error', 'Only pending orders can be approved.');
         }
 
+        $oldStatus = $order->status;
         $order->approve(Auth::id(), $request->notes);
+        $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order approved successfully.');
     }
@@ -89,7 +92,9 @@ class OrderController extends Controller
             'rejection_reason' => 'required|string|max:500',
         ]);
 
+        $oldStatus = $order->status;
         $order->reject(Auth::id(), $request->rejection_reason);
+        $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order rejected.');
     }
@@ -107,7 +112,9 @@ class OrderController extends Controller
             return back()->with('error', 'Order must be approved before packing.');
         }
 
+        $oldStatus = $order->status;
         $order->markAsPacked(Auth::id());
+        $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order marked as packed.');
     }
@@ -134,7 +141,9 @@ class OrderController extends Controller
             return back()->with('error', 'Selected user is not a delivery person.');
         }
 
+        $oldStatus = $order->status;
         $order->assignForDelivery($request->delivery_person_id);
+        $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order assigned for delivery.');
     }
@@ -152,7 +161,9 @@ class OrderController extends Controller
             return back()->with('error', 'Order must be out for delivery.');
         }
 
+        $oldStatus = $order->status;
         $order->markAsDelivered();
+        $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order marked as delivered.');
     }
@@ -170,7 +181,10 @@ class OrderController extends Controller
             'status' => 'required|in:pending,approved,rejected,packing,packed,out_for_delivery,delivered,cancelled',
         ]);
 
+        $oldStatus = $order->status;
         $order->update(['status' => $request->status]);
+        $order->refresh(); // Refresh to get updated status
+        $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order status updated.');
     }

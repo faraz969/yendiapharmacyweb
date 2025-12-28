@@ -86,6 +86,13 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(function () {
     Route::put('/addresses/{address}', [AddressController::class, 'update'])->name('addresses.update');
     Route::delete('/addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
     Route::post('/addresses/{address}/set-default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
+    
+    // Notifications
+    Route::get('/notifications', [\App\Http\Controllers\Web\User\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [\App\Http\Controllers\Web\User\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Web\User\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::delete('/notifications/{notification}', [\App\Http\Controllers\Web\User\NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::delete('/notifications/clear/all', [\App\Http\Controllers\Web\User\NotificationController::class, 'clearAll'])->name('notifications.clear-all');
 });
 
 // Branch Dashboard Routes (for branch staff)
