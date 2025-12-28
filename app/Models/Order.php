@@ -226,5 +226,39 @@ class Order extends Model
             'is_active' => true,
             'is_read' => false,
         ]);
+
+        // Send SMS notification (only for authenticated users, not guests)
+        if ($this->user_id) {
+            // Load user relationship if not already loaded
+            if (!$this->relationLoaded('user')) {
+                $this->load('user');
+            }
+            
+            if ($this->user) {
+                $this->sendSmsNotification($message);
+            }
+        }
+    }
+
+    /**
+     * Send SMS notification for order status change
+     */
+    private function sendSmsNotification($message)
+    {
+        try {
+            $smsService = app(\App\Services\SmsService::class);
+            $phoneNumber = $this->customer_phone ?? $this->user->phone ?? null;
+            
+            if ($phoneNumber) {
+                $smsMessage = "Order #{$this->order_number}: {$message}";
+                $smsService->sendSms($phoneNumber, $smsMessage);
+            }
+        } catch (\Exception $e) {
+            // Log error but don't break the flow
+            \Illuminate\Support\Facades\Log::error('Failed to send SMS notification', [
+                'order_id' => $this->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

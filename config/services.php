@@ -35,4 +35,9 @@ return [
         'secret_key' => env('PAYSTACK_SECRET_KEY'),
     ],
 
+    'arkesel' => [
+        'api_key' => env('ARKESEL_API_KEY', 'dHZMQkJXSUNqS3dSUEpQb3htdmg'),
+        'sender_id' => env('ARKESEL_SENDER_ID', 'Yendia'),
+    ],
+
 ];

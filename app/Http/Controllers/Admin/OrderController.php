@@ -145,6 +145,10 @@ class OrderController extends Controller
 
         $oldStatus = $order->status;
         $order->approve(Auth::id(), $request->notes);
+        // Load user relationship for SMS notification
+        if (!$order->relationLoaded('user')) {
+            $order->load('user');
+        }
         $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order approved successfully.');
@@ -169,6 +173,10 @@ class OrderController extends Controller
 
         $oldStatus = $order->status;
         $order->reject(Auth::id(), $request->rejection_reason);
+        // Load user relationship for SMS notification
+        if (!$order->relationLoaded('user')) {
+            $order->load('user');
+        }
         $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order rejected.');
@@ -189,6 +197,10 @@ class OrderController extends Controller
 
         $oldStatus = $order->status;
         $order->markAsPacked(Auth::id());
+        // Load user relationship for SMS notification
+        if (!$order->relationLoaded('user')) {
+            $order->load('user');
+        }
         $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order marked as packed.');
@@ -218,6 +230,10 @@ class OrderController extends Controller
 
         $oldStatus = $order->status;
         $order->assignForDelivery($request->delivery_person_id);
+        // Load user relationship for SMS notification
+        if (!$order->relationLoaded('user')) {
+            $order->load('user');
+        }
         $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order assigned for delivery.');
@@ -238,6 +254,10 @@ class OrderController extends Controller
 
         $oldStatus = $order->status;
         $order->markAsDelivered();
+        // Load user relationship for SMS notification
+        if (!$order->relationLoaded('user')) {
+            $order->load('user');
+        }
         $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order marked as delivered.');
@@ -259,6 +279,10 @@ class OrderController extends Controller
         $oldStatus = $order->status;
         $order->update(['status' => $request->status]);
         $order->refresh(); // Refresh to get updated status
+        // Load user relationship for SMS notification
+        if (!$order->relationLoaded('user')) {
+            $order->load('user');
+        }
         $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order status updated.');

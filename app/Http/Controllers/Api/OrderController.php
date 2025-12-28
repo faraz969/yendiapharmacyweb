@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\DeliveryZone;
 use App\Models\DeliveryAddress;
 use App\Models\Notification;
+use App\Services\SmsService;
 use App\Helpers\OrderHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -164,18 +165,39 @@ class OrderController extends Controller
 
             $order->load(['items.product', 'deliveryZone', 'prescription']);
 
-            // Create notification for user when order is placed
+            // Create notification and send SMS for user when order is placed
             if ($order->user_id) {
+                // Load user relationship if not already loaded
+                if (!$order->relationLoaded('user')) {
+                    $order->load('user');
+                }
+                
+                $notificationMessage = "Your order #{$order->order_number} has been placed successfully. Total amount: " . \App\Models\Setting::formatPrice($order->total_amount);
+                
                 Notification::create([
                     'user_id' => $order->user_id,
                     'order_id' => $order->id,
                     'title' => 'Order Placed Successfully',
-                    'message' => "Your order #{$order->order_number} has been placed successfully. Total amount: " . \App\Models\Setting::formatPrice($order->total_amount),
+                    'message' => $notificationMessage,
                     'type' => 'success',
                     'link' => '/orders/' . $order->id,
                     'is_active' => true,
                     'is_read' => false,
                 ]);
+
+                // Send SMS notification
+                try {
+                    $smsService = app(SmsService::class);
+                    $phoneNumber = $order->customer_phone ?? $order->user->phone ?? null;
+                    if ($phoneNumber) {
+                        $smsService->sendSms($phoneNumber, $notificationMessage);
+                    }
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Failed to send SMS for order placement', [
+                        'order_id' => $order->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
 
             return response()->json([
