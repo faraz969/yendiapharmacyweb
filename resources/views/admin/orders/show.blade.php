@@ -122,6 +122,50 @@
             </div>
         </div>
 
+        <!-- Delivery Person Information -->
+        @if($order->deliveredBy)
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-truck me-2"></i>Delivery Person</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> {{ $order->deliveredBy->name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Email:</strong> {{ $order->deliveredBy->email }}</p>
+                        </div>
+                    </div>
+                    @if($order->deliveredBy->phone)
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Phone:</strong> {{ $order->deliveredBy->phone }}</p>
+                            </div>
+                        </div>
+                    @endif
+                    @if($order->deliveredBy->branch)
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Branch:</strong> <span class="badge bg-info">{{ $order->deliveredBy->branch->name }}</span></p>
+                            </div>
+                        </div>
+                    @endif
+                    @if($order->status === 'out_for_delivery')
+                        <div class="alert alert-info mb-0 mt-2">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Status:</strong> Order is currently out for delivery with this person.
+                        </div>
+                    @elseif($order->status === 'delivered' && $order->delivered_at)
+                        <div class="alert alert-success mb-0 mt-2">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Delivered:</strong> {{ $order->delivered_at->format('M d, Y H:i') }}
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         <!-- Prescription -->
         @if($order->prescription)
             <div class="card mb-3">
@@ -201,13 +245,36 @@
                             <label for="delivery_person_id" class="form-label">Delivery Person <span class="text-danger">*</span></label>
                             <select name="delivery_person_id" id="delivery_person_id" class="form-select" required>
                                 <option value="">Select Delivery Person</option>
-                                @php
-                                    $deliveryPersons = \App\Models\User::role('delivery_person')->get();
-                                @endphp
-                                @foreach($deliveryPersons as $person)
-                                    <option value="{{ $person->id }}">{{ $person->name }}</option>
-                                @endforeach
+                                @if(isset($deliveryPersons) && $deliveryPersons->count() > 0)
+                                    @foreach($deliveryPersons as $person)
+                                        <option value="{{ $person->id }}">
+                                            {{ $person->name }}
+                                            @if($person->branch)
+                                                ({{ $person->branch->name }})
+                                            @endif
+                                            - {{ $person->active_deliveries_count ?? 0 }} active delivery(ies)
+                                        </option>
+                                    @endforeach
+                                @else
+                                    <option value="" disabled>No delivery persons available</option>
+                                @endif
                             </select>
+                            @if(!isset($deliveryPersons) || $deliveryPersons->count() === 0)
+                                <div class="alert alert-warning mt-2 mb-0">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <strong>No delivery persons found!</strong> 
+                                    @if($order->branch_id)
+                                        No delivery persons are assigned to this order's branch ({{ $order->branch->name ?? 'N/A' }}).
+                                    @endif
+                                    <br>
+                                    Please <a href="{{ route('admin.users.create') }}" target="_blank">create a delivery person</a> 
+                                    and assign them the "delivery_person" role{{ $order->branch_id ? ' and assign them to the branch' : '' }}.
+                                </div>
+                            @else
+                                <small class="form-text text-muted">
+                                    Shows active delivery count for each person
+                                </small>
+                            @endif
                         </div>
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="fas fa-truck me-2"></i>Assign for Delivery

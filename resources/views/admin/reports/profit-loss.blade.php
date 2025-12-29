@@ -9,27 +9,74 @@
         <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Profit & Loss Report</h5>
     </div>
     <div class="card-body">
-        <!-- Date Filter -->
+        <!-- Date Range and Branch Filter -->
         <form method="GET" action="{{ route('admin.reports.profit-loss') }}" class="mb-4">
             <div class="row g-3">
-                <div class="col-md-4">
-                    <label for="date" class="form-label">Select Date</label>
-                    <input type="date" name="date" class="form-control" value="{{ $date->format('Y-m-d') }}" required>
+                <div class="col-md-3">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" name="start_date" id="start_date" class="form-control" value="{{ $startDate->format('Y-m-d') }}" required>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" name="end_date" id="end_date" class="form-control" value="{{ $endDate->format('Y-m-d') }}" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="branch_id" class="form-label">Select Branch</label>
+                    <select name="branch_id" id="branch_id" class="form-select">
+                        <option value="">All Branches</option>
+                        @foreach($branches ?? [] as $branch)
+                            <option value="{{ $branch->id }}" {{ (isset($branchId) && $branchId == $branch->id) ? 'selected' : '' }}>
+                                {{ $branch->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label class="form-label">&nbsp;</label>
                     <button type="submit" class="btn btn-primary w-100">
                         <i class="fas fa-filter me-2"></i>Filter
                     </button>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">&nbsp;</label>
-                    <a href="{{ route('admin.reports.profit-loss', ['date' => \Carbon\Carbon::today()->format('Y-m-d')]) }}" class="btn btn-secondary w-100">
-                        <i class="fas fa-calendar-day me-2"></i>Today
-                    </a>
+            </div>
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                    <div class="btn-group" role="group">
+                        <a href="{{ route('admin.reports.profit-loss', array_filter(['start_date' => \Carbon\Carbon::today()->format('Y-m-d'), 'end_date' => \Carbon\Carbon::today()->format('Y-m-d'), 'branch_id' => $branchId ?? null])) }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-calendar-day me-1"></i>Today
+                        </a>
+                        <a href="{{ route('admin.reports.profit-loss', array_filter(['start_date' => \Carbon\Carbon::now()->startOfWeek()->format('Y-m-d'), 'end_date' => \Carbon\Carbon::now()->endOfWeek()->format('Y-m-d'), 'branch_id' => $branchId ?? null])) }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-calendar-week me-1"></i>This Week
+                        </a>
+                        <a href="{{ route('admin.reports.profit-loss', array_filter(['start_date' => \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d'), 'end_date' => \Carbon\Carbon::now()->endOfMonth()->format('Y-m-d'), 'branch_id' => $branchId ?? null])) }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-calendar me-1"></i>This Month
+                        </a>
+                        <a href="{{ route('admin.reports.profit-loss', array_filter(['start_date' => \Carbon\Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d'), 'end_date' => \Carbon\Carbon::now()->subMonth()->endOfMonth()->format('Y-m-d'), 'branch_id' => $branchId ?? null])) }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-calendar-alt me-1"></i>Last Month
+                        </a>
+                    </div>
                 </div>
             </div>
         </form>
+
+        @if(isset($selectedBranch) && $selectedBranch)
+            <div class="alert alert-info mb-4">
+                <i class="fas fa-building me-2"></i>
+                <strong>Filtered by Branch:</strong> {{ $selectedBranch->name }}
+            </div>
+        @endif
+
+        <div class="alert alert-light mb-4">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Report Period:</strong> {{ $startDate->format('M d, Y') }} to {{ $endDate->format('M d, Y') }}
+            @if($startDate->format('Y-m-d') === $endDate->format('Y-m-d'))
+                <span class="badge bg-secondary ms-2">Single Day</span>
+            @else
+                <span class="badge bg-info ms-2">{{ $startDate->diffInDays($endDate) + 1 }} Days</span>
+            @endif
+            @if(isset($deliveredWithoutPaymentCount) && $deliveredWithoutPaymentCount > 0)
+                <span class="badge bg-warning ms-2">{{ $deliveredWithoutPaymentCount }} delivered order(s) without payment status</span>
+            @endif
+        </div>
 
         <!-- Summary Cards -->
         <div class="row mb-4">

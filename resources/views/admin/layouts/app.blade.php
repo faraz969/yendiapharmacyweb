@@ -144,6 +144,10 @@
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
         
+        .stat-card.yellow {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        }
+        
         .stat-card.purple {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         }
@@ -276,6 +280,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.activity-logs.index') }}" class="{{ request()->routeIs('admin.activity-logs.*') ? 'active' : '' }}">
+                        <i class="fas fa-history"></i> Activity Logs
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.branches.index') }}" class="{{ request()->routeIs('admin.branches.*') ? 'active' : '' }}">
                         <i class="fas fa-building"></i> Branches
                     </a>
@@ -311,7 +320,13 @@
                     <i class="fas fa-user"></i> My Profile
                 </a>
             </li>
-            
+            @if(Auth::user()->hasRole('delivery_person'))
+            <li>
+                <a href="{{ route('delivery.dashboard') }}" class="{{ request()->routeIs('delivery.*') ? 'active' : '' }}">
+                    <i class="fas fa-truck"></i> Delivery Dashboard
+                </a>
+            </li>
+            @endif
             <li>
                 <a href="{{ route('admin.logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class="fas fa-sign-out-alt"></i> Logout

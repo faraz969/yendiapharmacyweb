@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -41,6 +42,9 @@ class LoginController extends Controller
                 return redirect()->intended(route('admin.dashboard'));
             }
             
+            // Log the login activity
+            ActivityLogService::logLogin($request);
+            
             return redirect()->intended(route('user.dashboard'))
                 ->with('success', 'Welcome back!');
         }
@@ -52,6 +56,11 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        // Log the logout activity before logging out
+        if (Auth::check()) {
+            ActivityLogService::logLogout($request);
+        }
+        
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

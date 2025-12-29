@@ -84,4 +84,26 @@ class User extends Authenticatable implements FilamentUserContract
     {
         return $this->branch_id !== null;
     }
+
+    public function isDeliveryPerson()
+    {
+        return $this->hasRole('delivery_person');
+    }
+
+    public function assignedOrders()
+    {
+        return $this->hasMany(Order::class, 'delivered_by');
+    }
+
+    public function activeDeliveries()
+    {
+        return $this->assignedOrders()
+            ->where('status', 'out_for_delivery')
+            ->count();
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
 }

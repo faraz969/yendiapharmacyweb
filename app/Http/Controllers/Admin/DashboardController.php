@@ -25,6 +25,11 @@ class DashboardController extends Controller
             $ordersQuery->where('branch_id', $user->branch_id);
         }
         
+        // Calculate today's sales (delivered orders from today)
+        $todaySalesQuery = (clone $ordersQuery)
+            ->where('status', 'delivered')
+            ->whereDate('delivered_at', today());
+        
         $stats = [
             'total_products' => Product::count(),
             'total_categories' => Category::count(),
@@ -32,6 +37,7 @@ class DashboardController extends Controller
             'pending_orders' => (clone $ordersQuery)->where('status', 'pending')->count(),
             'approved_orders' => (clone $ordersQuery)->where('status', 'approved')->count(),
             'delivered_orders' => (clone $ordersQuery)->where('status', 'delivered')->count(),
+            'today_sales' => $todaySalesQuery->sum('total_amount'),
             'total_revenue' => (clone $ordersQuery)->where('status', 'delivered')->sum('total_amount'),
         ];
 

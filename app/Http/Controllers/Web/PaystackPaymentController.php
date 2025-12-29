@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Notification;
 use App\Models\User;
 use App\Services\SmsService;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -260,6 +261,21 @@ class PaystackPaymentController extends Controller
                         
                         // Clear cart session
                         session()->forget('cart');
+
+                        // Log successful payment activity
+                        ActivityLogService::logAction(
+                            'payment_success',
+                            "Payment successful for order #{$order->order_number}. Amount paid: " . \App\Models\Setting::formatPrice($order->total_amount),
+                            $order,
+                            [
+                                'order_number' => $order->order_number,
+                                'payment_reference' => $reference,
+                                'amount_paid' => $order->total_amount,
+                                'payment_method' => 'paystack',
+                                'source' => 'web',
+                            ],
+                            $request
+                        );
 
                         return response()->json([
                             'success' => true,

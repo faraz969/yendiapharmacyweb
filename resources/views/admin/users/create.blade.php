@@ -82,7 +82,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="branch_id" class="form-label">Branch (for branch staff)</label>
+                        <label for="branch_id" class="form-label">Branch</label>
                         <select class="form-select @error('branch_id') is-invalid @enderror" id="branch_id" name="branch_id">
                             <option value="">-- No Branch (Admin/Manager) --</option>
                             @foreach($branches as $branch)
@@ -91,7 +91,10 @@
                                 </option>
                             @endforeach
                         </select>
-                        <small class="form-text text-muted">Assign user to a branch to make them branch staff</small>
+                        <small class="form-text text-muted">
+                            Assign user to a branch to make them branch staff or delivery person for that branch. 
+                            <strong>For delivery persons:</strong> Assign a branch to limit them to orders from that branch only.
+                        </small>
                         @error('branch_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

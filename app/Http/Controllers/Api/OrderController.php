@@ -10,6 +10,7 @@ use App\Models\DeliveryZone;
 use App\Models\DeliveryAddress;
 use App\Models\Notification;
 use App\Helpers\OrderHelper;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -163,6 +164,21 @@ class OrderController extends Controller
             }
 
             $order->load(['items.product', 'deliveryZone', 'prescription']);
+
+            // Log the order placement activity
+            ActivityLogService::logAction(
+                'place_order',
+                "Order #{$order->order_number} placed via mobile app with total amount: " . \App\Models\Setting::formatPrice($order->total_amount),
+                $order,
+                [
+                    'order_number' => $order->order_number,
+                    'total_amount' => $order->total_amount,
+                    'item_count' => count($validated['items']),
+                    'branch_id' => $order->branch_id,
+                    'source' => 'mobile_app',
+                ],
+                $request
+            );
 
             // Create notification for user when order is placed
             // SMS will be sent after payment is confirmed

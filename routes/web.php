@@ -15,6 +15,7 @@ use App\Http\Controllers\Web\User\ProfileController;
 use App\Http\Controllers\Web\User\AddressController;
 use App\Http\Controllers\Web\PageController;
 use App\Http\Controllers\Branch\BranchDashboardController;
+use App\Http\Controllers\Delivery\DeliveryDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -110,4 +111,11 @@ Route::middleware('auth')->prefix('branch')->name('branch.')->group(function () 
     Route::get('/item-requests', [BranchDashboardController::class, 'itemRequests'])->name('item-requests.index');
     Route::get('/item-requests/{itemRequest}', [BranchDashboardController::class, 'showItemRequest'])->name('item-requests.show');
     Route::post('/item-requests/{itemRequest}/update-status', [BranchDashboardController::class, 'updateItemRequestStatus'])->name('item-requests.update-status');
+});
+
+// Delivery Dashboard Routes (for delivery persons)
+Route::middleware('auth')->prefix('delivery')->name('delivery.')->group(function () {
+    Route::get('/dashboard', [DeliveryDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/orders/{order}', [DeliveryDashboardController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/mark-delivered', [DeliveryDashboardController::class, 'markDelivered'])->name('orders.mark-delivered');
 });

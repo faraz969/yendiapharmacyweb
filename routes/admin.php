@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ItemRequestController;
 use App\Http\Controllers\Admin\MarketingBannerController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 
 /*
@@ -52,6 +53,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Orders
         Route::resource('orders', OrderController::class);
         Route::get('/orders/check-new', [OrderController::class, 'checkNewOrders'])->name('orders.check-new');
+        Route::get('/orders/delivery-persons', [OrderController::class, 'getDeliveryPersons'])->name('orders.delivery-persons');
+        Route::post('/orders/bulk-assign-delivery', [OrderController::class, 'bulkAssignDelivery'])->name('orders.bulk-assign-delivery');
         Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->name('orders.approve');
         Route::post('/orders/{order}/reject', [OrderController::class, 'reject'])->name('orders.reject');
         Route::post('/orders/{order}/pack', [OrderController::class, 'pack'])->name('orders.pack');
@@ -72,8 +75,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Delivery Zones
         Route::resource('delivery-zones', DeliveryZoneController::class);
         
-        // Users
-        Route::resource('users', UserController::class);
+        // Users - Define edit/update routes explicitly with numeric constraint to take precedence over Filament
+        Route::get('/users/{id}/edit', [UserController::class, 'edit'])
+            ->where('id', '[0-9]+')
+            ->name('users.edit');
+        Route::put('/users/{id}', [UserController::class, 'update'])
+            ->where('id', '[0-9]+')
+            ->name('users.update');
+        Route::patch('/users/{id}', [UserController::class, 'update'])
+            ->where('id', '[0-9]+');
+        Route::resource('users', UserController::class)->except(['edit', 'update']);
         
         // Banners
         Route::resource('banners', BannerController::class);
@@ -100,6 +111,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Reports
         Route::get('/reports/profit-loss', [ReportController::class, 'profitLoss'])->name('reports.profit-loss');
+        
+        // Activity Logs
+        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('/activity-logs/{activityLog}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
     });
 });
 

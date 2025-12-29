@@ -33,6 +33,13 @@
         </div>
     </div>
     <div class="col-md-3">
+        <div class="stat-card yellow">
+            <div class="stat-label">Today Sales</div>
+            <div class="stat-value">{{ \App\Models\Setting::formatPrice($stats['today_sales'] ?? 0) }}</div>
+            <i class="fas fa-calendar-day fa-2x" style="opacity: 0.3; float: right; margin-top: -40px;"></i>
+        </div>
+    </div>
+    <div class="col-md-3">
         <div class="stat-card purple">
             <div class="stat-label">Total Revenue</div>
             <div class="stat-value">{{ \App\Models\Setting::formatPrice($stats['total_revenue']) }}</div>

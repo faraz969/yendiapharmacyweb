@@ -13,6 +13,7 @@ use App\Models\DeliveryAddress;
 use App\Models\Branch;
 use App\Models\Notification;
 use App\Helpers\OrderHelper;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -225,6 +226,20 @@ class CheckoutController extends Controller
             }
 
             DB::commit();
+
+            // Log the order placement activity
+            ActivityLogService::logAction(
+                'place_order',
+                "Order #{$order->order_number} placed with total amount: " . \App\Models\Setting::formatPrice($order->total_amount),
+                $order,
+                [
+                    'order_number' => $order->order_number,
+                    'total_amount' => $order->total_amount,
+                    'item_count' => count($cartItems),
+                    'branch_id' => $order->branch_id,
+                ],
+                $request
+            );
 
             // Create notification for user when order is placed (if user is logged in)
             // SMS will be sent after payment is confirmed

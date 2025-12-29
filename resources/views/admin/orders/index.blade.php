@@ -59,18 +59,80 @@
                 </div>
             </div>
             <div class="row g-3 mt-2">
-                <div class="col-md-12">
+                <div class="col-md-12 d-flex gap-2">
                     <a href="{{ route('admin.orders.index', array_merge(request()->all(), ['export' => 'excel'])) }}" class="btn btn-success">
                         <i class="fas fa-file-excel me-2"></i>Export to Excel
                     </a>
+                    @if(!Auth::user()->isBranchStaff())
+                    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#bulkAssignModal" id="bulkAssignBtn" disabled>
+                        <i class="fas fa-truck me-2"></i>Bulk Assign Delivery
+                    </button>
+                    @endif
                 </div>
             </div>
         </form>
+
+        <!-- Bulk Assign Modal -->
+        @if(!Auth::user()->isBranchStaff())
+        <div class="modal fade" id="bulkAssignModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{{ route('admin.orders.bulk-assign-delivery') }}" method="POST" id="bulkAssignForm">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title">Bulk Assign Orders for Delivery</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Selected orders: <span id="selectedOrdersCount">0</span></p>
+                            <div class="mb-3">
+                                <label for="bulk_delivery_person_id" class="form-label">Delivery Person <span class="text-danger">*</span></label>
+                                <select name="delivery_person_id" id="bulk_delivery_person_id" class="form-select" required>
+                                    <option value="">Select Delivery Person</option>
+                                    @php
+                                        $allDeliveryPersons = \App\Models\User::role('delivery_person')
+                                            ->withCount([
+                                                'assignedOrders as active_deliveries_count' => function($query) {
+                                                    $query->where('status', 'out_for_delivery');
+                                                }
+                                            ])
+                                            ->get();
+                                    @endphp
+                                    @foreach($allDeliveryPersons as $person)
+                                        <option value="{{ $person->id }}">
+                                            {{ $person->name }}
+                                            @if($person->branch)
+                                                ({{ $person->branch->name }})
+                                            @endif
+                                            - {{ $person->active_deliveries_count ?? 0 }} active delivery(ies)
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="form-text text-muted">
+                                    Only orders with "Packed" status will be assigned
+                                </small>
+                            </div>
+                            <div id="bulkOrderIdsContainer"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Assign Orders</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endif
 
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
+                        @if(!Auth::user()->isBranchStaff())
+                        <th width="30">
+                            <input type="checkbox" id="selectAllOrders" title="Select All">
+                        </th>
+                        @endif
                         <th>Order #</th>
                         @if(!Auth::user()->isBranchStaff())
                         <th>Branch</th>
@@ -79,6 +141,8 @@
                         <th>Items</th>
                         <th>Amount</th>
                         <th>Status</th>
+                        <th>Payment Status</th>
+                        <th>Delivery Person</th>
                         <th>Date</th>
                         <th>Actions</th>
                     </tr>
@@ -86,6 +150,13 @@
                 <tbody>
                     @forelse($orders as $order)
                         <tr>
+                            @if(!Auth::user()->isBranchStaff())
+                            <td>
+                                @if($order->status === 'packed')
+                                <input type="checkbox" class="order-checkbox" value="{{ $order->id }}" data-status="{{ $order->status }}">
+                                @endif
+                            </td>
+                            @endif
                             <td><code>{{ $order->order_number }}</code></td>
                             @if(!Auth::user()->isBranchStaff())
                             <td>
@@ -120,6 +191,31 @@
                                     {{ ucfirst(str_replace('_', ' ', $order->status)) }}
                                 </span>
                             </td>
+                            <td>
+                                @php
+                                    $paymentStatus = $order->payment_status ?? 'pending';
+                                    $paymentBadgeColors = [
+                                        'paid' => 'success',
+                                        'pending' => 'warning',
+                                        'failed' => 'danger',
+                                        'refunded' => 'info',
+                                    ];
+                                    $paymentColor = $paymentBadgeColors[$paymentStatus] ?? 'secondary';
+                                @endphp
+                                <span class="badge bg-{{ $paymentColor }}">
+                                    {{ ucfirst($paymentStatus) }}
+                                </span>
+                            </td>
+                            <td>
+                                @if($order->deliveredBy)
+                                    <strong>{{ $order->deliveredBy->name }}</strong>
+                                    @if($order->deliveredBy->phone)
+                                        <br><small class="text-muted">{{ $order->deliveredBy->phone }}</small>
+                                    @endif
+                                @else
+                                    <span class="text-muted">Not assigned</span>
+                                @endif
+                            </td>
                             <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
                             <td>
                                 <div class="d-flex gap-2">
@@ -140,7 +236,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ Auth::user()->isBranchStaff() ? '7' : '8' }}" class="text-center">No orders found.</td>
+                            <td colspan="{{ Auth::user()->isBranchStaff() ? '9' : '11' }}" class="text-center">No orders found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -301,6 +397,63 @@
     window.addEventListener('beforeunload', function() {
         stopAutoRefresh();
     });
+})();
+
+// Bulk assignment functionality
+(function() {
+    const selectAllCheckbox = document.getElementById('selectAllOrders');
+    const orderCheckboxes = document.querySelectorAll('.order-checkbox');
+    const bulkAssignBtn = document.getElementById('bulkAssignBtn');
+    const bulkOrderIdsInput = document.getElementById('bulkOrderIds');
+    const selectedOrdersCount = document.getElementById('selectedOrdersCount');
+    
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            orderCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkAssignButton();
+        });
+    }
+    
+    if (orderCheckboxes.length > 0) {
+        orderCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = Array.from(orderCheckboxes).every(cb => cb.checked);
+                }
+                updateBulkAssignButton();
+            });
+        });
+    }
+    
+    function updateBulkAssignButton() {
+        const selected = Array.from(orderCheckboxes).filter(cb => cb.checked);
+        const selectedIds = selected.map(cb => cb.value);
+        
+        // Update hidden inputs for order IDs
+        const container = document.getElementById('bulkOrderIdsContainer');
+        if (container) {
+            container.innerHTML = '';
+            selectedIds.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'order_ids[]';
+                input.value = id;
+                container.appendChild(input);
+            });
+        }
+        
+        if (selectedOrdersCount) {
+            selectedOrdersCount.textContent = selected.length;
+        }
+        if (bulkAssignBtn) {
+            bulkAssignBtn.disabled = selected.length === 0;
+        }
+    }
+    
+    // Update on page load
+    updateBulkAssignButton();
 })();
 </script>
 @endpush

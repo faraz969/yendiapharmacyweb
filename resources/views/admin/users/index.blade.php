@@ -7,9 +7,11 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-users me-2"></i>All Users</h5>
+        @if(Auth::user()->hasAnyRole(['admin', 'manager', 'staff']))
         <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>Add New User
         </a>
+        @endif
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -20,6 +22,7 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Roles</th>
+                        <th>Branch</th>
                         <th>Created</th>
                         <th>Actions</th>
                     </tr>
@@ -32,10 +35,17 @@
                             <td>{{ $user->email }}</td>
                             <td>
                                 @foreach($user->roles as $role)
-                                    <span class="badge bg-primary me-1">{{ ucfirst($role->name) }}</span>
+                                    <span class="badge bg-primary me-1">{{ ucfirst(str_replace('_', ' ', $role->name)) }}</span>
                                 @endforeach
                                 @if($user->roles->count() === 0)
                                     <span class="text-muted">No roles</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($user->branch)
+                                    <span class="badge bg-info">{{ $user->branch->name }}</span>
+                                @else
+                                    <span class="text-muted">No branch</span>
                                 @endif
                             </td>
                             <td>{{ $user->created_at->format('M d, Y') }}</td>
@@ -56,7 +66,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center">No users found.</td>
+                            <td colspan="7" class="text-center">No users found.</td>
                         </tr>
                     @endforelse
                 </tbody>

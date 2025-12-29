@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -58,6 +60,22 @@ class ProductController extends Controller
         // Ensure total_stock is included in the response
         $productData = $product->toArray();
         $productData['total_stock'] = $product->total_stock;
+
+        // Log product view activity (only if user is authenticated)
+        if (Auth::check()) {
+            ActivityLogService::logAction(
+                'view_product',
+                "Viewed product: {$product->name}",
+                $product,
+                [
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'category_id' => $product->category_id,
+                    'source' => 'mobile_app',
+                ],
+                $request
+            );
+        }
 
         return response()->json([
             'success' => true,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -43,6 +44,10 @@ class LoginController extends Controller
             }
 
             $request->session()->regenerate();
+            
+            // Log the login activity
+            ActivityLogService::logLogin($request);
+            
             return redirect()->intended(route('admin.dashboard'));
         }
 
@@ -51,6 +56,11 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        // Log the logout activity before logging out
+        if (Auth::check()) {
+            ActivityLogService::logLogout($request);
+        }
+        
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

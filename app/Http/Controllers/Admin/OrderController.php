@@ -16,7 +16,7 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $query = Order::with(['user', 'items.product', 'branch']);
+        $query = Order::with(['user', 'items.product', 'branch', 'deliveredBy.branch']);
 
         // If branch staff, filter by their branch
         if ($user->isBranchStaff()) {
@@ -177,8 +177,27 @@ class OrderController extends Controller
             abort(403, 'Access denied. This order does not belong to your branch.');
         }
         
-        $order->load(['user', 'items.product', 'prescription', 'approvedBy', 'packedBy', 'deliveredBy', 'deliveryZone', 'branch']);
-        return view('admin.orders.show', compact('order'));
+        $order->load(['user', 'items.product', 'prescription', 'approvedBy', 'packedBy', 'deliveredBy.branch', 'deliveryZone', 'branch']);
+        
+        // Get delivery persons for assignment
+        $deliveryPersonsQuery = User::role('delivery_person');
+        
+        // Filter by branch if order has a branch
+        if ($order->branch_id) {
+            $deliveryPersonsQuery->where(function($q) use ($order) {
+                $q->where('branch_id', $order->branch_id)
+                  ->orWhereNull('branch_id'); // Include delivery persons without branch assignment
+            });
+        }
+        
+        $deliveryPersons = $deliveryPersonsQuery->with(['branch'])
+            ->withCount([
+                'assignedOrders as active_deliveries_count' => function($query) {
+                    $query->where('status', 'out_for_delivery');
+                }
+            ])->get();
+        
+        return view('admin.orders.show', compact('order', 'deliveryPersons'));
     }
 
     public function approve(Request $request, Order $order)
@@ -279,6 +298,11 @@ class OrderController extends Controller
             return back()->with('error', 'Selected user is not a delivery person.');
         }
 
+        // If order has a branch, ensure delivery person is from the same branch (if they have a branch assigned)
+        if ($order->branch_id && $deliveryPerson->branch_id && $order->branch_id !== $deliveryPerson->branch_id) {
+            return back()->with('error', 'Delivery person must be from the same branch as the order.');
+        }
+
         $oldStatus = $order->status;
         $order->assignForDelivery($request->delivery_person_id);
         // Load user relationship for SMS notification
@@ -288,6 +312,96 @@ class OrderController extends Controller
         $order->notifyStatusChange($oldStatus);
 
         return back()->with('success', 'Order assigned for delivery.');
+    }
+
+    /**
+     * Bulk assign multiple orders to a delivery person
+     */
+    public function bulkAssignDelivery(Request $request)
+    {
+        $user = Auth::user();
+        
+        $request->validate([
+            'order_ids' => 'required|array',
+            'order_ids.*' => 'exists:orders,id',
+            'delivery_person_id' => 'required|exists:users,id',
+        ]);
+
+        $deliveryPerson = User::find($request->delivery_person_id);
+        if (!$deliveryPerson->hasRole('delivery_person')) {
+            return back()->with('error', 'Selected user is not a delivery person.');
+        }
+
+        $orders = Order::whereIn('id', $request->order_ids)->get();
+        $assignedCount = 0;
+        $errors = [];
+
+        foreach ($orders as $order) {
+            // If branch staff, ensure order belongs to their branch
+            if ($user->isBranchStaff() && $order->branch_id !== $user->branch_id) {
+                $errors[] = "Order #{$order->order_number} does not belong to your branch.";
+                continue;
+            }
+
+            if ($order->status !== 'packed') {
+                $errors[] = "Order #{$order->order_number} must be packed before delivery.";
+                continue;
+            }
+
+            // If order has a branch, ensure delivery person is from the same branch (if they have a branch assigned)
+            if ($order->branch_id && $deliveryPerson->branch_id && $order->branch_id !== $deliveryPerson->branch_id) {
+                $errors[] = "Order #{$order->order_number} cannot be assigned to this delivery person (branch mismatch).";
+                continue;
+            }
+
+            $oldStatus = $order->status;
+            $order->assignForDelivery($request->delivery_person_id);
+            if (!$order->relationLoaded('user')) {
+                $order->load('user');
+            }
+            $order->notifyStatusChange($oldStatus);
+            $assignedCount++;
+        }
+
+        $message = "Successfully assigned {$assignedCount} order(s) for delivery.";
+        if (!empty($errors)) {
+            $message .= " Errors: " . implode(' ', $errors);
+        }
+
+        return back()->with($assignedCount > 0 ? 'success' : 'error', $message);
+    }
+
+    /**
+     * Get delivery persons for a specific branch (AJAX)
+     */
+    public function getDeliveryPersons(Request $request)
+    {
+        $branchId = $request->get('branch_id');
+        
+        $query = User::role('delivery_person')
+            ->withCount([
+                'assignedOrders as active_deliveries_count' => function($q) {
+                    $q->where('status', 'out_for_delivery');
+                }
+            ]);
+        
+        if ($branchId) {
+            $query->where(function($q) use ($branchId) {
+                $q->where('branch_id', $branchId)
+                  ->orWhereNull('branch_id');
+            });
+        }
+        
+        $deliveryPersons = $query->get()->map(function($person) {
+            return [
+                'id' => $person->id,
+                'name' => $person->name,
+                'branch' => $person->branch ? $person->branch->name : null,
+                'active_deliveries' => $person->active_deliveries_count ?? 0,
+            ];
+        });
+        
+        return response()->json($deliveryPersons);
     }
 
     public function markDelivered(Order $order)

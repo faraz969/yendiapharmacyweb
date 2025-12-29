@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -81,6 +83,20 @@ class ProductController extends Controller
             ->where('id', '!=', $product->id)
             ->take(4)
             ->get();
+
+        // Log product view activity
+        ActivityLogService::logAction(
+            'view_product',
+            "Viewed product: {$product->name}",
+            $product,
+            [
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'category_id' => $product->category_id,
+                'source' => 'web',
+            ],
+            request()
+        );
 
         return view('web.products.show', compact('product', 'relatedProducts'));
     }
