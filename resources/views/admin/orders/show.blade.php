@@ -291,10 +291,19 @@
     </div>
 </div>
 
-<div class="mt-3">
+<div class="mt-3 d-flex justify-content-between">
     <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary">
         <i class="fas fa-arrow-left me-2"></i>Back to Orders
     </a>
+    @if(!Auth::user()->isBranchStaff() && $order->payment_status !== 'paid')
+    <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete order #{{ $order->order_number }}? This action cannot be undone.');">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash me-2"></i>Delete Order
+        </button>
+    </form>
+    @endif
 </div>
 
 @push('scripts')

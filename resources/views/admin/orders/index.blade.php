@@ -113,9 +113,20 @@
                             </td>
                             <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
                             <td>
-                                <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    @if(!Auth::user()->isBranchStaff() && $order->payment_status !== 'paid')
+                                    <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete order #{{ $order->order_number }}? This action cannot be undone.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete Order">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

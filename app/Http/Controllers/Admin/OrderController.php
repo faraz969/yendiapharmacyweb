@@ -287,4 +287,32 @@ class OrderController extends Controller
 
         return back()->with('success', 'Order status updated.');
     }
+
+    public function destroy(Order $order)
+    {
+        $user = Auth::user();
+        
+        // Only full admins can delete orders, not branch staff
+        if ($user->isBranchStaff()) {
+            abort(403, 'Access denied. Only full admins can delete orders.');
+        }
+        
+        // Prevent deletion of paid orders (optional safety check)
+        if ($order->payment_status === 'paid') {
+            return back()->with('error', 'Cannot delete orders that have been paid. Please cancel or refund the order instead.');
+        }
+        
+        try {
+            // Delete related order items first
+            $order->items()->delete();
+            
+            // Delete the order
+            $order->delete();
+            
+            return redirect()->route('admin.orders.index')
+                ->with('success', 'Order deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to delete order: ' . $e->getMessage());
+        }
+    }
 }
