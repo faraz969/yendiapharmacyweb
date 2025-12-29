@@ -54,7 +54,56 @@ class OrderController extends Controller
         $statuses = ['pending', 'approved', 'rejected', 'packing', 'packed', 'out_for_delivery', 'delivered', 'cancelled'];
         $branches = Branch::active()->orderBy('name')->get();
 
-        return view('admin.orders.index', compact('orders', 'statuses', 'branches'));
+        // Store the latest order ID and count for auto-refresh detection
+        $latestOrderId = $orders->isNotEmpty() ? $orders->first()->id : 0;
+        $orderCount = $orders->total();
+
+        return view('admin.orders.index', compact('orders', 'statuses', 'branches', 'latestOrderId', 'orderCount'));
+    }
+
+    /**
+     * Check for new orders (for auto-refresh)
+     */
+    public function checkNewOrders(Request $request)
+    {
+        $user = Auth::user();
+        $query = Order::query();
+
+        // If branch staff, filter by their branch
+        if ($user->isBranchStaff()) {
+            $query->where('branch_id', $user->branch_id);
+        }
+
+        // Filter by branch
+        if ($request->filled('branch_id')) {
+            $query->where('branch_id', $request->branch_id);
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Search
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            if (!empty($search)) {
+                $query->where(function($q) use ($search) {
+                    $q->where('order_number', 'like', "%{$search}%")
+                      ->orWhere('customer_name', 'like', "%{$search}%")
+                      ->orWhere('customer_phone', 'like', "%{$search}%");
+                });
+            }
+        }
+
+        $latestOrder = $query->latest()->first();
+        $orderCount = $query->count();
+
+        return response()->json([
+            'latest_order_id' => $latestOrder ? $latestOrder->id : 0,
+            'order_count' => $orderCount,
+            'latest_order_number' => $latestOrder ? $latestOrder->order_number : null,
+        ]);
     }
 
     private function exportToExcel($query)

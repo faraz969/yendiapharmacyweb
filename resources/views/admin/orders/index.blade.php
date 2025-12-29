@@ -13,6 +13,15 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-file-invoice me-2"></i>All Orders</h5>
+        <div class="d-flex align-items-center gap-2">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="autoRefreshToggle" checked>
+                <label class="form-check-label" for="autoRefreshToggle">
+                    <i class="fas fa-sync-alt me-1"></i>Auto Refresh
+                </label>
+            </div>
+            <span id="lastRefreshTime" class="text-muted small"></span>
+        </div>
     </div>
     <div class="card-body">
         <!-- Filters -->
@@ -142,5 +151,158 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+(function() {
+    let lastOrderId = {{ $latestOrderId ?? 0 }};
+    let lastOrderCount = {{ $orderCount ?? 0 }};
+    let autoRefreshInterval = null;
+    let refreshInterval = 30000; // 30 seconds
+    let isAutoRefreshEnabled = true;
+    
+    // Function to play bell sound using Web Audio API
+    function playBellSound() {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Bell-like sound: two tones
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        } catch (e) {
+            // Fallback: simple beep
+            console.log('Web Audio API not supported');
+        }
+    }
+    
+    // Function to check for new orders
+    function checkForNewOrders() {
+        if (!isAutoRefreshEnabled) return;
+        
+        const params = new URLSearchParams(window.location.search);
+        params.append('_token', '{{ csrf_token() }}');
+        
+        fetch('{{ route("admin.orders.check-new") }}?' + params.toString(), {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Check if there's a new order
+            if (data.latest_order_id > lastOrderId || data.order_count > lastOrderCount) {
+                // New order detected!
+                playBellSound();
+                
+                // Show notification
+                showNewOrderNotification(data.latest_order_number);
+                
+                // Refresh the page after a short delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+            
+            // Update last known values
+            lastOrderId = data.latest_order_id;
+            lastOrderCount = data.order_count;
+            
+            // Update last refresh time
+            updateLastRefreshTime();
+        })
+        .catch(error => {
+            console.error('Error checking for new orders:', error);
+        });
+    }
+    
+    // Function to show notification
+    function showNewOrderNotification(orderNumber) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        notification.innerHTML = `
+            <i class="fas fa-bell me-2"></i>
+            <strong>New Order!</strong> Order #${orderNumber} has been received.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+    
+    // Function to update last refresh time
+    function updateLastRefreshTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+        const timeElement = document.getElementById('lastRefreshTime');
+        if (timeElement) {
+            timeElement.textContent = `Last checked: ${timeString}`;
+        }
+    }
+    
+    // Toggle auto-refresh
+    const toggle = document.getElementById('autoRefreshToggle');
+    if (toggle) {
+        toggle.addEventListener('change', function() {
+            isAutoRefreshEnabled = this.checked;
+            if (isAutoRefreshEnabled) {
+                startAutoRefresh();
+            } else {
+                stopAutoRefresh();
+            }
+        });
+    }
+    
+    // Start auto-refresh
+    function startAutoRefresh() {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+        }
+        autoRefreshInterval = setInterval(checkForNewOrders, refreshInterval);
+        updateLastRefreshTime();
+    }
+    
+    // Stop auto-refresh
+    function stopAutoRefresh() {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+            autoRefreshInterval = null;
+        }
+        const timeElement = document.getElementById('lastRefreshTime');
+        if (timeElement) {
+            timeElement.textContent = '';
+        }
+    }
+    
+    // Initialize
+    if (isAutoRefreshEnabled) {
+        startAutoRefresh();
+    }
+    
+    // Clean up on page unload
+    window.addEventListener('beforeunload', function() {
+        stopAutoRefresh();
+    });
+})();
+</script>
+@endpush
 @endsection
 

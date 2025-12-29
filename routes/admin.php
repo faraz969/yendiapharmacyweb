@@ -51,6 +51,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Orders
         Route::resource('orders', OrderController::class);
+        Route::get('/orders/check-new', [OrderController::class, 'checkNewOrders'])->name('orders.check-new');
         Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->name('orders.approve');
         Route::post('/orders/{order}/reject', [OrderController::class, 'reject'])->name('orders.reject');
         Route::post('/orders/{order}/pack', [OrderController::class, 'pack'])->name('orders.pack');
