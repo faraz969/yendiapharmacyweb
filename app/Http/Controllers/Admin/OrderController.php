@@ -24,23 +24,25 @@ class OrderController extends Controller
         }
 
         // Filter by branch
-        if ($request->has('branch_id') && $request->branch_id !== '') {
+        if ($request->filled('branch_id')) {
             $query->where('branch_id', $request->branch_id);
         }
 
         // Filter by status
-        if ($request->has('status') && $request->status !== '') {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         // Search
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('customer_phone', 'like', "%{$search}%");
-            });
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            if (!empty($search)) {
+                $query->where(function($q) use ($search) {
+                    $q->where('order_number', 'like', "%{$search}%")
+                      ->orWhere('customer_name', 'like', "%{$search}%")
+                      ->orWhere('customer_phone', 'like', "%{$search}%");
+                });
+            }
         }
 
         // Export to Excel
