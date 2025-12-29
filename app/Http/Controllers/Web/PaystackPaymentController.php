@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Notification;
+use App\Models\User;
 use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -212,6 +213,49 @@ class PaystackPaymentController extends Controller
                                     'error' => $e->getMessage(),
                                 ]);
                             }
+                        }
+                        
+                        // Send SMS to admin and branch staff
+                        try {
+                            $smsService = app(SmsService::class);
+                            $adminMessage = "New order #{$order->order_number} received. Customer: {$order->customer_name}. Amount: " . \App\Models\Setting::formatPrice($order->total_amount);
+                            
+                            // Get all admins (users with admin role)
+                            $admins = \App\Models\User::role('admin')->whereNotNull('phone')->get();
+                            foreach ($admins as $admin) {
+                                try {
+                                    $smsService->sendSms($admin->phone, $adminMessage);
+                                } catch (\Exception $e) {
+                                    Log::error('Failed to send SMS to admin', [
+                                        'admin_id' => $admin->id,
+                                        'order_id' => $order->id,
+                                        'error' => $e->getMessage(),
+                                    ]);
+                                }
+                            }
+                            
+                            // Get branch staff for the order's branch
+                            if ($order->branch_id) {
+                                $branchStaff = \App\Models\User::where('branch_id', $order->branch_id)
+                                    ->whereNotNull('phone')
+                                    ->get();
+                                foreach ($branchStaff as $staff) {
+                                    try {
+                                        $smsService->sendSms($staff->phone, $adminMessage);
+                                    } catch (\Exception $e) {
+                                        Log::error('Failed to send SMS to branch staff', [
+                                            'staff_id' => $staff->id,
+                                            'order_id' => $order->id,
+                                            'error' => $e->getMessage(),
+                                        ]);
+                                    }
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            Log::error('Failed to send SMS to admin/staff for order placement', [
+                                'order_id' => $order->id,
+                                'error' => $e->getMessage(),
+                            ]);
                         }
                         
                         // Clear cart session

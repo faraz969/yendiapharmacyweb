@@ -35,6 +35,19 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}" placeholder="e.g., 233544919953">
+                        <small class="form-text text-muted">Phone number for SMS notifications (include country code)</small>
+                        @error('phone')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
                         <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
                         <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
                         @error('password')

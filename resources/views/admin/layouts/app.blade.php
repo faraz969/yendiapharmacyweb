@@ -306,6 +306,11 @@
                     </a>
                 </li>
             @endif
+            <li>
+                <a href="{{ route('admin.profile.index') }}" class="{{ request()->routeIs('admin.profile.*') ? 'active' : '' }}">
+                    <i class="fas fa-user"></i> My Profile
+                </a>
+            </li>
             
             <li>
                 <a href="{{ route('admin.logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

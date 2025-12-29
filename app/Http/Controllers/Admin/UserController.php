@@ -30,6 +30,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
+            'phone' => 'nullable|string|max:20',
             'password' => 'required|string|min:6|confirmed',
             'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,id',
@@ -39,6 +40,7 @@ class UserController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'phone' => $validated['phone'] ?? null,
             'password' => Hash::make($validated['password']),
             'branch_id' => $validated['branch_id'] ?? null,
         ]);
@@ -65,6 +67,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:6|confirmed',
             'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,id',
@@ -74,6 +77,7 @@ class UserController extends Controller
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'phone' => $validated['phone'] ?? null,
             'branch_id' => $validated['branch_id'] ?? null,
         ]);
 

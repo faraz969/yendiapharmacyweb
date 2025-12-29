@@ -1,15 +1,22 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Edit User')
-@section('page-title', 'Edit User')
+@section('title', 'My Profile')
+@section('page-title', 'My Profile')
 
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Edit User</h5>
+        <h5 class="mb-0"><i class="fas fa-user me-2"></i>My Profile</h5>
     </div>
     <div class="card-body">
-        <form action="{{ route('admin.users.update', $user) }}" method="POST">
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <form action="{{ route('admin.profile.update') }}" method="POST">
             @csrf
             @method('PUT')
             <div class="row">
@@ -38,7 +45,7 @@
                     <div class="mb-3">
                         <label for="phone" class="form-label">Phone Number</label>
                         <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="e.g., 233544919953">
-                        <small class="form-text text-muted">Phone number for SMS notifications (include country code)</small>
+                        <small class="form-text text-muted">Phone number for SMS notifications when orders are placed (include country code)</small>
                         @error('phone')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -65,48 +72,21 @@
                 </div>
             </div>
 
+            @if($user->isBranchStaff() && $user->branch)
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="roles" class="form-label">Roles</label>
-                        <select class="form-select @error('roles') is-invalid @enderror" id="roles" name="roles[]" multiple size="6">
-                            @foreach($roles as $role)
-                                <option value="{{ $role->id }}" {{ $user->roles->contains($role->id) ? 'selected' : '' }}>
-                                    {{ ucfirst($role->name) }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple roles</small>
-                        @error('roles')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="branch_id" class="form-label">Branch (for branch staff)</label>
-                        <select class="form-select @error('branch_id') is-invalid @enderror" id="branch_id" name="branch_id">
-                            <option value="">-- No Branch (Admin/Manager) --</option>
-                            @foreach($branches as $branch)
-                                <option value="{{ $branch->id }}" {{ old('branch_id', $user->branch_id) == $branch->id ? 'selected' : '' }}>
-                                    {{ $branch->name }} - {{ $branch->city ?? $branch->address }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <small class="form-text text-muted">Assign user to a branch to make them branch staff</small>
-                        @error('branch_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <label class="form-label">Branch</label>
+                        <input type="text" class="form-control" value="{{ $user->branch->name }}" disabled>
+                        <small class="form-text text-muted">Branch assignment cannot be changed here. Contact an administrator.</small>
                     </div>
                 </div>
             </div>
+            @endif
 
-            <div class="d-flex justify-content-between">
-                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Cancel
-                </a>
+            <div class="d-flex justify-content-end">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i>Update User
+                    <i class="fas fa-save me-2"></i>Update Profile
                 </button>
             </div>
         </form>
