@@ -53,6 +53,7 @@
                         <th>Vendor</th>
                         <th>Order Date</th>
                         <th>Expected Delivery</th>
+                        <th>Date of Receipt</th>
                         <th>Amount</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -65,6 +66,7 @@
                             <td>{{ $po->vendor->name }}</td>
                             <td>{{ $po->order_date->format('M d, Y') }}</td>
                             <td>{{ $po->expected_delivery_date ? $po->expected_delivery_date->format('M d, Y') : 'N/A' }}</td>
+                            <td>{{ $po->received_date ? $po->received_date->format('M d, Y') : 'N/A' }}</td>
                             <td>{{ \App\Models\Setting::formatPrice($po->total_amount) }}</td>
                             <td>
                                 <span class="badge bg-{{ $po->status === 'received' ? 'success' : ($po->status === 'pending' ? 'warning' : 'info') }}">
@@ -79,7 +81,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center">No purchase orders found. <a href="{{ route('admin.purchase-orders.create') }}">Create one</a></td>
+                            <td colspan="8" class="text-center">No purchase orders found. <a href="{{ route('admin.purchase-orders.create') }}">Create one</a></td>
                         </tr>
                     @endforelse
                 </tbody>

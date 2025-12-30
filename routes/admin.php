@@ -53,6 +53,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Orders
         Route::resource('orders', OrderController::class);
         Route::get('/orders/check-new', [OrderController::class, 'checkNewOrders'])->name('orders.check-new');
+        Route::get('/orders/new-count', [OrderController::class, 'getNewOrdersCount'])->name('orders.new-count');
         Route::get('/orders/delivery-persons', [OrderController::class, 'getDeliveryPersons'])->name('orders.delivery-persons');
         Route::post('/orders/bulk-assign-delivery', [OrderController::class, 'bulkAssignDelivery'])->name('orders.bulk-assign-delivery');
         Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->name('orders.approve');
@@ -60,6 +61,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/orders/{order}/pack', [OrderController::class, 'pack'])->name('orders.pack');
         Route::post('/orders/{order}/deliver', [OrderController::class, 'deliver'])->name('orders.deliver');
         Route::post('/orders/{order}/mark-delivered', [OrderController::class, 'markDelivered'])->name('orders.mark-delivered');
+        Route::post('/orders/{order}/mark-ready-pickup', [OrderController::class, 'markReadyPickup'])->name('orders.mark-ready-pickup');
+        Route::post('/orders/{order}/mark-collected', [OrderController::class, 'markCollected'])->name('orders.mark-collected');
         Route::post('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
         
         // Prescriptions

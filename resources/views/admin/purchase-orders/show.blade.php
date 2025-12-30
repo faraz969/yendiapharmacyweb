@@ -15,11 +15,14 @@
             </div>
             <div class="card-body">
                 <div class="row mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <strong>Vendor:</strong> {{ $purchaseOrder->vendor->name }}
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <strong>Order Date:</strong> {{ $purchaseOrder->order_date->format('M d, Y') }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Date of Receipt:</strong> {{ $purchaseOrder->received_date ? $purchaseOrder->received_date->format('M d, Y') : 'Not received' }}
                     </div>
                 </div>
                 @if($purchaseOrder->expected_delivery_date)

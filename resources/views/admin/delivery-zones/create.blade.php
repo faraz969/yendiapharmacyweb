@@ -32,7 +32,7 @@
                     <div class="mb-3">
                         <label for="delivery_fee" class="form-label">Delivery Fee <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <span class="input-group-text">$</span>
+                            <span class="input-group-text">{{ \App\Models\Setting::getCurrencySymbol() }}</span>
                             <input type="number" step="0.01" class="form-control @error('delivery_fee') is-invalid @enderror" id="delivery_fee" name="delivery_fee" value="{{ old('delivery_fee', 0) }}" min="0" required>
                         </div>
                         @error('delivery_fee')
@@ -44,7 +44,7 @@
                     <div class="mb-3">
                         <label for="min_order_amount" class="form-label">Min Order Amount (Free Delivery)</label>
                         <div class="input-group">
-                            <span class="input-group-text">$</span>
+                            <span class="input-group-text">{{ \App\Models\Setting::getCurrencySymbol() }}</span>
                             <input type="number" step="0.01" class="form-control @error('min_order_amount') is-invalid @enderror" id="min_order_amount" name="min_order_amount" value="{{ old('min_order_amount', 0) }}" min="0">
                         </div>
                         <small class="form-text text-muted">Orders above this amount get free delivery</small>

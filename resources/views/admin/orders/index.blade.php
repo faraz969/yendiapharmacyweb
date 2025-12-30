@@ -42,7 +42,7 @@
                     </select>
                 </div>
                 @endif
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select name="status" class="form-select">
                         <option value="">All Status</option>
                         @foreach($statuses as $status)
@@ -50,6 +50,13 @@
                                 {{ ucfirst(str_replace('_', ' ', $status)) }}
                             </option>
                         @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="delivery_type" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="delivery" {{ request('delivery_type') == 'delivery' ? 'selected' : '' }}>Delivery</option>
+                        <option value="pickup" {{ request('delivery_type') == 'pickup' ? 'selected' : '' }}>Pickup</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -137,6 +144,7 @@
                         @if(!Auth::user()->isBranchStaff())
                         <th>Branch</th>
                         @endif
+                        <th>Type</th>
                         <th>Customer</th>
                         <th>Items</th>
                         <th>Amount</th>
@@ -152,7 +160,7 @@
                         <tr>
                             @if(!Auth::user()->isBranchStaff())
                             <td>
-                                @if($order->status === 'packed')
+                                @if($order->status === 'packed' && ($order->delivery_type ?? 'delivery') === 'delivery')
                                 <input type="checkbox" class="order-checkbox" value="{{ $order->id }}" data-status="{{ $order->status }}">
                                 @endif
                             </td>
@@ -168,6 +176,17 @@
                             </td>
                             @endif
                             <td>
+                                @if(($order->delivery_type ?? 'delivery') === 'pickup')
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-hand-holding"></i> Pickup
+                                    </span>
+                                @else
+                                    <span class="badge bg-primary">
+                                        <i class="fas fa-truck"></i> Delivery
+                                    </span>
+                                @endif
+                            </td>
+                            <td>
                                 <strong>{{ $order->customer_name }}</strong><br>
                                 <small class="text-muted">{{ $order->customer_phone }}</small>
                             </td>
@@ -175,6 +194,7 @@
                             <td>{{ \App\Models\Setting::formatPrice($order->total_amount) }}</td>
                             <td>
                                 @php
+                                    $isPickup = ($order->delivery_type ?? 'delivery') === 'pickup';
                                     $badgeColors = [
                                         'pending' => 'warning',
                                         'approved' => 'info',
@@ -186,9 +206,17 @@
                                         'cancelled' => 'secondary',
                                     ];
                                     $color = $badgeColors[$order->status] ?? 'secondary';
+                                    $statusLabel = ucfirst(str_replace('_', ' ', $order->status));
+                                    if ($isPickup) {
+                                        if ($order->status === 'out_for_delivery') {
+                                            $statusLabel = 'Ready for Pickup';
+                                        } elseif ($order->status === 'delivered') {
+                                            $statusLabel = 'Collected';
+                                        }
+                                    }
                                 @endphp
                                 <span class="badge bg-{{ $color }}">
-                                    {{ ucfirst(str_replace('_', ' ', $order->status)) }}
+                                    {{ $statusLabel }}
                                 </span>
                             </td>
                             <td>
@@ -207,7 +235,9 @@
                                 </span>
                             </td>
                             <td>
-                                @if($order->deliveredBy)
+                                @if(($order->delivery_type ?? 'delivery') === 'pickup')
+                                    <span class="text-muted">N/A (Pickup)</span>
+                                @elseif($order->deliveredBy)
                                     <strong>{{ $order->deliveredBy->name }}</strong>
                                     @if($order->deliveredBy->phone)
                                         <br><small class="text-muted">{{ $order->deliveredBy->phone }}</small>

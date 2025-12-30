@@ -106,6 +106,26 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * Get count of pending/new orders for sidebar badge
+     */
+    public function getNewOrdersCount()
+    {
+        $user = Auth::user();
+        $query = Order::where('status', 'pending');
+
+        // If branch staff, filter by their branch
+        if ($user->isBranchStaff()) {
+            $query->where('branch_id', $user->branch_id);
+        }
+
+        $count = $query->count();
+
+        return response()->json([
+            'count' => $count,
+        ]);
+    }
+
     private function exportToExcel($query)
     {
         $orders = $query->with(['branch', 'items.product'])->get();
@@ -285,6 +305,10 @@ class OrderController extends Controller
             abort(403, 'Access denied. This order does not belong to your branch.');
         }
         
+        if (($order->delivery_type ?? 'delivery') === 'pickup') {
+            return back()->with('error', 'This is a pickup order. Use "Mark Ready for Pickup" instead.');
+        }
+        
         if ($order->status !== 'packed') {
             return back()->with('error', 'Order must be packed before delivery.');
         }
@@ -305,9 +329,14 @@ class OrderController extends Controller
 
         $oldStatus = $order->status;
         $order->assignForDelivery($request->delivery_person_id);
-        // Load user relationship for SMS notification
+        // Refresh order to get updated delivered_by value
+        $order->refresh();
+        // Load relationships for SMS notification
         if (!$order->relationLoaded('user')) {
             $order->load('user');
+        }
+        if (!$order->relationLoaded('deliveredBy')) {
+            $order->load('deliveredBy');
         }
         $order->notifyStatusChange($oldStatus);
 
@@ -343,6 +372,12 @@ class OrderController extends Controller
                 continue;
             }
 
+            // Skip pickup orders
+            if (($order->delivery_type ?? 'delivery') === 'pickup') {
+                $errors[] = "Order #{$order->order_number} is a pickup order and cannot be assigned for delivery.";
+                continue;
+            }
+
             if ($order->status !== 'packed') {
                 $errors[] = "Order #{$order->order_number} must be packed before delivery.";
                 continue;
@@ -356,8 +391,14 @@ class OrderController extends Controller
 
             $oldStatus = $order->status;
             $order->assignForDelivery($request->delivery_person_id);
+            // Refresh order to get updated delivered_by value
+            $order->refresh();
+            // Load relationships for SMS notification
             if (!$order->relationLoaded('user')) {
                 $order->load('user');
+            }
+            if (!$order->relationLoaded('deliveredBy')) {
+                $order->load('deliveredBy');
             }
             $order->notifyStatusChange($oldStatus);
             $assignedCount++;
@@ -428,6 +469,68 @@ class OrderController extends Controller
         return back()->with('success', 'Order marked as delivered.');
     }
 
+    /**
+     * Mark pickup order as ready for pickup
+     */
+    public function markReadyPickup(Order $order)
+    {
+        $user = Auth::user();
+        
+        // If branch staff, ensure order belongs to their branch
+        if ($user->isBranchStaff() && $order->branch_id !== $user->branch_id) {
+            abort(403, 'Access denied. This order does not belong to your branch.');
+        }
+        
+        if (($order->delivery_type ?? 'delivery') !== 'pickup') {
+            return back()->with('error', 'This action is only for pickup orders.');
+        }
+        
+        if ($order->status !== 'packed') {
+            return back()->with('error', 'Order must be packed before marking as ready for pickup.');
+        }
+
+        $oldStatus = $order->status;
+        $order->update(['status' => 'out_for_delivery']); // Use same status but for pickup it means "ready"
+        // Load user relationship for SMS notification
+        if (!$order->relationLoaded('user')) {
+            $order->load('user');
+        }
+        $order->notifyStatusChange($oldStatus);
+
+        return back()->with('success', 'Order marked as ready for pickup.');
+    }
+
+    /**
+     * Mark pickup order as collected
+     */
+    public function markCollected(Order $order)
+    {
+        $user = Auth::user();
+        
+        // If branch staff, ensure order belongs to their branch
+        if ($user->isBranchStaff() && $order->branch_id !== $user->branch_id) {
+            abort(403, 'Access denied. This order does not belong to your branch.');
+        }
+        
+        if (($order->delivery_type ?? 'delivery') !== 'pickup') {
+            return back()->with('error', 'This action is only for pickup orders.');
+        }
+        
+        if ($order->status !== 'out_for_delivery') {
+            return back()->with('error', 'Order must be ready for pickup.');
+        }
+
+        $oldStatus = $order->status;
+        $order->markAsDelivered(); // Use same method, status will be "delivered"
+        // Load user relationship for SMS notification
+        if (!$order->relationLoaded('user')) {
+            $order->load('user');
+        }
+        $order->notifyStatusChange($oldStatus);
+
+        return back()->with('success', 'Order marked as collected.');
+    }
+
     public function updateStatus(Request $request, Order $order)
     {
         $user = Auth::user();
@@ -444,9 +547,13 @@ class OrderController extends Controller
         $oldStatus = $order->status;
         $order->update(['status' => $request->status]);
         $order->refresh(); // Refresh to get updated status
-        // Load user relationship for SMS notification
+        // Load relationships for SMS notification
         if (!$order->relationLoaded('user')) {
             $order->load('user');
+        }
+        // Load delivery person if status is out_for_delivery
+        if ($order->status === 'out_for_delivery' && $order->delivered_by && !$order->relationLoaded('deliveredBy')) {
+            $order->load('deliveredBy');
         }
         $order->notifyStatusChange($oldStatus);
 

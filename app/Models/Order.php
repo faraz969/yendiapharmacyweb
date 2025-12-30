@@ -18,6 +18,7 @@ class Order extends Model
         'packed_by',
         'delivered_by',
         'delivery_zone_id',
+        'delivery_type',
         'order_number',
         'status',
         'customer_name',
@@ -174,14 +175,16 @@ class Order extends Model
             return; // No user to notify for guest orders
         }
 
+        $isPickup = ($this->delivery_type ?? 'delivery') === 'pickup';
+        
         $statusMessages = [
             'pending' => 'Your order is pending approval',
             'approved' => 'Your order has been approved and is being processed',
             'rejected' => 'Your order has been rejected',
             'packing' => 'Your order is being packed',
-            'packed' => 'Your order has been packed and is ready for delivery',
-            'out_for_delivery' => 'Your order is out for delivery',
-            'delivered' => 'Your order has been delivered',
+            'packed' => $isPickup ? 'Your order has been packed and is ready for pickup' : 'Your order has been packed and is ready for delivery',
+            'out_for_delivery' => $isPickup ? 'Your order is ready for pickup' : 'Your order is out for delivery',
+            'delivered' => $isPickup ? 'Your order has been collected' : 'Your order has been delivered',
             'cancelled' => 'Your order has been cancelled',
         ];
 
@@ -191,8 +194,8 @@ class Order extends Model
             'rejected' => 'Order Rejected',
             'packing' => 'Order Being Packed',
             'packed' => 'Order Packed',
-            'out_for_delivery' => 'Order Out for Delivery',
-            'delivered' => 'Order Delivered',
+            'out_for_delivery' => $isPickup ? 'Order Ready for Pickup' : 'Order Out for Delivery',
+            'delivered' => $isPickup ? 'Order Collected' : 'Order Delivered',
             'cancelled' => 'Order Cancelled',
         ];
 
@@ -251,6 +254,26 @@ class Order extends Model
             
             if ($phoneNumber) {
                 $smsMessage = "Order #{$this->order_number}: {$message}";
+                
+                // If order is out for delivery and delivery person is assigned, include their details
+                if ($this->status === 'out_for_delivery' && $this->delivered_by) {
+                    // Load delivery person relationship if not already loaded
+                    if (!$this->relationLoaded('deliveredBy')) {
+                        $this->load('deliveredBy');
+                    }
+                    
+                    if ($this->deliveredBy) {
+                        $deliveryPersonName = $this->deliveredBy->name;
+                        $deliveryPersonPhone = $this->deliveredBy->phone;
+                        
+                        if ($deliveryPersonPhone) {
+                            $smsMessage .= ". Delivery person: {$deliveryPersonName}, Phone: {$deliveryPersonPhone}";
+                        } else {
+                            $smsMessage .= ". Delivery person: {$deliveryPersonName}";
+                        }
+                    }
+                }
+                
                 $smsService->sendSms($phoneNumber, $smsMessage);
             }
         } catch (\Exception $e) {

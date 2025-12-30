@@ -22,10 +22,10 @@
                 @endif
                 <div class="row mb-3">
                     <div class="col-md-4">
-                        <strong>Delivery Fee:</strong> ${{ number_format($deliveryZone->delivery_fee, 2) }}
+                        <strong>Delivery Fee:</strong> {{ \App\Models\Setting::formatPrice($deliveryZone->delivery_fee) }}
                     </div>
                     <div class="col-md-4">
-                        <strong>Min Order (Free Delivery):</strong> ${{ number_format($deliveryZone->min_order_amount ?? 0, 2) }}
+                        <strong>Min Order (Free Delivery):</strong> {{ \App\Models\Setting::formatPrice($deliveryZone->min_order_amount ?? 0) }}
                     </div>
                     <div class="col-md-4">
                         <strong>Est. Delivery:</strong> {{ $deliveryZone->estimated_delivery_hours ?? 'N/A' }} hours
@@ -64,7 +64,7 @@
                                     <tr>
                                         <td><code>{{ $order->order_number }}</code></td>
                                         <td>{{ $order->customer_name }}</td>
-                                        <td>${{ number_format($order->total_amount, 2) }}</td>
+                                        <td>{{ \App\Models\Setting::formatPrice($order->total_amount) }}</td>
                                         <td>
                                             <span class="badge bg-{{ $order->status === 'delivered' ? 'success' : 'info' }}">
                                                 {{ ucfirst($order->status) }}

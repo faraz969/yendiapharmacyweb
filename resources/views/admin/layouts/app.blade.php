@@ -82,6 +82,22 @@
             margin-right: 10px;
         }
         
+        .sidebar-menu .badge {
+            float: right;
+            background: #e74c3c;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-menu .badge.hidden {
+            display: none;
+        }
+        
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 20px;
@@ -214,6 +230,7 @@
             <li>
                 <a href="{{ route('admin.orders.index') }}" class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                     <i class="fas fa-file-invoice"></i> Orders
+                    <span class="badge" id="new-orders-badge" style="display: none;">0</span>
                 </a>
             </li>
             @if(!Auth::user()->isBranchStaff())
@@ -384,6 +401,44 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <script>
+        // Update new orders count badge
+        function updateNewOrdersCount() {
+            fetch('{{ route("admin.orders.new-count") }}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('new-orders-badge');
+                if (badge) {
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching new orders count:', error);
+            });
+        }
+        
+        // Update count on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateNewOrdersCount();
+            
+            // Update count every 30 seconds
+            setInterval(updateNewOrdersCount, 30000);
+        });
+    </script>
+    
     @stack('scripts')
 </body>
 </html>

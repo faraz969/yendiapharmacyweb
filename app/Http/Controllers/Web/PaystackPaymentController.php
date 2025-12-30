@@ -167,93 +167,109 @@ class PaystackPaymentController extends Controller
                         ]);
                         
                         // Send SMS notification after payment is confirmed (only for authenticated users)
-                        if ($order->user_id) {
-                            // Load user relationship if not already loaded
-                            if (!$order->relationLoaded('user')) {
-                                $order->load('user');
-                            }
-                            
-                            $notificationMessage = "Your order #{$order->order_number} has been placed successfully. Total amount: " . \App\Models\Setting::formatPrice($order->total_amount) . ". Payment confirmed.";
-                            
-                            // Update or create notification with payment confirmation
-                            $existingNotification = Notification::where('order_id', $order->id)
-                                ->where('user_id', $order->user_id)
-                                ->where('title', 'Order Placed Successfully')
-                                ->first();
-                            
-                            if ($existingNotification) {
-                                $existingNotification->update([
-                                    'message' => $notificationMessage,
-                                ]);
-                            } else {
-                                // Use relative path for mobile app compatibility
-                                $link = '/orders/' . $order->id;
-                                
-                                Notification::create([
-                                    'user_id' => $order->user_id,
-                                    'order_id' => $order->id,
-                                    'title' => 'Order Placed Successfully',
-                                    'message' => $notificationMessage,
-                                    'type' => 'success',
-                                    'link' => $link,
-                                    'is_active' => true,
-                                    'is_read' => false,
-                                ]);
-                            }
-                            
-                            // Send SMS notification
-                            try {
-                                $smsService = app(SmsService::class);
-                                $phoneNumber = $order->customer_phone ?? $order->user->phone ?? null;
-                                if ($phoneNumber) {
-                                    $smsService->sendSms($phoneNumber, $notificationMessage);
-                                }
-                            } catch (\Exception $e) {
-                                Log::error('Failed to send SMS for order placement', [
-                                    'order_id' => $order->id,
-                                    'error' => $e->getMessage(),
-                                ]);
-                            }
-                        }
-                        
-                        // Send SMS to admin and branch staff
+                        // Wrap in try-catch to ensure SMS/notification failures don't affect payment verification
                         try {
-                            $smsService = app(SmsService::class);
-                            $adminMessage = "New order #{$order->order_number} received. Customer: {$order->customer_name}. Amount: " . \App\Models\Setting::formatPrice($order->total_amount);
-                            
-                            // Get all admins (users with admin role)
-                            $admins = \App\Models\User::role('admin')->whereNotNull('phone')->get();
-                            foreach ($admins as $admin) {
+                            if ($order->user_id) {
+                                // Load user relationship if not already loaded
+                                if (!$order->relationLoaded('user')) {
+                                    $order->load('user');
+                                }
+                                
+                                $notificationMessage = "Your order #{$order->order_number} has been placed successfully. Total amount: " . \App\Models\Setting::formatPrice($order->total_amount) . ". Payment confirmed.";
+                                
+                                // Update or create notification with payment confirmation
                                 try {
-                                    $smsService->sendSms($admin->phone, $adminMessage);
+                                    $existingNotification = Notification::where('order_id', $order->id)
+                                        ->where('user_id', $order->user_id)
+                                        ->where('title', 'Order Placed Successfully')
+                                        ->first();
+                                    
+                                    if ($existingNotification) {
+                                        $existingNotification->update([
+                                            'message' => $notificationMessage,
+                                        ]);
+                                    } else {
+                                        // Use relative path for mobile app compatibility
+                                        $link = '/orders/' . $order->id;
+                                        
+                                        Notification::create([
+                                            'user_id' => $order->user_id,
+                                            'order_id' => $order->id,
+                                            'title' => 'Order Placed Successfully',
+                                            'message' => $notificationMessage,
+                                            'type' => 'success',
+                                            'link' => $link,
+                                            'is_active' => true,
+                                            'is_read' => false,
+                                        ]);
+                                    }
                                 } catch (\Exception $e) {
-                                    Log::error('Failed to send SMS to admin', [
-                                        'admin_id' => $admin->id,
+                                    Log::warning('Failed to create/update notification for order', [
+                                        'order_id' => $order->id,
+                                        'error' => $e->getMessage(),
+                                    ]);
+                                }
+                                
+                                // Send SMS notification
+                                try {
+                                    $smsService = app(SmsService::class);
+                                    $phoneNumber = $order->customer_phone ?? $order->user->phone ?? null;
+                                    if ($phoneNumber) {
+                                        $smsService->sendSms($phoneNumber, $notificationMessage);
+                                    }
+                                } catch (\Exception $e) {
+                                    Log::warning('Failed to send SMS for order placement', [
                                         'order_id' => $order->id,
                                         'error' => $e->getMessage(),
                                     ]);
                                 }
                             }
                             
-                            // Get branch staff for the order's branch
-                            if ($order->branch_id) {
-                                $branchStaff = \App\Models\User::where('branch_id', $order->branch_id)
-                                    ->whereNotNull('phone')
-                                    ->get();
-                                foreach ($branchStaff as $staff) {
+                            // Send SMS to admin and branch staff
+                            try {
+                                $smsService = app(SmsService::class);
+                                $adminMessage = "New order #{$order->order_number} received. Customer: {$order->customer_name}. Amount: " . \App\Models\Setting::formatPrice($order->total_amount);
+                                
+                                // Get all admins (users with admin role)
+                                $admins = \App\Models\User::role('admin')->whereNotNull('phone')->get();
+                                foreach ($admins as $admin) {
                                     try {
-                                        $smsService->sendSms($staff->phone, $adminMessage);
+                                        $smsService->sendSms($admin->phone, $adminMessage);
                                     } catch (\Exception $e) {
-                                        Log::error('Failed to send SMS to branch staff', [
-                                            'staff_id' => $staff->id,
+                                        Log::warning('Failed to send SMS to admin', [
+                                            'admin_id' => $admin->id,
                                             'order_id' => $order->id,
                                             'error' => $e->getMessage(),
                                         ]);
                                     }
                                 }
+                                
+                                // Get branch staff for the order's branch
+                                if ($order->branch_id) {
+                                    $branchStaff = \App\Models\User::where('branch_id', $order->branch_id)
+                                        ->whereNotNull('phone')
+                                        ->get();
+                                    foreach ($branchStaff as $staff) {
+                                        try {
+                                            $smsService->sendSms($staff->phone, $adminMessage);
+                                        } catch (\Exception $e) {
+                                            Log::warning('Failed to send SMS to branch staff', [
+                                                'staff_id' => $staff->id,
+                                                'order_id' => $order->id,
+                                                'error' => $e->getMessage(),
+                                            ]);
+                                        }
+                                    }
+                                }
+                            } catch (\Exception $e) {
+                                Log::warning('Failed to send SMS to admin/staff for order placement', [
+                                    'order_id' => $order->id,
+                                    'error' => $e->getMessage(),
+                                ]);
                             }
                         } catch (\Exception $e) {
-                            Log::error('Failed to send SMS to admin/staff for order placement', [
+                            // Log but don't fail payment verification
+                            Log::warning('Failed to send notifications/SMS after payment verification', [
                                 'order_id' => $order->id,
                                 'error' => $e->getMessage(),
                             ]);
@@ -262,20 +278,27 @@ class PaystackPaymentController extends Controller
                         // Clear cart session
                         session()->forget('cart');
 
-                        // Log successful payment activity
-                        ActivityLogService::logAction(
-                            'payment_success',
-                            "Payment successful for order #{$order->order_number}. Amount paid: " . \App\Models\Setting::formatPrice($order->total_amount),
-                            $order,
-                            [
-                                'order_number' => $order->order_number,
-                                'payment_reference' => $reference,
-                                'amount_paid' => $order->total_amount,
-                                'payment_method' => 'paystack',
-                                'source' => 'web',
-                            ],
-                            $request
-                        );
+                        // Log successful payment activity (don't fail payment if logging fails)
+                        try {
+                            ActivityLogService::logAction(
+                                'payment_success',
+                                "Payment successful for order #{$order->order_number}. Amount paid: " . \App\Models\Setting::formatPrice($order->total_amount),
+                                $order,
+                                [
+                                    'order_number' => $order->order_number,
+                                    'payment_reference' => $request->reference,
+                                    'amount_paid' => $order->total_amount,
+                                    'payment_method' => 'paystack',
+                                    'source' => 'web',
+                                ],
+                                $request
+                            );
+                        } catch (\Exception $e) {
+                            Log::warning('Failed to log payment activity', [
+                                'order_id' => $order->id,
+                                'error' => $e->getMessage(),
+                            ]);
+                        }
 
                         return response()->json([
                             'success' => true,

@@ -31,8 +31,8 @@
                         <tr>
                             <td>{{ $zone->id }}</td>
                             <td><strong>{{ $zone->name }}</strong></td>
-                            <td>${{ number_format($zone->delivery_fee, 2) }}</td>
-                            <td>${{ number_format($zone->min_order_amount ?? 0, 2) }}</td>
+                            <td>{{ \App\Models\Setting::formatPrice($zone->delivery_fee) }}</td>
+                            <td>{{ \App\Models\Setting::formatPrice($zone->min_order_amount ?? 0) }}</td>
                             <td>{{ $zone->estimated_delivery_hours ?? 'N/A' }} hrs</td>
                             <td>{{ $zone->orders()->count() }}</td>
                             <td>

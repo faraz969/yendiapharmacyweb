@@ -23,6 +23,25 @@
             <div class="card-body">
                 <div class="row mb-3">
                     <div class="col-md-6">
+                        <strong>Order Type:</strong>
+                        @if(($order->delivery_type ?? 'delivery') === 'pickup')
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-hand-holding"></i> Pickup
+                            </span>
+                        @else
+                            <span class="badge bg-primary">
+                                <i class="fas fa-truck"></i> Delivery
+                            </span>
+                        @endif
+                    </div>
+                    <div class="col-md-6">
+                        @if($order->branch)
+                            <strong>Branch:</strong> {{ $order->branch->name }}
+                        @endif
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
                         <strong>Customer Name:</strong> {{ $order->customer_name }}
                     </div>
                     <div class="col-md-6">
@@ -36,18 +55,31 @@
                         </div>
                     </div>
                 @endif
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <strong>Delivery Address:</strong><br>
-                        {{ $order->delivery_address }}
+                @if(($order->delivery_type ?? 'delivery') === 'pickup')
+                    <div class="alert alert-warning mb-3">
+                        <i class="fas fa-hand-holding me-2"></i>
+                        <strong>Pickup Order:</strong> Customer will collect this order from the branch.
+                        @if($order->branch)
+                            <br><strong>Pickup Location:</strong> {{ $order->branch->name }}
+                            @if($order->branch->address)
+                                <br>{{ $order->branch->address }}
+                            @endif
+                        @endif
                     </div>
-                </div>
-                @if($order->deliveryZone)
+                @else
                     <div class="row mb-3">
                         <div class="col-md-12">
-                            <strong>Delivery Zone:</strong> {{ $order->deliveryZone->name }}
+                            <strong>Delivery Address:</strong><br>
+                            {{ $order->delivery_address }}
                         </div>
                     </div>
+                    @if($order->deliveryZone)
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <strong>Delivery Zone:</strong> {{ $order->deliveryZone->name }}
+                            </div>
+                        </div>
+                    @endif
                 @endif
                 @if($order->notes)
                     <div class="alert alert-info">
@@ -90,31 +122,31 @@
                                     </td>
                                     <td><code>{{ $item->product->sku }}</code></td>
                                     <td>{{ $item->quantity }} {{ $item->product->selling_unit }}</td>
-                                    <td>${{ number_format($item->unit_price, 2) }}</td>
-                                    <td>${{ number_format($item->total_price, 2) }}</td>
+                                    <td>{{ \App\Models\Setting::formatPrice($item->unit_price) }}</td>
+                                    <td>{{ \App\Models\Setting::formatPrice($item->total_price) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                         <tfoot>
                             <tr>
                                 <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
-                                <td><strong>${{ number_format($order->subtotal, 2) }}</strong></td>
+                                <td><strong>{{ \App\Models\Setting::formatPrice($order->subtotal) }}</strong></td>
                             </tr>
                             @if($order->delivery_fee > 0)
                                 <tr>
                                     <td colspan="4" class="text-end"><strong>Delivery Fee:</strong></td>
-                                    <td><strong>${{ number_format($order->delivery_fee, 2) }}</strong></td>
+                                    <td><strong>{{ \App\Models\Setting::formatPrice($order->delivery_fee) }}</strong></td>
                                 </tr>
                             @endif
                             @if($order->discount > 0)
                                 <tr>
                                     <td colspan="4" class="text-end"><strong>Discount:</strong></td>
-                                    <td><strong>-${{ number_format($order->discount, 2) }}</strong></td>
+                                    <td><strong>-{{ \App\Models\Setting::formatPrice($order->discount) }}</strong></td>
                                 </tr>
                             @endif
                             <tr class="table-primary">
                                 <td colspan="4" class="text-end"><strong>Total:</strong></td>
-                                <td><strong>${{ number_format($order->total_amount, 2) }}</strong></td>
+                                <td><strong>{{ \App\Models\Setting::formatPrice($order->total_amount) }}</strong></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -122,8 +154,8 @@
             </div>
         </div>
 
-        <!-- Delivery Person Information -->
-        @if($order->deliveredBy)
+        <!-- Delivery Person Information (Only for Delivery Orders) -->
+        @if(($order->delivery_type ?? 'delivery') === 'delivery' && $order->deliveredBy)
             <div class="card mb-3">
                 <div class="card-header">
                     <h6 class="mb-0"><i class="fas fa-truck me-2"></i>Delivery Person</h6>
@@ -238,56 +270,76 @@
                         </button>
                     </form>
                 @elseif($order->status === 'packed')
-                    <!-- Assign Delivery -->
-                    <form action="{{ route('admin.orders.deliver', $order->id) }}" method="POST">
-                        @csrf
-                        <div class="mb-2">
-                            <label for="delivery_person_id" class="form-label">Delivery Person <span class="text-danger">*</span></label>
-                            <select name="delivery_person_id" id="delivery_person_id" class="form-select" required>
-                                <option value="">Select Delivery Person</option>
-                                @if(isset($deliveryPersons) && $deliveryPersons->count() > 0)
-                                    @foreach($deliveryPersons as $person)
-                                        <option value="{{ $person->id }}">
-                                            {{ $person->name }}
-                                            @if($person->branch)
-                                                ({{ $person->branch->name }})
-                                            @endif
-                                            - {{ $person->active_deliveries_count ?? 0 }} active delivery(ies)
-                                        </option>
-                                    @endforeach
-                                @else
-                                    <option value="" disabled>No delivery persons available</option>
-                                @endif
-                            </select>
-                            @if(!isset($deliveryPersons) || $deliveryPersons->count() === 0)
-                                <div class="alert alert-warning mt-2 mb-0">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    <strong>No delivery persons found!</strong> 
-                                    @if($order->branch_id)
-                                        No delivery persons are assigned to this order's branch ({{ $order->branch->name ?? 'N/A' }}).
+                    @if(($order->delivery_type ?? 'delivery') === 'pickup')
+                        <!-- Mark Ready for Pickup -->
+                        <form action="{{ route('admin.orders.mark-ready-pickup', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-warning w-100">
+                                <i class="fas fa-hand-holding me-2"></i>Mark Ready for Pickup
+                            </button>
+                        </form>
+                    @else
+                        <!-- Assign Delivery -->
+                        <form action="{{ route('admin.orders.deliver', $order->id) }}" method="POST">
+                            @csrf
+                            <div class="mb-2">
+                                <label for="delivery_person_id" class="form-label">Delivery Person <span class="text-danger">*</span></label>
+                                <select name="delivery_person_id" id="delivery_person_id" class="form-select" required>
+                                    <option value="">Select Delivery Person</option>
+                                    @if(isset($deliveryPersons) && $deliveryPersons->count() > 0)
+                                        @foreach($deliveryPersons as $person)
+                                            <option value="{{ $person->id }}">
+                                                {{ $person->name }}
+                                                @if($person->branch)
+                                                    ({{ $person->branch->name }})
+                                                @endif
+                                                - {{ $person->active_deliveries_count ?? 0 }} active delivery(ies)
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        <option value="" disabled>No delivery persons available</option>
                                     @endif
-                                    <br>
-                                    Please <a href="{{ route('admin.users.create') }}" target="_blank">create a delivery person</a> 
-                                    and assign them the "delivery_person" role{{ $order->branch_id ? ' and assign them to the branch' : '' }}.
-                                </div>
-                            @else
-                                <small class="form-text text-muted">
-                                    Shows active delivery count for each person
-                                </small>
-                            @endif
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-truck me-2"></i>Assign for Delivery
-                        </button>
-                    </form>
+                                </select>
+                                @if(!isset($deliveryPersons) || $deliveryPersons->count() === 0)
+                                    <div class="alert alert-warning mt-2 mb-0">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <strong>No delivery persons found!</strong> 
+                                        @if($order->branch_id)
+                                            No delivery persons are assigned to this order's branch ({{ $order->branch->name ?? 'N/A' }}).
+                                        @endif
+                                        <br>
+                                        Please <a href="{{ route('admin.users.create') }}" target="_blank">create a delivery person</a> 
+                                        and assign them the "delivery_person" role{{ $order->branch_id ? ' and assign them to the branch' : '' }}.
+                                    </div>
+                                @else
+                                    <small class="form-text text-muted">
+                                        Shows active delivery count for each person
+                                    </small>
+                                @endif
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-truck me-2"></i>Assign for Delivery
+                            </button>
+                        </form>
+                    @endif
                 @elseif($order->status === 'out_for_delivery')
-                    <!-- Mark Delivered -->
-                    <form action="{{ route('admin.orders.mark-delivered', $order->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="fas fa-check-circle me-2"></i>Mark as Delivered
-                        </button>
-                    </form>
+                    @if(($order->delivery_type ?? 'delivery') === 'pickup')
+                        <!-- Mark Collected (Pickup) -->
+                        <form action="{{ route('admin.orders.mark-collected', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check-circle me-2"></i>Mark as Collected
+                            </button>
+                        </form>
+                    @else
+                        <!-- Mark Delivered -->
+                        <form action="{{ route('admin.orders.mark-delivered', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check-circle me-2"></i>Mark as Delivered
+                            </button>
+                        </form>
+                    @endif
                 @endif
 
                 <!-- Status Update -->
