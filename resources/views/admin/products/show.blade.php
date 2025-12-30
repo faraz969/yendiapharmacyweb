@@ -46,10 +46,10 @@
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <strong>Selling Price:</strong> ${{ number_format($product->selling_price, 2) }}
+                        <strong>Selling Price:</strong> {{ \App\Models\Setting::formatPrice($product->selling_price) }}
                     </div>
                     <div class="col-md-6">
-                        <strong>Cost Price:</strong> ${{ number_format($product->cost_price, 2) }}
+                        <strong>Cost Price:</strong> {{ \App\Models\Setting::formatPrice($product->cost_price) }}
                     </div>
                 </div>
 

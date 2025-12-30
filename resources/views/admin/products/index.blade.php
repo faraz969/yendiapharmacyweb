@@ -82,7 +82,7 @@
                             </td>
                             <td><code>{{ $product->sku }}</code></td>
                             <td>{{ $product->category->name }}</td>
-                            <td>${{ number_format($product->selling_price, 2) }}</td>
+                            <td>{{ \App\Models\Setting::formatPrice($product->selling_price) }}</td>
                             <td>
                                 @if($product->track_batch)
                                     {{ number_format($product->total_stock) }} {{ $product->selling_unit }}

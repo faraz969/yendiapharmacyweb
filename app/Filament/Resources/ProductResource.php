@@ -48,11 +48,11 @@ class ProductResource extends Resource
                         Components\TextInput::make('selling_price')
                             ->numeric()
                             ->required()
-                            ->prefix('$'),
+                            ->prefix(\App\Models\Setting::getCurrencySymbol()),
                         Components\TextInput::make('cost_price')
                             ->numeric()
                             ->default(0)
-                            ->prefix('$'),
+                            ->prefix(\App\Models\Setting::getCurrencySymbol()),
                     ]),
                 
                 Components\Section::make('Unit Conversion')
@@ -119,7 +119,7 @@ class ProductResource extends Resource
                     ->searchable(),
                 Columns\Text::make('selling_price')
                     ->getValueUsing(function ($record) {
-                        return '$' . number_format($record->selling_price, 2);
+                        return \App\Models\Setting::formatPrice($record->selling_price);
                     })
                     ->sortable(),
                 Columns\Boolean::make('requires_prescription')

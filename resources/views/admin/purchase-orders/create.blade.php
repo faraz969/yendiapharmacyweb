@@ -99,7 +99,7 @@ function addItem() {
             </div>
             <div class="col-md-2">
                 <div class="input-group">
-                    <span class="input-group-text">$</span>
+                    <span class="input-group-text">{{ \App\Models\Setting::getCurrencySymbol() }}</span>
                     <input type="number" step="0.01" class="form-control" name="items[${itemCount}][unit_cost]" placeholder="Cost" min="0" required>
                 </div>
             </div>

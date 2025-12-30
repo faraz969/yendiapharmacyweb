@@ -59,15 +59,15 @@
                                     <td>{{ $item->product->name }} <code>{{ $item->product->sku }}</code></td>
                                     <td>{{ $item->quantity }} {{ $item->product->purchase_unit }}</td>
                                     <td>{{ $item->received_quantity }} / {{ $item->quantity }}</td>
-                                    <td>${{ number_format($item->unit_cost, 2) }}</td>
-                                    <td>${{ number_format($item->total_cost, 2) }}</td>
+                                    <td>{{ \App\Models\Setting::formatPrice($item->unit_cost) }}</td>
+                                    <td>{{ \App\Models\Setting::formatPrice($item->total_cost) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                         <tfoot>
                             <tr class="table-primary">
                                 <td colspan="4" class="text-end"><strong>Total:</strong></td>
-                                <td><strong>${{ number_format($purchaseOrder->total_amount, 2) }}</strong></td>
+                                <td><strong>{{ \App\Models\Setting::formatPrice($purchaseOrder->total_amount) }}</strong></td>
                             </tr>
                         </tfoot>
                     </table>

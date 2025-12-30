@@ -65,7 +65,7 @@
                             <td>{{ $po->vendor->name }}</td>
                             <td>{{ $po->order_date->format('M d, Y') }}</td>
                             <td>{{ $po->expected_delivery_date ? $po->expected_delivery_date->format('M d, Y') : 'N/A' }}</td>
-                            <td>${{ number_format($po->total_amount, 2) }}</td>
+                            <td>{{ \App\Models\Setting::formatPrice($po->total_amount) }}</td>
                             <td>
                                 <span class="badge bg-{{ $po->status === 'received' ? 'success' : ($po->status === 'pending' ? 'warning' : 'info') }}">
                                     {{ ucfirst($po->status) }}

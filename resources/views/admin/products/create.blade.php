@@ -115,7 +115,7 @@
                             <div class="mb-3">
                                 <label for="selling_price" class="form-label">Selling Price <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <span class="input-group-text">$</span>
+                                    <span class="input-group-text">{{ \App\Models\Setting::getCurrencySymbol() }}</span>
                                     <input type="number" step="0.01" class="form-control @error('selling_price') is-invalid @enderror" id="selling_price" name="selling_price" value="{{ old('selling_price') }}" required>
                                 </div>
                                 @error('selling_price')
@@ -127,7 +127,7 @@
                             <div class="mb-3">
                                 <label for="cost_price" class="form-label">Cost Price <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <span class="input-group-text">$</span>
+                                    <span class="input-group-text">{{ \App\Models\Setting::getCurrencySymbol() }}</span>
                                     <input type="number" step="0.01" class="form-control @error('cost_price') is-invalid @enderror" id="cost_price" name="cost_price" value="{{ old('cost_price') }}" required>
                                 </div>
                                 @error('cost_price')
@@ -141,13 +141,13 @@
                             <div class="mb-3">
                                 <label for="discount" class="form-label">Discount Amount</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">$</span>
+                                    <span class="input-group-text">{{ \App\Models\Setting::getCurrencySymbol() }}</span>
                                     <input type="number" step="0.01" class="form-control @error('discount') is-invalid @enderror" id="discount" name="discount" value="{{ old('discount') }}" min="0">
                                 </div>
                                 @error('discount')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                <small class="form-text text-muted">Enter discount amount (e.g., 10.00 for $10 off)</small>
+                                <small class="form-text text-muted">Enter discount amount (e.g., 10.00 for {{ \App\Models\Setting::getCurrencySymbol() }}10 off)</small>
                             </div>
                         </div>
                     </div>
