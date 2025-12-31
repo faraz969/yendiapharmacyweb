@@ -58,11 +58,12 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'branch_id' => 'required|exists:branches,id',
+            'delivery_type' => 'required|in:delivery,pickup',
             'delivery_address_id' => 'nullable|exists:delivery_addresses,id',
             'customer_name' => 'required_without:delivery_address_id|string|max:255',
             'customer_phone' => 'required_without:delivery_address_id|string|max:20',
             'customer_email' => 'nullable|email|max:255',
-            'delivery_address' => 'required_without:delivery_address_id|string',
+            'delivery_address' => 'required_if:delivery_type,delivery|nullable|string',
             'delivery_zone_id' => 'nullable|exists:delivery_zones,id',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -70,9 +71,11 @@ class OrderController extends Controller
             'items.*.price' => 'required|numeric|min:0',
         ]);
 
-        // If using saved address, get the address data
+        $deliveryType = $validated['delivery_type'] ?? 'delivery';
+        
+        // If using saved address, get the address data (only for delivery orders)
         $deliveryAddressId = null;
-        if ($request->delivery_address_id && Auth::check()) {
+        if ($deliveryType === 'delivery' && $request->delivery_address_id && Auth::check()) {
             $savedAddress = DeliveryAddress::where('user_id', Auth::id())
                 ->findOrFail($request->delivery_address_id);
             
@@ -83,8 +86,8 @@ class OrderController extends Controller
             $deliveryAddressId = $savedAddress->id;
         }
 
-        // Get delivery_zone_id from request (may not be in validated if null)
-        $deliveryZoneId = $request->input('delivery_zone_id');
+        // Get delivery_zone_id from request (only for delivery orders)
+        $deliveryZoneId = ($deliveryType === 'delivery') ? $request->input('delivery_zone_id') : null;
 
         // Check if any product requires prescription
         $requiresPrescription = false;
@@ -116,16 +119,16 @@ class OrderController extends Controller
             }
         }
 
-        return DB::transaction(function () use ($validated, $deliveryAddressId, $deliveryZoneId) {
+        return DB::transaction(function () use ($validated, $deliveryAddressId, $deliveryZoneId, $deliveryType, $request) {
             // Calculate totals
             $subtotal = 0;
             foreach ($validated['items'] as $item) {
                 $subtotal += $item['quantity'] * $item['price'];
             }
 
-            // Calculate delivery fee
+            // Calculate delivery fee (only for delivery orders)
             $deliveryFee = 0;
-            if ($deliveryZoneId) {
+            if ($deliveryType === 'delivery' && $deliveryZoneId) {
                 $deliveryZone = DeliveryZone::find($deliveryZoneId);
                 if ($deliveryZone) {
                     $deliveryFee = $deliveryZone->calculateDeliveryFee($subtotal);
@@ -140,12 +143,13 @@ class OrderController extends Controller
                 'branch_id' => $validated['branch_id'],
                 'delivery_address_id' => $deliveryAddressId,
                 'delivery_zone_id' => $deliveryZoneId,
+                'delivery_type' => $deliveryType,
                 'order_number' => OrderHelper::generateOrderNumber(),
                 'status' => 'pending',
                 'customer_name' => $validated['customer_name'],
                 'customer_phone' => $validated['customer_phone'],
                 'customer_email' => $validated['customer_email'] ?? null,
-                'delivery_address' => $validated['delivery_address'],
+                'delivery_address' => $deliveryType === 'delivery' ? ($validated['delivery_address'] ?? null) : null,
                 'subtotal' => $subtotal,
                 'delivery_fee' => $deliveryFee,
                 'discount' => 0,
