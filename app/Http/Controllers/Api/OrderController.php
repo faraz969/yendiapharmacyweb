@@ -56,20 +56,29 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        // Custom validation: delivery_address is required for delivery orders unless delivery_address_id is provided
+        $rules = [
             'branch_id' => 'required|exists:branches,id',
             'delivery_type' => 'required|in:delivery,pickup',
             'delivery_address_id' => 'nullable|exists:delivery_addresses,id',
             'customer_name' => 'required_without:delivery_address_id|string|max:255',
             'customer_phone' => 'required_without:delivery_address_id|string|max:20',
             'customer_email' => 'nullable|email|max:255',
-            'delivery_address' => 'required_if:delivery_type,delivery|nullable|string',
             'delivery_zone_id' => 'nullable|exists:delivery_zones,id',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.price' => 'required|numeric|min:0',
-        ]);
+        ];
+        
+        // Add delivery_address validation conditionally
+        if ($request->input('delivery_type') === 'delivery' && !$request->input('delivery_address_id')) {
+            $rules['delivery_address'] = 'required|string';
+        } else {
+            $rules['delivery_address'] = 'nullable|string';
+        }
+        
+        $validated = $request->validate($rules);
 
         $deliveryType = $validated['delivery_type'] ?? 'delivery';
         
