@@ -82,11 +82,12 @@ class CheckoutController extends Controller
 
         $validated = $request->validate([
             'branch_id' => 'required|exists:branches,id',
+            'delivery_type' => 'required|in:delivery,pickup',
             'delivery_address_id' => 'nullable|exists:delivery_addresses,id',
             'customer_name' => 'required_without:delivery_address_id|string|max:255',
             'customer_phone' => 'required_without:delivery_address_id|string|max:255',
             'customer_email' => 'nullable|email|max:255',
-            'delivery_address' => 'required_without:delivery_address_id|string',
+            'delivery_address' => 'required_if:delivery_type,delivery|nullable|string',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'delivery_zone_id' => 'nullable|exists:delivery_zones,id',
@@ -135,10 +136,12 @@ class CheckoutController extends Controller
                 }
             }
 
-            // Calculate delivery fee
+            // Calculate delivery fee (only for delivery orders)
             $deliveryZone = null;
             $deliveryFee = 0;
-            if ($request->delivery_zone_id) {
+            $deliveryType = $validated['delivery_type'] ?? 'delivery';
+            
+            if ($deliveryType === 'delivery' && $request->delivery_zone_id) {
                 $deliveryZone = DeliveryZone::find($request->delivery_zone_id);
                 if ($deliveryZone) {
                     $deliveryFee = $deliveryZone->calculateDeliveryFee($subtotal);
@@ -172,13 +175,14 @@ class CheckoutController extends Controller
                 'branch_id' => $validated['branch_id'],
                 'prescription_id' => $prescription ? $prescription->id : null,
                 'delivery_address_id' => $deliveryAddressId,
-                'delivery_zone_id' => $request->delivery_zone_id,
+                'delivery_zone_id' => $deliveryType === 'delivery' ? $request->delivery_zone_id : null,
+                'delivery_type' => $deliveryType,
                 'order_number' => OrderHelper::generateOrderNumber(),
                 'status' => 'pending',
                 'customer_name' => $validated['customer_name'],
                 'customer_phone' => $validated['customer_phone'],
                 'customer_email' => $validated['customer_email'] ?? null,
-                'delivery_address' => $validated['delivery_address'],
+                'delivery_address' => $deliveryType === 'delivery' ? ($validated['delivery_address'] ?? '') : null,
                 'latitude' => $validated['latitude'] ?? null,
                 'longitude' => $validated['longitude'] ?? null,
                 'subtotal' => $subtotal,

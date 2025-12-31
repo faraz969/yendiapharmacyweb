@@ -70,10 +70,48 @@
                     </div>
                 </div>
 
+                <!-- Delivery Type Selection -->
+                <div class="card mb-4">
+                    <div class="card-header text-white" style="background-color:#dc8423;">
+                        <h5 class="mb-0"><i class="fas fa-shipping-fast me-2"></i>Delivery Type</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 {{ old('delivery_type', 'delivery') == 'delivery' ? 'border-primary' : '' }}" style="cursor: pointer;" onclick="selectDeliveryType('delivery')">
+                                    <div class="card-body text-center">
+                                        <input type="radio" name="delivery_type" id="delivery_type_delivery" value="delivery" 
+                                               {{ old('delivery_type', 'delivery') == 'delivery' ? 'checked' : '' }} 
+                                               onchange="toggleDeliveryForm()" style="display: none;">
+                                        <i class="fas fa-truck fa-3x mb-3" style="color: #158D43;"></i>
+                                        <h5>Delivery</h5>
+                                        <p class="text-muted mb-0">We'll deliver to your address</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 {{ old('delivery_type', 'delivery') == 'pickup' ? 'border-primary' : '' }}" style="cursor: pointer;" onclick="selectDeliveryType('pickup')">
+                                    <div class="card-body text-center">
+                                        <input type="radio" name="delivery_type" id="delivery_type_pickup" value="pickup" 
+                                               {{ old('delivery_type', 'delivery') == 'pickup' ? 'checked' : '' }} 
+                                               onchange="toggleDeliveryForm()" style="display: none;">
+                                        <i class="fas fa-hand-holding fa-3x mb-3" style="color: #158D43;"></i>
+                                        <h5>Pickup</h5>
+                                        <p class="text-muted mb-0">Collect from the branch</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @error('delivery_type')
+                            <div class="text-danger mt-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
                 <!-- Saved Addresses (if authenticated) -->
                 @auth
                     @if($savedAddresses->isNotEmpty())
-                        <div class="card mb-4">
+                        <div class="card mb-4" id="savedAddresses">
                             <div class="card-header bg-info text-white">
                                 <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Saved Addresses</h5>
                             </div>
@@ -125,7 +163,7 @@
                 @endauth
 
                 <!-- Delivery Information -->
-                <div class="card mb-4" id="deliveryForm">
+                <div class="card mb-4" id="deliveryForm" style="display: {{ old('delivery_type', 'delivery') == 'pickup' ? 'none' : 'block' }};">
                     <div class="card-header  text-white" style="background-color:#dc8423;">
                         <h5 class="mb-0"><i class="fas fa-truck me-2"></i>Delivery Information</h5>
                     </div>
@@ -282,20 +320,85 @@
 
 @push('scripts')
 <script>
-document.getElementById('delivery_zone').addEventListener('change', function() {
-    const selected = this.options[this.selectedIndex];
-    const fee = parseFloat(selected.dataset.fee || 0);
-    const minOrder = parseFloat(selected.dataset.min || 0);
-    const subtotal = parseFloat({{ $subtotal }});
-    
-    let deliveryFee = fee;
-    if (minOrder > 0 && subtotal >= minOrder) {
-        deliveryFee = 0;
+// Delivery type selection
+function selectDeliveryType(type) {
+    const radio = document.getElementById('delivery_type_' + type);
+    if (radio) {
+        radio.checked = true;
+        toggleDeliveryForm();
     }
+}
+
+// Toggle delivery form visibility based on delivery type
+function toggleDeliveryForm() {
+    const deliveryType = document.querySelector('input[name="delivery_type"]:checked');
+    const deliveryForm = document.getElementById('deliveryForm');
+    const savedAddresses = document.getElementById('savedAddresses');
     
-    document.getElementById('delivery_fee').textContent = deliveryFee.toFixed(2);
-    document.getElementById('total').textContent = (subtotal + deliveryFee).toFixed(2);
+    if (deliveryType && deliveryForm) {
+        if (deliveryType.value === 'pickup') {
+            deliveryForm.style.display = 'none';
+            // Hide saved addresses section for pickup
+            if (savedAddresses) {
+                savedAddresses.style.display = 'none';
+            }
+            // Set delivery fee to 0 for pickup
+            document.getElementById('delivery_fee').textContent = '0.00';
+            const subtotal = parseFloat({{ $subtotal }});
+            document.getElementById('total').textContent = subtotal.toFixed(2);
+        } else {
+            deliveryForm.style.display = 'block';
+            // Show saved addresses section for delivery
+            if (savedAddresses) {
+                savedAddresses.style.display = 'block';
+            }
+            // Recalculate delivery fee
+            const deliveryZone = document.getElementById('delivery_zone');
+            if (deliveryZone) {
+                deliveryZone.dispatchEvent(new Event('change'));
+            }
+        }
+        
+        // Update card borders
+        document.querySelectorAll('[onclick*="selectDeliveryType"]').forEach(card => {
+            card.classList.remove('border-primary');
+        });
+        const selectedCard = document.querySelector('[onclick="selectDeliveryType(\'' + deliveryType.value + '\')"]');
+        if (selectedCard) {
+            selectedCard.classList.add('border-primary');
+        }
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleDeliveryForm();
 });
+
+// Delivery zone change handler
+const deliveryZoneSelect = document.getElementById('delivery_zone');
+if (deliveryZoneSelect) {
+    deliveryZoneSelect.addEventListener('change', function() {
+        const selected = this.options[this.selectedIndex];
+        const fee = parseFloat(selected.dataset.fee || 0);
+        const minOrder = parseFloat(selected.dataset.min || 0);
+        const subtotal = parseFloat({{ $subtotal }});
+        
+        // Only apply delivery fee if delivery type is 'delivery'
+        const deliveryType = document.querySelector('input[name="delivery_type"]:checked');
+        let deliveryFee = 0;
+        
+        if (deliveryType && deliveryType.value === 'delivery') {
+            deliveryFee = fee;
+            if (minOrder > 0 && subtotal >= minOrder) {
+                deliveryFee = 0;
+            }
+        }
+        
+        document.getElementById('delivery_fee').textContent = deliveryFee.toFixed(2);
+        document.getElementById('total').textContent = (subtotal + deliveryFee).toFixed(2);
+    });
+}
 </script>
 @endpush
 @endsection
