@@ -219,28 +219,23 @@ class Order extends Model
             return;
         }
 
-        Notification::create([
-            'user_id' => $this->user_id,
-            'order_id' => $this->id,
-            'title' => $title,
-            'message' => "Order #{$this->order_number}: {$message}",
-            'type' => $type,
-            'link' => '/orders/' . $this->id, // Use relative path for mobile app compatibility
-            'is_active' => true,
-            'is_read' => false,
-        ]);
-
-        // Send SMS notification (only for authenticated users, not guests)
+        // Create notification only for authenticated users (not guests)
         if ($this->user_id) {
-            // Load user relationship if not already loaded
-            if (!$this->relationLoaded('user')) {
-                $this->load('user');
-            }
-            
-            if ($this->user) {
-                $this->sendSmsNotification($message);
-            }
+            Notification::create([
+                'user_id' => $this->user_id,
+                'order_id' => $this->id,
+                'title' => $title,
+                'message' => "Order #{$this->order_number}: {$message}",
+                'type' => $type,
+                'link' => '/orders/' . $this->id, // Use relative path for mobile app compatibility
+                'is_active' => true,
+                'is_read' => false,
+            ]);
         }
+
+        // Send SMS notification to both authenticated users and guests
+        // Use customer_phone from order (works for both authenticated and guest users)
+        $this->sendSmsNotification($message);
     }
 
     /**
@@ -250,7 +245,19 @@ class Order extends Model
     {
         try {
             $smsService = app(\App\Services\SmsService::class);
-            $phoneNumber = $this->customer_phone ?? $this->user->phone ?? null;
+            
+            // For guest users, use customer_phone from order
+            // For authenticated users, prefer customer_phone, fallback to user->phone
+            $phoneNumber = $this->customer_phone;
+            
+            // If no customer_phone and user exists, try user's phone
+            if (!$phoneNumber && $this->user_id) {
+                // Load user relationship if not already loaded
+                if (!$this->relationLoaded('user')) {
+                    $this->load('user');
+                }
+                $phoneNumber = $this->user->phone ?? null;
+            }
             
             if ($phoneNumber) {
                 $smsMessage = "Order #{$this->order_number}: {$message}";

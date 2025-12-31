@@ -210,10 +210,15 @@ class PaystackPaymentController extends Controller
                                     ]);
                                 }
                                 
-                                // Send SMS notification
+                                // Send SMS notification (for both authenticated users and guests)
                                 try {
                                     $smsService = app(SmsService::class);
-                                    $phoneNumber = $order->customer_phone ?? $order->user->phone ?? null;
+                                    // Use customer_phone from order (works for both authenticated and guest users)
+                                    $phoneNumber = $order->customer_phone;
+                                    // If no customer_phone and user exists, try user's phone
+                                    if (!$phoneNumber && $order->user_id && $order->user) {
+                                        $phoneNumber = $order->user->phone ?? null;
+                                    }
                                     if ($phoneNumber) {
                                         $smsService->sendSms($phoneNumber, $notificationMessage);
                                     }
