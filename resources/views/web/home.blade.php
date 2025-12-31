@@ -318,16 +318,9 @@ use Illuminate\Support\Facades\Storage;
                                         
                                         <!-- Price and Add Button -->
                                         <div class="d-flex justify-content-between align-items-center mt-auto">
-                                            <div>
-                                                <span class="fw-bold" style="font-size: 1.1rem; color: #158d43;">
-                                                    {{ \App\Models\Setting::formatPrice($product->selling_price) }}
-                                                </span>
-                                                @if($product->discount && $product->discount > 0 && $product->cost_price)
-                                                    <span class="text-muted text-decoration-line-through ms-2" style="font-size: 0.85rem;">
-                                                        {{ \App\Models\Setting::formatPrice($product->cost_price) }}
-                                                    </span>
-                                                @endif
-                                            </div>
+                                            <span class="fw-bold" style="font-size: 1.1rem; color: #158d43;">
+                                                {{ \App\Models\Setting::formatPrice($product->selling_price) }}
+                                            </span>
                                             <form action="{{ route('cart.add') }}" method="POST" class="d-inline" onclick="event.stopPropagation();">
                                                 @csrf
                                                 <input type="hidden" name="product_id" value="{{ $product->id }}">
