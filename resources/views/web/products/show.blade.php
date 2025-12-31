@@ -45,7 +45,19 @@
             @endif
 
             <div class="mb-4">
-                <h2 class=" mb-0" style="color: #dc8423">{{ \App\Models\Setting::formatPrice($product->selling_price) }}</h2>
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <h2 class="mb-0" style="color: #dc8423">{{ \App\Models\Setting::formatPrice($product->selling_price) }}</h2>
+                    @if($product->discount && $product->discount > 0)
+                        <span class="badge px-3 py-2" style="background: #ee7d09; color: white; font-size: 0.9rem;">
+                            {{ \App\Models\Setting::formatPrice($product->discount) }} OFF
+                        </span>
+                    @endif
+                </div>
+                @if($product->discount && $product->discount > 0 && $product->cost_price)
+                    <p class="text-muted mb-2">
+                        <span class="text-decoration-line-through">{{ \App\Models\Setting::formatPrice($product->cost_price) }}</span>
+                    </p>
+                @endif
                 @if($product->track_batch)
                     <p class="text-muted mb-0">
                         <i class="fas fa-check-circle text-success me-1"></i>

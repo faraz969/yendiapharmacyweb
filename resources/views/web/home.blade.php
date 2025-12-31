@@ -250,10 +250,6 @@ use Illuminate\Support\Facades\Storage;
                     <div class="product-cards-container d-flex gap-3" id="productCardsContainer" style="overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;">
                         @foreach($featuredProducts as $index => $product)
                             @php
-                                // Calculate discount if cost_price is higher than selling_price
-                                $hasDiscount = $product->cost_price > $product->selling_price;
-                                $discountPercent = $hasDiscount ? round((($product->cost_price - $product->selling_price) / $product->cost_price) * 100) : 0;
-                                
                                 // Determine badge label
                                 $badgeLabel = null;
                                 $badgeColor = null;
@@ -266,8 +262,8 @@ use Illuminate\Support\Facades\Storage;
                                 } elseif ($index % 5 == 2) {
                                     $badgeLabel = 'New';
                                     $badgeColor = '#158d43';
-                                } elseif ($hasDiscount && $discountPercent > 0) {
-                                    $badgeLabel = '-' . $discountPercent . '%';
+                                } elseif ($product->discount && $product->discount > 0) {
+                                    $badgeLabel = \App\Models\Setting::formatPrice($product->discount) . ' OFF';
                                     $badgeColor = '#ee7d09';
                                 }
                             @endphp
@@ -326,7 +322,7 @@ use Illuminate\Support\Facades\Storage;
                                                 <span class="fw-bold" style="font-size: 1.1rem; color: #158d43;">
                                                     {{ \App\Models\Setting::formatPrice($product->selling_price) }}
                                                 </span>
-                                                @if($hasDiscount && $product->cost_price > $product->selling_price)
+                                                @if($product->discount && $product->discount > 0 && $product->cost_price)
                                                     <span class="text-muted text-decoration-line-through ms-2" style="font-size: 0.85rem;">
                                                         {{ \App\Models\Setting::formatPrice($product->cost_price) }}
                                                     </span>
