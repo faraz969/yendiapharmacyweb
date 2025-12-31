@@ -250,19 +250,10 @@ use Illuminate\Support\Facades\Storage;
                     <div class="product-cards-container d-flex gap-3" id="productCardsContainer" style="overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;">
                         @foreach($featuredProducts as $index => $product)
                             @php
-                                // Determine badge label
+                                // Determine badge label - only show discount badge
                                 $badgeLabel = null;
                                 $badgeColor = null;
-                                if ($index % 5 == 0) {
-                                    $badgeLabel = 'Hot';
-                                    $badgeColor = '#ff6b9d';
-                                } elseif ($index % 5 == 1) {
-                                    $badgeLabel = 'Sale';
-                                    $badgeColor = '#4285f4';
-                                } elseif ($index % 5 == 2) {
-                                    $badgeLabel = 'New';
-                                    $badgeColor = '#158d43';
-                                } elseif ($product->discount && $product->discount > 0) {
+                                if ($product->discount && $product->discount > 0) {
                                     $badgeLabel = \App\Models\Setting::formatPrice($product->discount) . ' OFF';
                                     $badgeColor = '#ee7d09';
                                 }
