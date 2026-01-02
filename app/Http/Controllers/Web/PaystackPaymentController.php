@@ -166,16 +166,17 @@ class PaystackPaymentController extends Controller
                             'paid_at' => now(),
                         ]);
                         
-                        // Send SMS notification after payment is confirmed (only for authenticated users)
+                        // Send SMS notification after payment is confirmed (for both authenticated users and guests)
                         // Wrap in try-catch to ensure SMS/notification failures don't affect payment verification
                         try {
+                            $notificationMessage = "Your order #{$order->order_number} has been placed successfully. Total amount: " . \App\Models\Setting::formatPrice($order->total_amount) . ". Payment confirmed.";
+                            
+                            // Create notification only for authenticated users (not guests)
                             if ($order->user_id) {
                                 // Load user relationship if not already loaded
                                 if (!$order->relationLoaded('user')) {
                                     $order->load('user');
                                 }
-                                
-                                $notificationMessage = "Your order #{$order->order_number} has been placed successfully. Total amount: " . \App\Models\Setting::formatPrice($order->total_amount) . ". Payment confirmed.";
                                 
                                 // Update or create notification with payment confirmation
                                 try {
@@ -209,25 +210,38 @@ class PaystackPaymentController extends Controller
                                         'error' => $e->getMessage(),
                                     ]);
                                 }
-                                
-                                // Send SMS notification (for both authenticated users and guests)
-                                try {
-                                    $smsService = app(SmsService::class);
-                                    // Use customer_phone from order (works for both authenticated and guest users)
-                                    $phoneNumber = $order->customer_phone;
-                                    // If no customer_phone and user exists, try user's phone
-                                    if (!$phoneNumber && $order->user_id && $order->user) {
+                            }
+                            
+                            // Send SMS notification (for both authenticated users and guests)
+                            try {
+                                $smsService = app(SmsService::class);
+                                // Use customer_phone from order (works for both authenticated and guest users)
+                                $phoneNumber = $order->customer_phone;
+                                // If no customer_phone and user exists, try user's phone
+                                if (!$phoneNumber && $order->user_id) {
+                                    // Load user relationship if not already loaded
+                                    if (!$order->relationLoaded('user')) {
+                                        $order->load('user');
+                                    }
+                                    if ($order->user) {
                                         $phoneNumber = $order->user->phone ?? null;
                                     }
-                                    if ($phoneNumber) {
-                                        $smsService->sendSms($phoneNumber, $notificationMessage);
-                                    }
-                                } catch (\Exception $e) {
-                                    Log::warning('Failed to send SMS for order placement', [
-                                        'order_id' => $order->id,
-                                        'error' => $e->getMessage(),
-                                    ]);
                                 }
+                                if ($phoneNumber) {
+                                    // Customize message based on delivery type
+                                    $isPickup = ($order->delivery_type ?? 'delivery') === 'pickup';
+                                    if ($isPickup) {
+                                        $smsMessage = "Your order #{$order->order_number} has been placed successfully. Total amount: " . \App\Models\Setting::formatPrice($order->total_amount) . ". Payment confirmed. You can collect your order from the branch.";
+                                    } else {
+                                        $smsMessage = $notificationMessage;
+                                    }
+                                    $smsService->sendSms($phoneNumber, $smsMessage);
+                                }
+                            } catch (\Exception $e) {
+                                Log::warning('Failed to send SMS for order placement', [
+                                    'order_id' => $order->id,
+                                    'error' => $e->getMessage(),
+                                ]);
                             }
                             
                             // Send SMS to admin and branch staff
