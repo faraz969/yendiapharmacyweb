@@ -48,6 +48,9 @@ Route::prefix('paystack')->group(function () {
     Route::post('/verify', [PaystackPaymentController::class, 'verify']);
 });
 
+// Order creation (can be accessed by guests for checkout)
+Route::post('/orders', [OrderController::class, 'store']);
+
 // Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
@@ -62,10 +65,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/clear', [CartController::class, 'clear']);
     });
     
-    // Orders
+    // Orders (authenticated routes - viewing orders requires auth)
     Route::prefix('orders')->group(function () {
         Route::get('/', [OrderController::class, 'index']);
-        Route::post('/', [OrderController::class, 'store']);
         Route::get('/{id}', [OrderController::class, 'show']);
         Route::get('/{id}/track', [OrderController::class, 'track']);
     });

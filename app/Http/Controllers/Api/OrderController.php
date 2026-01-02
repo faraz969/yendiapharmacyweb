@@ -148,7 +148,7 @@ class OrderController extends Controller
 
             // Create order
             $order = Order::create([
-                'user_id' => Auth::id(), // Will be null if not authenticated (but route requires auth)
+                'user_id' => Auth::id(), // Will be null for guest users
                 'branch_id' => $validated['branch_id'],
                 'delivery_address_id' => $deliveryAddressId,
                 'delivery_zone_id' => $deliveryZoneId,
