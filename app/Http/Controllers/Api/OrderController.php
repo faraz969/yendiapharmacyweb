@@ -236,6 +236,69 @@ class OrderController extends Controller
     }
 
     /**
+     * Cancel an order
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function cancel($id)
+    {
+        $order = Order::where('user_id', Auth::id())
+            ->findOrFail($id);
+
+        // Only allow cancellation if order is pending or approved
+        if (!in_array($order->status, ['pending', 'approved'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order cannot be cancelled. Only pending or approved orders can be cancelled.',
+            ], 400);
+        }
+
+        // Check if order has been paid
+        if ($order->payment_status === 'paid') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot cancel paid orders. Please contact support for a refund.',
+            ], 400);
+        }
+
+        $oldStatus = $order->status;
+        
+        $order->update([
+            'status' => 'cancelled',
+        ]);
+
+        // Notify status change (will send SMS)
+        $order->notifyStatusChange($oldStatus);
+
+        // Log the cancellation activity
+        try {
+            ActivityLogService::logAction(
+                'cancel_order',
+                "Order #{$order->order_number} cancelled by customer",
+                $order,
+                [
+                    'order_number' => $order->order_number,
+                    'previous_status' => $oldStatus,
+                    'source' => 'mobile_app',
+                ],
+                request()
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed to log order cancellation activity', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order cancelled successfully',
+            'data' => $order->fresh(['items.product', 'items.batch', 'prescription', 'deliveryZone', 'approvedBy', 'packedBy', 'deliveredBy']),
+        ]);
+    }
+
+    /**
      * Track order by order number and phone
      *
      * @param  int  $id

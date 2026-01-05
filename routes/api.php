@@ -70,6 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [OrderController::class, 'index']);
         Route::get('/{id}', [OrderController::class, 'show']);
         Route::get('/{id}/track', [OrderController::class, 'track']);
+        Route::post('/{id}/cancel', [OrderController::class, 'cancel']);
     });
     
     // Prescriptions (can be accessed by guests)
