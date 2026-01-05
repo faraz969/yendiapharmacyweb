@@ -8,6 +8,28 @@
         <i class="fas fa-shopping-cart me-2" style="color:#dc8423;"></i>Create Order from Insurance Request
     </h2>
 
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="row">
         <div class="col-md-8">
             <div class="card mb-4">
@@ -21,7 +43,7 @@
                 </div>
             </div>
 
-            <form action="{{ route('user.services.insurance-request-order.store', $request->id) }}" method="POST" id="orderForm">
+            <form action="{{ route('user.services.insurance-request-order.store', $request->id) }}" method="POST" id="orderForm" onsubmit="return validateForm()">
                 @csrf
 
                 <!-- Delivery Type Selection -->
@@ -156,20 +178,30 @@ function selectDeliveryType(type) {
 }
 
 function toggleDeliveryForm() {
-    const deliveryType = document.querySelector('input[name="delivery_type"]:checked').value;
+    const deliveryTypeRadio = document.querySelector('input[name="delivery_type"]:checked');
+    if (!deliveryTypeRadio) {
+        return; // Exit if no delivery type is selected
+    }
+    
+    const deliveryType = deliveryTypeRadio.value;
     const deliverySection = document.getElementById('deliverySection');
     const deliveryFeeRow = document.getElementById('deliveryFeeRow');
+    const deliveryZoneId = document.getElementById('delivery_zone_id');
+    const deliveryAddress = document.getElementById('delivery_address');
+    const deliveryAddressId = document.getElementById('delivery_address_id');
     
     if (deliveryType === 'delivery') {
-        deliverySection.style.display = 'block';
-        deliveryFeeRow.style.display = 'flex';
-        document.getElementById('delivery_zone_id').required = true;
-        document.getElementById('delivery_address').required = !document.getElementById('delivery_address_id').value;
+        if (deliverySection) deliverySection.style.display = 'block';
+        if (deliveryFeeRow) deliveryFeeRow.style.display = 'flex';
+        if (deliveryZoneId) deliveryZoneId.required = true;
+        if (deliveryAddress) {
+            deliveryAddress.required = !(deliveryAddressId && deliveryAddressId.value);
+        }
     } else {
-        deliverySection.style.display = 'none';
-        deliveryFeeRow.style.display = 'none';
-        document.getElementById('delivery_zone_id').required = false;
-        document.getElementById('delivery_address').required = false;
+        if (deliverySection) deliverySection.style.display = 'none';
+        if (deliveryFeeRow) deliveryFeeRow.style.display = 'none';
+        if (deliveryZoneId) deliveryZoneId.required = false;
+        if (deliveryAddress) deliveryAddress.required = false;
     }
     updateTotal();
 }
@@ -192,25 +224,79 @@ function toggleAddressInput() {
 }
 
 function updateTotal() {
-    const deliveryType = document.querySelector('input[name="delivery_type"]:checked')?.value;
+    const deliveryTypeRadio = document.querySelector('input[name="delivery_type"]:checked');
+    if (!deliveryTypeRadio) {
+        return; // Exit if no delivery type is selected
+    }
+    
+    const deliveryType = deliveryTypeRadio.value;
     let total = 0;
     
     if (deliveryType === 'delivery') {
         const zoneSelect = document.getElementById('delivery_zone_id');
-        const selectedOption = zoneSelect.options[zoneSelect.selectedIndex];
-        if (selectedOption && selectedOption.value) {
-            total = parseFloat(selectedOption.dataset.fee || 0);
+        if (zoneSelect && zoneSelect.selectedIndex >= 0) {
+            const selectedOption = zoneSelect.options[zoneSelect.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                total = parseFloat(selectedOption.dataset.fee || 0);
+            }
         }
     }
     
-    document.getElementById('deliveryFeeAmount').textContent = '{{ \App\Models\Setting::getCurrencySymbol() }}' + total.toFixed(2);
-    document.getElementById('totalAmount').textContent = '{{ \App\Models\Setting::getCurrencySymbol() }}' + total.toFixed(2);
+    const deliveryFeeAmount = document.getElementById('deliveryFeeAmount');
+    const totalAmount = document.getElementById('totalAmount');
+    if (deliveryFeeAmount) {
+        deliveryFeeAmount.textContent = '{{ \App\Models\Setting::getCurrencySymbol() }}' + total.toFixed(2);
+    }
+    if (totalAmount) {
+        totalAmount.textContent = '{{ \App\Models\Setting::getCurrencySymbol() }}' + total.toFixed(2);
+    }
 }
 
-document.getElementById('delivery_zone_id').addEventListener('change', updateTotal);
+function validateForm() {
+    const deliveryTypeRadio = document.querySelector('input[name="delivery_type"]:checked');
+    if (!deliveryTypeRadio) {
+        alert('Please select a delivery type.');
+        return false;
+    }
+    
+    const deliveryType = deliveryTypeRadio.value;
+    
+    if (deliveryType === 'delivery') {
+        const deliveryZoneId = document.getElementById('delivery_zone_id');
+        const deliveryAddressId = document.getElementById('delivery_address_id');
+        const deliveryAddress = document.getElementById('delivery_address');
+        
+        if (!deliveryZoneId || !deliveryZoneId.value) {
+            alert('Please select a delivery zone.');
+            return false;
+        }
+        
+        if ((!deliveryAddressId || !deliveryAddressId.value) && (!deliveryAddress || !deliveryAddress.value.trim())) {
+            alert('Please select a saved address or enter a delivery address.');
+            return false;
+        }
+    }
+    
+    return true;
+}
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
+    const deliveryZoneId = document.getElementById('delivery_zone_id');
+    if (deliveryZoneId) {
+        deliveryZoneId.addEventListener('change', updateTotal);
+    }
+    
+    // Ensure a delivery type is selected on page load
+    const deliveryTypeRadio = document.querySelector('input[name="delivery_type"]:checked');
+    if (!deliveryTypeRadio) {
+        // If none is checked, check the default (delivery)
+        const defaultRadio = document.getElementById('delivery_type_delivery');
+        if (defaultRadio) {
+            defaultRadio.checked = true;
+        }
+    }
+    
     toggleDeliveryForm();
 });
 </script>
