@@ -19,6 +19,8 @@ use App\Http\Controllers\Admin\ItemRequestController;
 use App\Http\Controllers\Admin\MarketingBannerController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\InsuranceCompanyController;
+use App\Http\Controllers\Admin\InsuranceRequestController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 
 /*
@@ -118,6 +120,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Activity Logs
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
         Route::get('/activity-logs/{activityLog}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
+        
+        // Insurance Companies
+        Route::resource('insurance-companies', InsuranceCompanyController::class);
+        
+        // Insurance Requests
+        Route::get('/insurance-requests', [InsuranceRequestController::class, 'index'])->name('insurance-requests.index');
+        Route::get('/insurance-requests/{insuranceRequest}', [InsuranceRequestController::class, 'show'])->name('insurance-requests.show');
+        Route::post('/insurance-requests/{insuranceRequest}/approve', [InsuranceRequestController::class, 'approve'])->name('insurance-requests.approve');
+        Route::post('/insurance-requests/{insuranceRequest}/reject', [InsuranceRequestController::class, 'reject'])->name('insurance-requests.reject');
+        Route::post('/insurance-requests/{insuranceRequest}/create-order', [InsuranceRequestController::class, 'createOrder'])->name('insurance-requests.create-order');
     });
 });
 

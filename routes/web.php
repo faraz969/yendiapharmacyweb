@@ -94,6 +94,16 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(function () {
     Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Web\User\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
     Route::delete('/notifications/{notification}', [\App\Http\Controllers\Web\User\NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::delete('/notifications/clear/all', [\App\Http\Controllers\Web\User\NotificationController::class, 'clearAll'])->name('notifications.clear-all');
+    
+    // Services
+    Route::prefix('services')->name('services.')->group(function () {
+        Route::get('/insurance', [\App\Http\Controllers\Web\User\ServiceController::class, 'insurance'])->name('insurance');
+        Route::post('/insurance', [\App\Http\Controllers\Web\User\ServiceController::class, 'storeInsurance'])->name('insurance.store');
+        Route::get('/prescription', [\App\Http\Controllers\Web\User\ServiceController::class, 'prescription'])->name('prescription');
+        Route::post('/prescription', [\App\Http\Controllers\Web\User\ServiceController::class, 'storePrescription'])->name('prescription.store');
+        Route::get('/item-request', [\App\Http\Controllers\Web\User\ServiceController::class, 'itemRequest'])->name('item-request');
+        Route::post('/item-request', [\App\Http\Controllers\Web\User\ServiceController::class, 'storeItemRequest'])->name('item-request.store');
+    });
 });
 
 // Branch Dashboard Routes (for branch staff)

@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\BranchController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\InsuranceController;
 use App\Http\Controllers\Web\PaystackPaymentController;
 
 /*
@@ -37,6 +38,9 @@ Route::get('/notifications', [NotificationController::class, 'index']);
 
 // Settings
 Route::get('/settings/currency', [\App\Http\Controllers\Api\SettingController::class, 'currency']);
+
+// Insurance Companies (public - needed for form)
+Route::get('/insurance-companies', [InsuranceController::class, 'getCompanies']);
 
 // Authentication routes
 Route::post('/login', [AuthController::class, 'login']);
@@ -85,6 +89,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\ItemRequestController::class, 'index']);
         Route::post('/', [\App\Http\Controllers\Api\ItemRequestController::class, 'store']);
         Route::get('/{id}', [\App\Http\Controllers\Api\ItemRequestController::class, 'show']);
+    });
+    
+    // Insurance Requests
+    Route::prefix('insurance-requests')->group(function () {
+        Route::get('/', [InsuranceController::class, 'index']);
+        Route::post('/', [InsuranceController::class, 'store']);
+        Route::get('/{id}', [InsuranceController::class, 'show']);
     });
     
     // Profile

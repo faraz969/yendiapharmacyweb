@@ -615,6 +615,25 @@
                                     @endif
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
+                                        <h6 class="dropdown-header">Services</h6>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('user.services.insurance') }}">
+                                            <i class="fas fa-shield-alt me-2"></i>Insurance Request
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('user.services.prescription') }}">
+                                            <i class="fas fa-prescription me-2"></i>Send Prescription
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('user.services.item-request') }}">
+                                            <i class="fas fa-inbox me-2"></i>Request Item
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
                                         <form action="{{ route('logout') }}" method="POST" class="d-inline">
                                             @csrf
                                             <button type="submit" class="dropdown-item text-danger">

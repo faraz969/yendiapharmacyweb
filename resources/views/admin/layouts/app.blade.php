@@ -336,6 +336,12 @@
                     <a href="{{ route('admin.item-requests.index') }}" class="{{ request()->routeIs('admin.item-requests.*') ? 'active' : '' }}">
                         <i class="fas fa-inbox"></i> Item Requests
                     </a>
+                    <a href="{{ route('admin.insurance-companies.index') }}" class="{{ request()->routeIs('admin.insurance-companies.*') ? 'active' : '' }}">
+                        <i class="fas fa-shield-alt"></i> Insurance Companies
+                    </a>
+                    <a href="{{ route('admin.insurance-requests.index') }}" class="{{ request()->routeIs('admin.insurance-requests.*') ? 'active' : '' }}">
+                        <i class="fas fa-shield-alt"></i> Insurance Requests
+                    </a>
                 </li>
                 <li>
                     <a href="{{ route('admin.delivery-zones.index') }}" class="{{ request()->routeIs('admin.delivery-zones.*') ? 'active' : '' }}">
