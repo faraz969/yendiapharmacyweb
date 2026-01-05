@@ -159,41 +159,15 @@
         @if($insuranceRequest->status === 'approved' && !$insuranceRequest->order)
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Create Order</h6>
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Order Creation</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.insurance-requests.create-order', $insuranceRequest->id) }}" method="POST" id="createOrderForm">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="delivery_type" class="form-label">Delivery Type <span class="text-danger">*</span></label>
-                            <select name="delivery_type" id="delivery_type" class="form-select" required>
-                                <option value="">Select...</option>
-                                <option value="delivery">Delivery</option>
-                                <option value="pickup">Pickup</option>
-                            </select>
-                        </div>
-
-                        <div id="deliveryFields" style="display: none;">
-                            <div class="mb-3">
-                                <label for="delivery_zone_id" class="form-label">Delivery Zone <span class="text-danger">*</span></label>
-                                <select name="delivery_zone_id" id="delivery_zone_id" class="form-select">
-                                    <option value="">Select Zone...</option>
-                                    @foreach($deliveryZones as $zone)
-                                        <option value="{{ $zone->id }}">{{ $zone->name }} - {{ \App\Models\Setting::formatPrice($zone->delivery_fee) }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="delivery_address" class="form-label">Delivery Address <span class="text-danger">*</span></label>
-                                <textarea name="delivery_address" id="delivery_address" class="form-control" rows="3"></textarea>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-shopping-cart me-2"></i>Create Order (Delivery Fee Only)
-                        </button>
-                        <small class="text-muted d-block mt-2">Note: Items are free with insurance. Customer only pays delivery fee.</small>
-                    </form>
+                    <div class="alert alert-info">
+                        <strong>Note:</strong> The customer will create the order themselves. They will be notified and can select delivery type and address from their account.
+                    </div>
+                    <p class="text-muted small mb-0">
+                        Once approved, the customer can access this request from their account and create an order with delivery details.
+                    </p>
                 </div>
             </div>
         @endif

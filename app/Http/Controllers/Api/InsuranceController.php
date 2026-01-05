@@ -125,7 +125,7 @@ class InsuranceController extends Controller
     {
         $user = Auth::user();
         
-        $request = InsuranceRequest::with(['insuranceCompany', 'branch', 'items', 'approvedBy', 'order'])
+        $request = InsuranceRequest::with(['insuranceCompany', 'branch', 'items', 'approvedBy', 'order', 'deliveryZone', 'deliveryAddress'])
             ->where(function($query) use ($user) {
                 if ($user) {
                     $query->where('user_id', $user->id);
@@ -137,5 +137,108 @@ class InsuranceController extends Controller
             'success' => true,
             'data' => $request,
         ]);
+    }
+
+    /**
+     * Create order from approved insurance request (customer-facing)
+     */
+    public function createOrder(Request $request, $id)
+    {
+        $user = Auth::user();
+        
+        $insuranceRequest = InsuranceRequest::where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->findOrFail($id);
+
+        if ($insuranceRequest->order_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order already created for this insurance request.',
+            ], 400);
+        }
+
+        $validated = $request->validate([
+            'delivery_type' => 'required|in:delivery,pickup',
+            'delivery_address_id' => 'required_if:delivery_type,delivery|nullable|exists:delivery_addresses,id',
+            'delivery_zone_id' => 'required_if:delivery_type,delivery|nullable|exists:delivery_zones,id',
+            'delivery_address' => 'required_if:delivery_type,delivery|required_without:delivery_address_id|nullable|string',
+        ]);
+
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($insuranceRequest, $validated, $user) {
+            // Get delivery address if address_id is provided
+            $deliveryAddressText = null;
+            if (isset($validated['delivery_address_id'])) {
+                $deliveryAddress = \App\Models\DeliveryAddress::where('user_id', $user->id)
+                    ->find($validated['delivery_address_id']);
+                if ($deliveryAddress) {
+                    $deliveryAddressText = $deliveryAddress->address;
+                }
+            } else {
+                $deliveryAddressText = $validated['delivery_address'] ?? null;
+            }
+
+            // Calculate delivery fee
+            $deliveryFee = 0;
+            if ($validated['delivery_type'] === 'delivery' && isset($validated['delivery_zone_id'])) {
+                $deliveryZone = \App\Models\DeliveryZone::find($validated['delivery_zone_id']);
+                if ($deliveryZone) {
+                    $deliveryFee = $deliveryZone->delivery_fee; // Only delivery fee, items are free
+                }
+            }
+
+            // Create order with only delivery fee
+            $order = \App\Models\Order::create([
+                'user_id' => $insuranceRequest->user_id,
+                'branch_id' => $insuranceRequest->branch_id,
+                'delivery_address_id' => $validated['delivery_address_id'] ?? null,
+                'delivery_zone_id' => $validated['delivery_zone_id'] ?? null,
+                'delivery_type' => $validated['delivery_type'],
+                'order_number' => \App\Helpers\OrderHelper::generateOrderNumber(),
+                'status' => 'pending',
+                'customer_name' => $insuranceRequest->customer_name,
+                'customer_phone' => $insuranceRequest->customer_phone,
+                'customer_email' => $insuranceRequest->customer_email,
+                'delivery_address' => $deliveryAddressText,
+                'subtotal' => 0, // Items are free with insurance
+                'delivery_fee' => $deliveryFee,
+                'discount' => 0,
+                'total_amount' => $deliveryFee,
+            ]);
+
+            // Create order items (with 0 price since insurance covers it)
+            foreach ($insuranceRequest->items as $item) {
+                $product = \App\Models\Product::where('name', 'like', "%{$item->product_name}%")
+                    ->where('is_active', true)
+                    ->where('is_expired', false)
+                    ->first();
+                
+                if ($product) {
+                    \App\Models\OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'quantity' => $item->quantity,
+                        'unit_price' => 0, // Free with insurance
+                        'total_price' => 0, // Free with insurance
+                    ]);
+                }
+            }
+
+            // Update insurance request
+            $insuranceRequest->update([
+                'status' => 'order_created',
+                'order_id' => $order->id,
+                'delivery_address_id' => $validated['delivery_address_id'] ?? null,
+                'delivery_zone_id' => $validated['delivery_zone_id'] ?? null,
+                'delivery_type' => $validated['delivery_type'],
+            ]);
+
+            $order->load(['items.product', 'deliveryZone']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order created successfully. Please proceed to payment.',
+                'data' => $order,
+            ], 201);
+        });
     }
 }

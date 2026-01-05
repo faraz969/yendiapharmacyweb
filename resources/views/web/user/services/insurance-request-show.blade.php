@@ -72,6 +72,15 @@
                             {{ $request->order->order_number }}
                         </a>
                     </div>
+                    @elseif($request->status === 'approved')
+                    <div class="alert alert-info">
+                        <strong>Your request has been approved!</strong> Please select delivery type and address to create your order.
+                        <div class="mt-2">
+                            <a href="{{ route('user.services.insurance-request-order', $request->id) }}" class="btn btn-primary">
+                                <i class="fas fa-shopping-cart me-2"></i>Create Order
+                            </a>
+                        </div>
+                    </div>
                     @endif
 
                     <!-- Insurance Card Images -->

@@ -101,6 +101,8 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(function () {
         Route::post('/insurance', [\App\Http\Controllers\Web\User\ServiceController::class, 'storeInsurance'])->name('insurance.store');
         Route::get('/insurance-requests', [\App\Http\Controllers\Web\User\ServiceController::class, 'insuranceRequests'])->name('insurance-requests');
         Route::get('/insurance-requests/{id}', [\App\Http\Controllers\Web\User\ServiceController::class, 'showInsuranceRequest'])->name('insurance-requests.show');
+        Route::get('/insurance-requests/{id}/order', [\App\Http\Controllers\Web\User\ServiceController::class, 'insuranceRequestOrder'])->name('insurance-request-order');
+        Route::post('/insurance-requests/{id}/order', [\App\Http\Controllers\Web\User\ServiceController::class, 'storeInsuranceRequestOrder'])->name('insurance-request-order.store');
         Route::get('/prescription', [\App\Http\Controllers\Web\User\ServiceController::class, 'prescription'])->name('prescription');
         Route::post('/prescription', [\App\Http\Controllers\Web\User\ServiceController::class, 'storePrescription'])->name('prescription.store');
         Route::get('/item-request', [\App\Http\Controllers\Web\User\ServiceController::class, 'itemRequest'])->name('item-request');

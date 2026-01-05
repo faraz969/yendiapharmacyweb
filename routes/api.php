@@ -33,6 +33,7 @@ Route::get('/categories', [ProductController::class, 'categories']);
 Route::get('/banners', [BannerController::class, 'index']);
 Route::get('/branches', [BranchController::class, 'index']);
 Route::get('/branches/{id}', [BranchController::class, 'show']);
+Route::get('/delivery-zones', [\App\Http\Controllers\Api\DeliveryZoneController::class, 'index']);
 Route::get('/notifications', [NotificationController::class, 'index']);
 // Note: /notifications/{id} moved to authenticated routes to avoid conflict with /notifications/user
 
@@ -96,6 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [InsuranceController::class, 'index']);
         Route::post('/', [InsuranceController::class, 'store']);
         Route::get('/{id}', [InsuranceController::class, 'show']);
+        Route::post('/{id}/create-order', [InsuranceController::class, 'createOrder']);
     });
     
     // Profile
