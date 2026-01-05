@@ -218,11 +218,12 @@ class InsuranceController extends Controller
             }
 
             // Calculate delivery fee
-            $deliveryFee = 0;
+            $deliveryFee = 0.0;
             if ($validated['delivery_type'] === 'delivery' && isset($validated['delivery_zone_id'])) {
                 $deliveryZone = \App\Models\DeliveryZone::find($validated['delivery_zone_id']);
                 if ($deliveryZone) {
-                    $deliveryFee = $deliveryZone->delivery_fee; // Only delivery fee, items are free
+                    // Cast to float to ensure numeric type
+                    $deliveryFee = (float) $deliveryZone->delivery_fee; // Only delivery fee, items are free
                 }
             }
 
@@ -239,9 +240,9 @@ class InsuranceController extends Controller
                 'customer_phone' => $insuranceRequest->customer_phone,
                 'customer_email' => $insuranceRequest->customer_email,
                 'delivery_address' => $deliveryAddressText,
-                'subtotal' => 0, // Items are free with insurance
+                'subtotal' => 0.0, // Items are free with insurance
                 'delivery_fee' => $deliveryFee,
-                'discount' => 0,
+                'discount' => 0.0,
                 'total_amount' => $deliveryFee,
             ]);
 

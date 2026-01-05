@@ -219,11 +219,12 @@ class ServiceController extends Controller
 
         return \Illuminate\Support\Facades\DB::transaction(function () use ($insuranceRequest, $validated, $deliveryAddressText) {
             // Calculate delivery fee
-            $deliveryFee = 0;
+            $deliveryFee = 0.0;
             if ($validated['delivery_type'] === 'delivery' && isset($validated['delivery_zone_id'])) {
                 $deliveryZone = \App\Models\DeliveryZone::find($validated['delivery_zone_id']);
                 if ($deliveryZone) {
-                    $deliveryFee = $deliveryZone->delivery_fee;
+                    // Cast to float to ensure numeric type
+                    $deliveryFee = (float) $deliveryZone->delivery_fee;
                 }
             }
 
@@ -240,9 +241,9 @@ class ServiceController extends Controller
                 'customer_phone' => $insuranceRequest->customer_phone,
                 'customer_email' => $insuranceRequest->customer_email,
                 'delivery_address' => $deliveryAddressText,
-                'subtotal' => 0,
+                'subtotal' => 0.0,
                 'delivery_fee' => $deliveryFee,
-                'discount' => 0,
+                'discount' => 0.0,
                 'total_amount' => $deliveryFee,
             ]);
 
@@ -272,6 +273,12 @@ class ServiceController extends Controller
                 'delivery_zone_id' => $validated['delivery_zone_id'] ?? null,
                 'delivery_type' => $validated['delivery_type'],
             ]);
+
+            // If pickup or total amount is 0, skip payment and go to success
+            if ($validated['delivery_type'] === 'pickup' || $order->total_amount == 0) {
+                return redirect()->route('user.services.insurance-requests')
+                    ->with('success', 'Order created successfully! You can collect it from the branch.');
+            }
 
             return redirect()->route('checkout.payment', $order)
                 ->with('success', 'Order created successfully. Please proceed to payment.');
