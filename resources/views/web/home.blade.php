@@ -285,23 +285,6 @@ use Illuminate\Support\Facades\Storage;
                                                 {{ Str::limit($product->name, 60) }}
                                             </h6>
                                         
-                                        <!-- Rating -->
-                                        <div class="mb-2">
-                                            @php
-                                                $rating = 4.0; // Default rating, you can add this field to products table later
-                                            @endphp
-                                            @for($i = 1; $i <= 5; $i++)
-                                                @if($i <= floor($rating))
-                                                    <i class="fas fa-star text-warning" style="font-size: 0.75rem;"></i>
-                                                @elseif($i - 0.5 <= $rating)
-                                                    <i class="fas fa-star-half-alt text-warning" style="font-size: 0.75rem;"></i>
-                                                @else
-                                                    <i class="far fa-star text-warning" style="font-size: 0.75rem;"></i>
-                                                @endif
-                                            @endfor
-                                            <span class="text-muted small ms-1" style="font-size: 0.7rem;">({{ $rating }})</span>
-                                        </div>
-                                        
                                         <!-- Brand -->
                                         <p class="text-muted small mb-2" style="font-size: 0.75rem; color: #999;">
                                             By <span class="fw-semibold">YENDIA Pharmacy</span>
