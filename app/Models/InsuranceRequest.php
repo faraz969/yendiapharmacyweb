@@ -101,6 +101,9 @@ class InsuranceRequest extends Model
             'approved_at' => now(),
             'admin_notes' => $notes,
         ]);
+        
+        // Send SMS notification
+        $this->sendApprovalSms();
     }
 
     public function reject($userId, $reason)
@@ -110,5 +113,78 @@ class InsuranceRequest extends Model
             'approved_by' => $userId,
             'rejection_reason' => $reason,
         ]);
+        
+        // Send SMS notification
+        $this->sendRejectionSms($reason);
+    }
+
+    /**
+     * Send SMS notification when insurance request is approved
+     */
+    private function sendApprovalSms()
+    {
+        try {
+            $smsService = app(\App\Services\SmsService::class);
+            
+            // Use customer_phone from the request
+            $phoneNumber = $this->customer_phone;
+            
+            // If no customer_phone and user exists, try user's phone
+            if (!$phoneNumber && $this->user_id) {
+                // Load user relationship if not already loaded
+                if (!$this->relationLoaded('user')) {
+                    $this->load('user');
+                }
+                $phoneNumber = $this->user->phone ?? null;
+            }
+            
+            if ($phoneNumber) {
+                $message = "Your insurance request #{$this->request_number} has been approved. ";
+                $message .= "Please go to your insurance request details to select delivery location and pay for delivery fee.";
+                
+                $smsService->sendSms($phoneNumber, $message);
+            }
+        } catch (\Exception $e) {
+            // Log error but don't break the flow
+            \Illuminate\Support\Facades\Log::error('Failed to send approval SMS notification', [
+                'insurance_request_id' => $this->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Send SMS notification when insurance request is rejected
+     */
+    private function sendRejectionSms($reason)
+    {
+        try {
+            $smsService = app(\App\Services\SmsService::class);
+            
+            // Use customer_phone from the request
+            $phoneNumber = $this->customer_phone;
+            
+            // If no customer_phone and user exists, try user's phone
+            if (!$phoneNumber && $this->user_id) {
+                // Load user relationship if not already loaded
+                if (!$this->relationLoaded('user')) {
+                    $this->load('user');
+                }
+                $phoneNumber = $this->user->phone ?? null;
+            }
+            
+            if ($phoneNumber) {
+                $message = "Your insurance request #{$this->request_number} has been rejected. ";
+                $message .= "Reason: {$reason}";
+                
+                $smsService->sendSms($phoneNumber, $message);
+            }
+        } catch (\Exception $e) {
+            // Log error but don't break the flow
+            \Illuminate\Support\Facades\Log::error('Failed to send rejection SMS notification', [
+                'insurance_request_id' => $this->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }
