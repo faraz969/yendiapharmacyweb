@@ -102,6 +102,11 @@
             margin-left: var(--sidebar-width);
             padding: 20px;
             min-height: 100vh;
+            transition: margin-top 0.3s ease-out;
+        }
+        
+        .main-content.with-notification {
+            margin-top: 48px;
         }
         
         .header {
@@ -112,6 +117,52 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+        
+        .new-order-notification {
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 12px 30px;
+            z-index: 1001;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .new-order-notification.show {
+            display: flex;
+        }
+        
+        .new-order-notification .badge {
+            background: white;
+            color: #f5576c;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .new-order-notification {
+                left: 0;
+            }
         }
         
         .page-title {
@@ -355,6 +406,14 @@
         </ul>
     </div>
 
+    <!-- New Order Notification -->
+    <div class="new-order-notification" id="new-order-notification">
+        <i class="fas fa-bell"></i>
+        <span>New order has arrived</span>
+        <span class="badge" id="new-order-count-badge">0</span>
+        <button type="button" class="btn-close btn-close-white ms-auto" onclick="document.getElementById('new-order-notification').classList.remove('show')" aria-label="Close"></button>
+    </div>
+
     <!-- Main Content -->
     <div class="main-content">
         <div class="header">
@@ -415,6 +474,7 @@
             })
             .then(response => response.json())
             .then(data => {
+                // Update sidebar badge
                 const badge = document.getElementById('new-orders-badge');
                 if (badge) {
                     if (data.count > 0) {
@@ -422,6 +482,25 @@
                         badge.style.display = 'inline-block';
                     } else {
                         badge.style.display = 'none';
+                    }
+                }
+                
+                // Update top bar notification
+                const notification = document.getElementById('new-order-notification');
+                const countBadge = document.getElementById('new-order-count-badge');
+                const mainContent = document.querySelector('.main-content');
+                if (notification && countBadge) {
+                    if (data.count > 0) {
+                        countBadge.textContent = data.count;
+                        notification.classList.add('show');
+                        if (mainContent) {
+                            mainContent.classList.add('with-notification');
+                        }
+                    } else {
+                        notification.classList.remove('show');
+                        if (mainContent) {
+                            mainContent.classList.remove('with-notification');
+                        }
                     }
                 }
             })
