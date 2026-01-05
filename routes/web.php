@@ -99,6 +99,8 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(function () {
     Route::prefix('services')->name('services.')->group(function () {
         Route::get('/insurance', [\App\Http\Controllers\Web\User\ServiceController::class, 'insurance'])->name('insurance');
         Route::post('/insurance', [\App\Http\Controllers\Web\User\ServiceController::class, 'storeInsurance'])->name('insurance.store');
+        Route::get('/insurance-requests', [\App\Http\Controllers\Web\User\ServiceController::class, 'insuranceRequests'])->name('insurance-requests');
+        Route::get('/insurance-requests/{id}', [\App\Http\Controllers\Web\User\ServiceController::class, 'showInsuranceRequest'])->name('insurance-requests.show');
         Route::get('/prescription', [\App\Http\Controllers\Web\User\ServiceController::class, 'prescription'])->name('prescription');
         Route::post('/prescription', [\App\Http\Controllers\Web\User\ServiceController::class, 'storePrescription'])->name('prescription.store');
         Route::get('/item-request', [\App\Http\Controllers\Web\User\ServiceController::class, 'itemRequest'])->name('item-request');

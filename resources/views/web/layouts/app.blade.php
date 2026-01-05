@@ -623,6 +623,11 @@
                                         </a>
                                     </li>
                                     <li>
+                                        <a class="dropdown-item" href="{{ route('user.services.insurance-requests') }}">
+                                            <i class="fas fa-list me-2"></i>My Insurance Requests
+                                        </a>
+                                    </li>
+                                    <li>
                                         <a class="dropdown-item" href="{{ route('user.services.prescription') }}">
                                             <i class="fas fa-prescription me-2"></i>Send Prescription
                                         </a>

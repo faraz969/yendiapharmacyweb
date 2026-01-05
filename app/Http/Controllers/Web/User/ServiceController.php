@@ -149,4 +149,23 @@ class ServiceController extends Controller
         return redirect()->route('user.dashboard')
             ->with('success', 'Item request submitted successfully. We will notify you when the item is available.');
     }
+
+    public function insuranceRequests()
+    {
+        $requests = \App\Models\InsuranceRequest::where('user_id', Auth::id())
+            ->with(['insuranceCompany', 'branch', 'items', 'approvedBy', 'order'])
+            ->latest()
+            ->paginate(10);
+
+        return view('web.user.services.insurance-requests', compact('requests'));
+    }
+
+    public function showInsuranceRequest($id)
+    {
+        $request = \App\Models\InsuranceRequest::where('user_id', Auth::id())
+            ->with(['insuranceCompany', 'branch', 'items', 'approvedBy', 'order', 'deliveryZone', 'deliveryAddress'])
+            ->findOrFail($id);
+
+        return view('web.user.services.insurance-request-show', compact('request'));
+    }
 }
