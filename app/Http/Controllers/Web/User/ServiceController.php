@@ -200,14 +200,41 @@ class ServiceController extends Controller
 
         $validated = $request->validate([
             'delivery_type' => 'required|in:delivery,pickup',
-            'delivery_address_id' => 'required_if:delivery_type,delivery|nullable|exists:delivery_addresses,id',
-            'delivery_zone_id' => 'required_if:delivery_type,delivery|nullable|exists:delivery_zones,id',
-            'delivery_address' => 'required_if:delivery_type,delivery|required_without:delivery_address_id|nullable|string',
+            'delivery_address_id' => 'nullable|integer|exists:delivery_addresses,id',
+            'delivery_zone_id' => 'nullable|integer|exists:delivery_zones,id',
+            'delivery_address' => 'nullable|string',
         ]);
+
+        // Additional validation for delivery type
+        if ($validated['delivery_type'] === 'delivery') {
+            if (empty($validated['delivery_zone_id'])) {
+                return back()->withErrors(['delivery_zone_id' => 'Delivery zone is required for delivery orders.'])->withInput();
+            }
+            
+            // Verify delivery zone exists
+            $deliveryZone = \App\Models\DeliveryZone::find($validated['delivery_zone_id']);
+            if (!$deliveryZone) {
+                return back()->withErrors(['delivery_zone_id' => 'Invalid delivery zone selected.'])->withInput();
+            }
+            
+            // Either delivery_address_id or delivery_address must be provided
+            if (empty($validated['delivery_address_id']) && empty($validated['delivery_address'])) {
+                return back()->withErrors(['delivery_address' => 'Please select a saved address or enter a delivery address.'])->withInput();
+            }
+            
+            // If delivery_address_id is provided, verify it belongs to the user
+            if (!empty($validated['delivery_address_id'])) {
+                $deliveryAddress = \App\Models\DeliveryAddress::where('user_id', Auth::id())
+                    ->find($validated['delivery_address_id']);
+                if (!$deliveryAddress) {
+                    return back()->withErrors(['delivery_address_id' => 'Selected delivery address does not belong to you.'])->withInput();
+                }
+            }
+        }
 
         // Get delivery address if address_id is provided
         $deliveryAddressText = null;
-        if (isset($validated['delivery_address_id'])) {
+        if (isset($validated['delivery_address_id']) && !empty($validated['delivery_address_id'])) {
             $deliveryAddress = \App\Models\DeliveryAddress::where('user_id', Auth::id())
                 ->find($validated['delivery_address_id']);
             if ($deliveryAddress) {
