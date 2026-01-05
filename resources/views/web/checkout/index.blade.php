@@ -175,8 +175,8 @@
                                 @foreach($deliveryZones as $zone)
                                     <option value="{{ $zone->id }}" data-fee="{{ $zone->delivery_fee }}" data-min="{{ $zone->min_order_amount ?? 0 }}">
                                         {{ $zone->name }} - {{ \App\Models\Setting::formatPrice($zone->delivery_fee) }} 
-                                        @if($zone->min_order_amount)
-                                            (Free delivery over {{ \App\Models\Setting::formatPrice($zone->min_order_amount) }})
+                                        @if($zone->min_order_amount && $zone->min_order_amount > 0)
+                                            (Minimum order amount is {{ \App\Models\Setting::formatPrice($zone->min_order_amount) }})
                                         @endif
                                     </option>
                                 @endforeach
