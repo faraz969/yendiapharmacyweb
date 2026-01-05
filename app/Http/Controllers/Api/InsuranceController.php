@@ -159,10 +159,50 @@ class InsuranceController extends Controller
 
         $validated = $request->validate([
             'delivery_type' => 'required|in:delivery,pickup',
-            'delivery_address_id' => 'required_if:delivery_type,delivery|nullable|exists:delivery_addresses,id',
-            'delivery_zone_id' => 'required_if:delivery_type,delivery|nullable|exists:delivery_zones,id',
-            'delivery_address' => 'required_if:delivery_type,delivery|required_without:delivery_address_id|nullable|string',
+            'delivery_address_id' => 'nullable|integer',
+            'delivery_zone_id' => 'nullable|integer',
+            'delivery_address' => 'nullable|string',
         ]);
+
+        // Additional validation for delivery type
+        if ($validated['delivery_type'] === 'delivery') {
+            if (empty($validated['delivery_zone_id'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Delivery zone is required for delivery orders.',
+                    'errors' => ['delivery_zone_id' => ['Delivery zone is required for delivery orders.']],
+                ], 422);
+            }
+            
+            // Verify delivery zone exists
+            $deliveryZone = \App\Models\DeliveryZone::find($validated['delivery_zone_id']);
+            if (!$deliveryZone) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid delivery zone selected.',
+                    'errors' => ['delivery_zone_id' => ['Invalid delivery zone selected.']],
+                ], 422);
+            }
+            
+            if (!empty($validated['delivery_address_id'])) {
+                // Verify address belongs to user
+                $deliveryAddress = \App\Models\DeliveryAddress::where('user_id', $user->id)
+                    ->find($validated['delivery_address_id']);
+                if (!$deliveryAddress) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid delivery address selected.',
+                        'errors' => ['delivery_address_id' => ['Invalid delivery address selected.']],
+                    ], 422);
+                }
+            } elseif (empty($validated['delivery_address'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Delivery address is required for delivery orders.',
+                    'errors' => ['delivery_address' => ['Delivery address is required for delivery orders.']],
+                ], 422);
+            }
+        }
 
         return \Illuminate\Support\Facades\DB::transaction(function () use ($insuranceRequest, $validated, $user) {
             // Get delivery address if address_id is provided
