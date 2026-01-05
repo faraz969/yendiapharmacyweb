@@ -841,15 +841,11 @@
                         <li><a href="{{ route('products.index') }}" class="text-white-50">Products</a></li>
                         <li><a href="{{ route('cart.index') }}" class="text-white-50">Cart</a></li>
                         @php
-                            $aboutPage = \App\Models\Page::where('slug', 'about-us')->where('is_active', true)->first();
-                            $privacyPage = \App\Models\Page::where('slug', 'privacy-policy')->where('is_active', true)->first();
+                            $pages = \App\Models\Page::where('is_active', true)->orderBy('title', 'asc')->get();
                         @endphp
-                        @if($aboutPage)
-                            <li><a href="https://yendiapharmacy.com/about/" class="text-white-50">About Us</a></li>
-                        @endif
-                        @if($privacyPage)
-                            <li><a href="{{ route('pages.show', $privacyPage->slug) }}" class="text-white-50">Privacy Policy</a></li>
-                        @endif
+                        @foreach($pages as $page)
+                            <li><a href="{{ route('pages.show', $page->slug) }}" class="text-white-50">{{ $page->title }}</a></li>
+                        @endforeach
                     </ul>
                 </div>
                 <div class="col-md-4">
