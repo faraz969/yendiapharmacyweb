@@ -11,9 +11,19 @@
     <div class="card-body">
         <!-- Filters -->
         <form method="GET" action="{{ route('admin.insurance-requests.index') }}" class="mb-4">
-            <div class="row g-3">
-                <div class="col-md-6">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
                     <input type="text" name="search" class="form-control" placeholder="Search by request number, customer name, phone, or insurance number..." value="{{ request('search') }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="insurance_company_id" class="form-select">
+                        <option value="">All Insurance Companies</option>
+                        @foreach($insuranceCompanies as $company)
+                            <option value="{{ $company->id }}" {{ request('insurance_company_id') == $company->id ? 'selected' : '' }}>
+                                {{ $company->name }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
                 @if(isset($branches) && $branches)
                 <div class="col-md-2">
@@ -37,13 +47,19 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">
+                <div class="col-md-1 d-grid">
+                    <button type="submit" class="btn btn-primary">
                         <i class="fas fa-filter"></i> Filter
                     </button>
                 </div>
             </div>
         </form>
+
+        <div class="mb-3 d-flex justify-content-end">
+            <a href="{{ route('admin.insurance-requests.export', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                <i class="fas fa-file-csv me-1"></i> Export CSV
+            </a>
+        </div>
 
         <div class="table-responsive">
             <table class="table table-hover">

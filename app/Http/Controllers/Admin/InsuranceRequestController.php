@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\InsuranceRequest;
+use App\Models\InsuranceCompany;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -32,6 +33,10 @@ class InsuranceRequestController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->has('insurance_company_id') && $request->insurance_company_id !== '') {
+            $query->where('insurance_company_id', $request->insurance_company_id);
+        }
+
         if ($request->has('branch_id') && $request->branch_id !== '' && !$user->isBranchStaff()) {
             $query->where('branch_id', $request->branch_id);
         }
@@ -46,13 +51,103 @@ class InsuranceRequestController extends Controller
             });
         }
 
-        $requests = $query->latest()->paginate(20);
+        $requests = $query->latest()->paginate(20)->appends($request->query());
         $statuses = ['pending', 'approved', 'rejected', 'order_created'];
         
         // Get branches for filter (only if admin)
         $branches = $user->isBranchStaff() ? null : \App\Models\Branch::active()->get();
 
-        return view('admin.insurance-requests.index', compact('requests', 'statuses', 'branches'));
+        // Get insurance companies for filter
+        $insuranceCompanies = InsuranceCompany::orderBy('name')->get();
+
+        return view('admin.insurance-requests.index', compact('requests', 'statuses', 'branches', 'insuranceCompanies'));
+    }
+
+    /**
+     * Export insurance requests to CSV (respecting current filters)
+     */
+    public function export(Request $request)
+    {
+        $user = Auth::user();
+
+        $query = InsuranceRequest::with(['user', 'approvedBy', 'branch', 'insuranceCompany', 'items']);
+
+        // If branch staff, filter by their branch
+        if ($user->isBranchStaff()) {
+            $query->where('branch_id', $user->branch_id);
+        }
+
+        if ($request->has('status') && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('insurance_company_id') && $request->insurance_company_id !== '') {
+            $query->where('insurance_company_id', $request->insurance_company_id);
+        }
+
+        if ($request->has('branch_id') && $request->branch_id !== '' && !$user->isBranchStaff()) {
+            $query->where('branch_id', $request->branch_id);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('request_number', 'like', "%{$search}%")
+                  ->orWhere('customer_name', 'like', "%{$search}%")
+                  ->orWhere('customer_phone', 'like', "%{$search}%")
+                  ->orWhere('insurance_number', 'like', "%{$search}%");
+            });
+        }
+
+        $requests = $query->latest()->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="insurance_requests_' . now()->format('Ymd_His') . '.csv"',
+        ];
+
+        $columns = [
+            'Request Number',
+            'Customer Name',
+            'Customer Phone',
+            'Customer Email',
+            'Insurance Company',
+            'Insurance Number',
+            'Status',
+            'Branch',
+            'Items Count',
+            'Approved By',
+            'Approved At',
+            'Created At',
+        ];
+
+        $callback = function () use ($requests, $columns) {
+            $file = fopen('php://output', 'w');
+
+            // Header row
+            fputcsv($file, $columns);
+
+            foreach ($requests as $request) {
+                fputcsv($file, [
+                    $request->request_number,
+                    $request->customer_name,
+                    $request->customer_phone,
+                    $request->customer_email,
+                    optional($request->insuranceCompany)->name,
+                    $request->insurance_number,
+                    $request->status,
+                    optional($request->branch)->name,
+                    $request->items->count(),
+                    optional($request->approvedBy)->name,
+                    optional($request->approved_at)->format('Y-m-d H:i:s'),
+                    optional($request->created_at)->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function show(InsuranceRequest $insuranceRequest)

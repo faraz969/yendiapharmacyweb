@@ -126,6 +126,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Insurance Requests
         Route::get('/insurance-requests', [InsuranceRequestController::class, 'index'])->name('insurance-requests.index');
+        Route::get('/insurance-requests/export', [InsuranceRequestController::class, 'export'])->name('insurance-requests.export');
         Route::get('/insurance-requests/{insuranceRequest}', [InsuranceRequestController::class, 'show'])->name('insurance-requests.show');
         Route::post('/insurance-requests/{insuranceRequest}/approve', [InsuranceRequestController::class, 'approve'])->name('insurance-requests.approve');
         Route::post('/insurance-requests/{insuranceRequest}/reject', [InsuranceRequestController::class, 'reject'])->name('insurance-requests.reject');
