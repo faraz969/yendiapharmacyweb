@@ -11,6 +11,7 @@ class InsuranceRequestItem extends Model
 
     protected $fillable = [
         'insurance_request_id',
+        'product_id',
         'product_name',
         'quantity',
         'notes',
@@ -23,5 +24,10 @@ class InsuranceRequestItem extends Model
     public function insuranceRequest()
     {
         return $this->belongsTo(InsuranceRequest::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

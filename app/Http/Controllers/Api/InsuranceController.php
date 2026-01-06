@@ -45,6 +45,7 @@ class InsuranceController extends Controller
             'card_back_image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'prescription_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'items' => 'required|array|min:1',
+            'items.*.product_id' => 'nullable|integer|exists:products,id',
             'items.*.product_name' => 'required|string|max:255',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.notes' => 'nullable|string',
@@ -82,6 +83,7 @@ class InsuranceController extends Controller
         foreach ($validated['items'] as $item) {
             InsuranceRequestItem::create([
                 'insurance_request_id' => $insuranceRequest->id,
+                'product_id' => $item['product_id'] ?? null,
                 'product_name' => $item['product_name'],
                 'quantity' => $item['quantity'],
                 'notes' => $item['notes'] ?? null,

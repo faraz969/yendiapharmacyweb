@@ -131,16 +131,42 @@
                     <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.insurance-requests.approve', $insuranceRequest->id) }}" method="POST" class="mb-3">
-                        @csrf
-                        <div class="mb-2">
-                            <label for="admin_notes" class="form-label">Admin Notes (optional)</label>
-                            <textarea name="admin_notes" id="admin_notes" class="form-control" rows="2"></textarea>
+                    @if(session('unavailable_items'))
+                        <div class="alert alert-warning mb-3">
+                            <strong>The following products are out of stock or not available:</strong>
+                            <ul class="mb-0 mt-2">
+                                @foreach(session('unavailable_items') as $item)
+                                    <li>{{ $item }}</li>
+                                @endforeach
+                            </ul>
+                            <p class="mb-0 mt-2">Do you still wish to approve this request?</p>
                         </div>
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="fas fa-check me-2"></i>Approve Request
-                        </button>
-                    </form>
+                        <form action="{{ route('admin.insurance-requests.approve', session('insurance_request_id', $insuranceRequest->id)) }}" method="POST" class="mb-3">
+                            @csrf
+                            <input type="hidden" name="force_approve" value="1">
+                            <div class="mb-2">
+                                <label for="admin_notes" class="form-label">Admin Notes (optional)</label>
+                                <textarea name="admin_notes" id="admin_notes" class="form-control" rows="2">{{ session('admin_notes') }}</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 mb-2">
+                                <i class="fas fa-check me-2"></i>Yes, Approve Anyway
+                            </button>
+                            <a href="{{ route('admin.insurance-requests.show', $insuranceRequest) }}" class="btn btn-secondary w-100">
+                                <i class="fas fa-times me-2"></i>No, Keep Pending
+                            </a>
+                        </form>
+                    @else
+                        <form action="{{ route('admin.insurance-requests.approve', $insuranceRequest->id) }}" method="POST" class="mb-3">
+                            @csrf
+                            <div class="mb-2">
+                                <label for="admin_notes" class="form-label">Admin Notes (optional)</label>
+                                <textarea name="admin_notes" id="admin_notes" class="form-control" rows="2"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check me-2"></i>Approve Request
+                            </button>
+                        </form>
+                    @endif
 
                     <form action="{{ route('admin.insurance-requests.reject', $insuranceRequest->id) }}" method="POST">
                         @csrf

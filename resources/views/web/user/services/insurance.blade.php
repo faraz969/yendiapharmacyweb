@@ -132,7 +132,11 @@
                                     <div class="row">
                                         <div class="col-md-5">
                                             <label class="form-label">Product Name <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="items[0][product_name]" required>
+                                            <select class="form-control product-select" name="items[0][product_id]" data-item-index="0" style="width: 100%;">
+                                                <option value="">Search or type custom product...</option>
+                                            </select>
+                                            <input type="text" class="form-control custom-product-input mt-2" name="items[0][product_name]" placeholder="Or enter custom product name" required>
+                                            <small class="text-muted">Select from our products or enter a custom product name</small>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Quantity <span class="text-danger">*</span></label>
@@ -170,9 +174,66 @@
     </div>
 </div>
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+@endpush
+
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 let itemCount = 1;
+let products = [];
+
+// Fetch products for dropdown
+fetch('{{ url("/api/products") }}?per_page=1000')
+    .then(response => response.json())
+    .then(data => {
+        products = data.data.data || [];
+        initializeSelect2();
+    })
+    .catch(error => {
+        console.error('Error loading products:', error);
+        initializeSelect2();
+    });
+
+function initializeSelect2() {
+    document.querySelectorAll('.product-select').forEach(select => {
+        if (!$(select).hasClass('select2-hidden-accessible')) {
+            $(select).select2({
+                placeholder: 'Search or type custom product...',
+                allowClear: true,
+                tags: true,
+                data: products.map(p => ({
+                    id: p.id,
+                    text: p.name
+                }))
+            }).on('select2:select', function(e) {
+                const itemIndex = $(this).data('item-index');
+                const customInput = document.querySelector(`input[name="items[${itemIndex}][product_name]"]`);
+                if (e.params.data.id && typeof e.params.data.id === 'number') {
+                    // Product selected from dropdown - set product_name and hide input
+                    customInput.value = e.params.data.text;
+                    customInput.style.display = 'none';
+                    customInput.removeAttribute('required');
+                } else {
+                    // Custom text entered - show input and clear select
+                    customInput.value = e.params.data.text;
+                    customInput.style.display = 'block';
+                    customInput.setAttribute('required', 'required');
+                    $(this).val(null).trigger('change');
+                }
+            }).on('select2:clear', function() {
+                const itemIndex = $(this).data('item-index');
+                const customInput = document.querySelector(`input[name="items[${itemIndex}][product_name]"]`);
+                customInput.value = '';
+                customInput.style.display = 'block';
+                customInput.setAttribute('required', 'required');
+            });
+        }
+    });
+}
+
 document.getElementById('addItemBtn').addEventListener('click', function() {
     const container = document.getElementById('itemsContainer');
     const newItem = document.createElement('div');
@@ -181,7 +242,11 @@ document.getElementById('addItemBtn').addEventListener('click', function() {
         <div class="row">
             <div class="col-md-5">
                 <label class="form-label">Product Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="items[${itemCount}][product_name]" required>
+                <select class="form-control product-select" name="items[${itemCount}][product_id]" data-item-index="${itemCount}" style="width: 100%;">
+                    <option value="">Search or type custom product...</option>
+                </select>
+                <input type="text" class="form-control custom-product-input mt-2" name="items[${itemCount}][product_name]" placeholder="Or enter custom product name" required>
+                <small class="text-muted">Select from our products or enter a custom product name</small>
             </div>
             <div class="col-md-3">
                 <label class="form-label">Quantity <span class="text-danger">*</span></label>
@@ -199,6 +264,12 @@ document.getElementById('addItemBtn').addEventListener('click', function() {
         </div>
     `;
     container.appendChild(newItem);
+    
+    // Initialize Select2 for the new item
+    setTimeout(() => {
+        initializeSelect2();
+    }, 100);
+    
     itemCount++;
     
     // Show remove buttons for all items
@@ -207,12 +278,57 @@ document.getElementById('addItemBtn').addEventListener('click', function() {
 
 document.addEventListener('click', function(e) {
     if (e.target.closest('.remove-item')) {
-        e.target.closest('.item-row').remove();
+        const itemRow = e.target.closest('.item-row');
+        const select = itemRow.querySelector('.product-select');
+        if ($(select).hasClass('select2-hidden-accessible')) {
+            $(select).select2('destroy');
+        }
+        itemRow.remove();
         // Hide remove buttons if only one item left
         if (document.querySelectorAll('.item-row').length === 1) {
             document.querySelectorAll('.remove-item').forEach(btn => btn.style.display = 'none');
         }
     }
+});
+
+// Form validation - ensure product_name is always provided
+document.getElementById('insuranceForm').addEventListener('submit', function(e) {
+    let isValid = true;
+    const errors = [];
+    
+    document.querySelectorAll('.item-row').forEach((row, index) => {
+        const productSelect = row.querySelector(`select[name="items[${index}][product_id]"]`);
+        const productNameInput = row.querySelector(`input[name="items[${index}][product_name]"]`);
+        
+        if (!productSelect || !productNameInput) return;
+        
+        const productId = productSelect.value;
+        let productName = productNameInput.value.trim();
+        
+        // If product_id is selected but product_name is empty, get it from the select
+        if (productId && !productName) {
+            const selectedOption = productSelect.querySelector(`option[value="${productId}"]`);
+            if (selectedOption) {
+                productName = selectedOption.textContent.trim();
+                productNameInput.value = productName;
+            }
+        }
+        
+        // Ensure product_name is always set
+        if (!productName) {
+            isValid = false;
+            errors.push(`Item ${index + 1}: Please select a product or enter a custom product name.`);
+        }
+    });
+    
+    if (!isValid) {
+        e.preventDefault();
+        alert(errors.join('\n'));
+        return false;
+    }
+    
+    // Allow form to submit normally
+    return true;
 });
 </script>
 @endpush

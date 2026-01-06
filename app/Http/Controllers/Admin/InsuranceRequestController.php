@@ -172,33 +172,43 @@ class InsuranceRequestController extends Controller
             return back()->with('error', 'Only pending insurance requests can be approved.');
         }
 
-        // Check if items are available
-        $itemsAvailable = true;
+        // Check if user confirmed approval despite unavailable items
+        $forceApprove = $request->has('force_approve') && $request->force_approve == '1';
+
+        // Only check availability for products that exist in our database (have product_id)
         $unavailableItems = [];
         
         foreach ($insuranceRequest->items as $item) {
-            // Try to find product by name
-            $product = Product::where('name', 'like', "%{$item->product_name}%")
-                ->where('is_active', true)
-                ->where('is_expired', false)
-                ->first();
-            
-            if (!$product) {
-                $itemsAvailable = false;
-                $unavailableItems[] = $item->product_name;
-            } elseif ($product->trackBatch && ($product->totalStock ?? 0) < $item->quantity) {
-                $itemsAvailable = false;
-                $unavailableItems[] = $item->product_name . ' (insufficient stock)';
+            // Only check products that have product_id (exist in our database)
+            if ($item->product_id) {
+                $product = Product::find($item->product_id);
+                
+                if (!$product) {
+                    $unavailableItems[] = $item->product_name . ' (product not found)';
+                } elseif (!$product->is_active || $product->is_expired) {
+                    $unavailableItems[] = $item->product_name . ' (inactive or expired)';
+                } elseif ($product->trackBatch && ($product->totalStock ?? 0) < $item->quantity) {
+                    $unavailableItems[] = $item->product_name . ' (insufficient stock: ' . ($product->totalStock ?? 0) . ' available, ' . $item->quantity . ' requested)';
+                }
             }
+            // Custom products (without product_id) are not checked - they're assumed to be available
         }
 
-        if (!$itemsAvailable) {
-            return back()->with('error', 'Some items are not available: ' . implode(', ', $unavailableItems));
+        // If there are unavailable items and user hasn't confirmed, show prompt
+        if (!empty($unavailableItems) && !$forceApprove) {
+            return back()->with('unavailable_items', $unavailableItems)
+                         ->with('insurance_request_id', $insuranceRequest->id)
+                         ->with('admin_notes', $request->admin_notes);
         }
 
         $insuranceRequest->approve(Auth::id(), $request->admin_notes);
 
-        return back()->with('success', 'Insurance request approved. Customer can now select delivery and pay for delivery fee.');
+        $message = 'Insurance request approved. Customer can now select delivery and pay for delivery fee.';
+        if (!empty($unavailableItems) && $forceApprove) {
+            $message .= ' Note: Some products were unavailable but request was approved anyway.';
+        }
+
+        return back()->with('success', $message);
     }
 
     public function reject(Request $request, InsuranceRequest $insuranceRequest)
