@@ -67,7 +67,12 @@
 
                 @if($insuranceRequest->prescription_image)
                 <div class="mb-3">
-                    <strong>Prescription:</strong><br>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>Prescription:</strong>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="printPrescription('{{ Storage::url($insuranceRequest->prescription_image) }}')">
+                            <i class="fas fa-print me-2"></i>Print Prescription
+                        </button>
+                    </div>
                     <img src="{{ Storage::url($insuranceRequest->prescription_image) }}" 
                          alt="Prescription" 
                          class="img-fluid mt-2" 
@@ -222,18 +227,133 @@
 
 @push('scripts')
 <script>
-document.getElementById('delivery_type').addEventListener('change', function() {
-    const deliveryFields = document.getElementById('deliveryFields');
-    if (this.value === 'delivery') {
-        deliveryFields.style.display = 'block';
-        document.getElementById('delivery_zone_id').required = true;
-        document.getElementById('delivery_address').required = true;
-    } else {
-        deliveryFields.style.display = 'none';
-        document.getElementById('delivery_zone_id').required = false;
-        document.getElementById('delivery_address').required = false;
+function printPrescription(imageUrl) {
+    var printWindow = window.open('', '_blank');
+    if (!printWindow) {
+        alert('Please allow popups to print the prescription');
+        return;
     }
-});
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <title>Print Prescription - {{ $insuranceRequest->request_number }}</title>
+                <style>
+                    @media print {
+                        @page {
+                            margin: 0;
+                        }
+                        body {
+                            margin: 0;
+                            padding: 0;
+                        }
+                    }
+                    body {
+                        margin: 0;
+                        padding: 20px;
+                        text-align: center;
+                        font-family: Arial, sans-serif;
+                    }
+                    .header {
+                        margin-bottom: 20px;
+                        text-align: center;
+                        border-bottom: 2px solid #ddd;
+                        padding-bottom: 15px;
+                    }
+                    .info-section {
+                        margin-bottom: 20px;
+                        text-align: left;
+                        padding: 15px;
+                        background: #f9f9f9;
+                        border-radius: 5px;
+                    }
+                    .info-section p {
+                        margin: 5px 0;
+                    }
+                    img {
+                        max-width: 100%;
+                        height: auto;
+                        display: block;
+                        margin: 20px auto;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                    }
+                    .footer {
+                        margin-top: 20px;
+                        text-align: center;
+                        font-size: 12px;
+                        color: #666;
+                        border-top: 1px solid #ddd;
+                        padding-top: 15px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h2>Insurance Request Prescription</h2>
+                    <p><strong>Request Number:</strong> {{ $insuranceRequest->request_number }}</p>
+                </div>
+                <div class="info-section">
+                    <p><strong>Customer Name:</strong> {{ $insuranceRequest->customer_name }}</p>
+                    <p><strong>Phone:</strong> {{ $insuranceRequest->customer_phone }}</p>
+                    <p><strong>Email:</strong> {{ $insuranceRequest->customer_email ?? 'N/A' }}</p>
+                    <p><strong>Insurance Company:</strong> {{ $insuranceRequest->insuranceCompany->name }}</p>
+                    <p><strong>Insurance Number:</strong> {{ $insuranceRequest->insurance_number }}</p>
+                    <p><strong>Branch:</strong> {{ $insuranceRequest->branch->name }}</p>
+                    <p><strong>Request Date:</strong> {{ $insuranceRequest->created_at->format('M d, Y H:i') }}</p>
+                </div>
+                <img src="${imageUrl}" alt="Prescription" id="prescriptionImg">
+                <div class="footer">
+                    <p>Printed on: ${new Date().toLocaleString()}</p>
+                </div>
+                <script>
+                    (function() {
+                        var img = document.getElementById('prescriptionImg');
+                        img.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                                setTimeout(function() {
+                                    window.close();
+                                }, 100);
+                            }, 250);
+                        };
+                        img.onerror = function() {
+                            alert('Failed to load prescription image. Please try again.');
+                            window.close();
+                        };
+                        // If image is already loaded (cached)
+                        if (img.complete && img.naturalHeight !== 0) {
+                            img.onload();
+                        }
+                    })();
+                <\/script>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
+
+// Only add event listener if delivery_type element exists
+var deliveryTypeElement = document.getElementById('delivery_type');
+if (deliveryTypeElement) {
+    deliveryTypeElement.addEventListener('change', function() {
+        var deliveryFields = document.getElementById('deliveryFields');
+        if (this.value === 'delivery') {
+            if (deliveryFields) deliveryFields.style.display = 'block';
+            var zoneField = document.getElementById('delivery_zone_id');
+            var addressField = document.getElementById('delivery_address');
+            if (zoneField) zoneField.required = true;
+            if (addressField) addressField.required = true;
+        } else {
+            if (deliveryFields) deliveryFields.style.display = 'none';
+            var zoneField = document.getElementById('delivery_zone_id');
+            var addressField = document.getElementById('delivery_address');
+            if (zoneField) zoneField.required = false;
+            if (addressField) addressField.required = false;
+        }
+    });
+}
 </script>
 @endpush
 @endsection
