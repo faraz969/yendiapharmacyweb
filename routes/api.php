@@ -31,6 +31,7 @@ Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/categories', [ProductController::class, 'categories']);
 Route::get('/banners', [BannerController::class, 'index']);
+Route::get('/marketing-banners', [BannerController::class, 'marketingBanners']);
 Route::get('/branches', [BranchController::class, 'index']);
 Route::get('/branches/{id}', [BranchController::class, 'show']);
 Route::get('/delivery-zones', [\App\Http\Controllers\Api\DeliveryZoneController::class, 'index']);
