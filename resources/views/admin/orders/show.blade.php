@@ -115,13 +115,29 @@
                             @foreach($order->items as $item)
                                 <tr>
                                     <td>
-                                        <strong>{{ $item->product->name }}</strong>
-                                        @if($item->product->requires_prescription)
-                                            <span class="badge bg-warning text-dark">Rx</span>
+                                        @if($item->product)
+                                            <strong>{{ $item->product->name }}</strong>
+                                            @if($item->product->requires_prescription)
+                                                <span class="badge bg-warning text-dark">Rx</span>
+                                            @endif
+                                        @else
+                                            <strong>{{ $item->product_name ?? 'Custom Product' }}</strong>
+                                            <span class="badge bg-info text-white">Custom</span>
                                         @endif
                                     </td>
-                                    <td><code>{{ $item->product->sku }}</code></td>
-                                    <td>{{ $item->quantity }} {{ $item->product->selling_unit }}</td>
+                                    <td>
+                                        @if($item->product)
+                                            <code>{{ $item->product->sku }}</code>
+                                        @else
+                                            <code>N/A</code>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        {{ $item->quantity }}
+                                        @if($item->product)
+                                            {{ $item->product->selling_unit }}
+                                        @endif
+                                    </td>
                                     <td>{{ \App\Models\Setting::formatPrice($item->unit_price) }}</td>
                                     <td>{{ \App\Models\Setting::formatPrice($item->total_price) }}</td>
                                 </tr>

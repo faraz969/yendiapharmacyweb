@@ -250,20 +250,34 @@ class InsuranceController extends Controller
 
             // Create order items (with 0 price since insurance covers it)
             foreach ($insuranceRequest->items as $item) {
-                $product = \App\Models\Product::where('name', 'like', "%{$item->product_name}%")
-                    ->where('is_active', true)
-                    ->where('is_expired', false)
-                    ->first();
+                $productId = null;
                 
-                if ($product) {
-                    \App\Models\OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $product->id,
-                        'quantity' => $item->quantity,
-                        'unit_price' => 0, // Free with insurance
-                        'total_price' => 0, // Free with insurance
-                    ]);
+                // If item has product_id, use it directly
+                if ($item->product_id) {
+                    $product = \App\Models\Product::find($item->product_id);
+                    if ($product && $product->is_active && !$product->is_expired) {
+                        $productId = $product->id;
+                    }
+                } else {
+                    // Try to find product by name for custom products
+                    $product = \App\Models\Product::where('name', 'like', "%{$item->product_name}%")
+                        ->where('is_active', true)
+                        ->where('is_expired', false)
+                        ->first();
+                    if ($product) {
+                        $productId = $product->id;
+                    }
                 }
+                
+                // Create order item for all products (including custom ones)
+                \App\Models\OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $productId,
+                    'product_name' => $item->product_name, // Always store product name
+                    'quantity' => $item->quantity,
+                    'unit_price' => 0, // Free with insurance
+                    'total_price' => 0, // Free with insurance
+                ]);
             }
 
             // Update insurance request
