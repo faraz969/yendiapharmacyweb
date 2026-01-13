@@ -9,11 +9,11 @@ use Illuminate\Http\Request;
 class DeliveryZoneController extends Controller
 {
     /**
-     * Get all delivery zones
+     * Get all active delivery zones
      */
     public function index()
     {
-        $zones = DeliveryZone::all();
+        $zones = DeliveryZone::where('is_active', true)->get();
         
         return response()->json([
             'success' => true,
