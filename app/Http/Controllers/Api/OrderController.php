@@ -146,9 +146,13 @@ class OrderController extends Controller
 
             $totalAmount = $subtotal + $deliveryFee;
 
+            // Get user_id - use sanctum guard for API authentication
+            // The route is public to allow guest checkout, but we still check for authenticated users
+            $userId = Auth::guard('sanctum')->id();
+
             // Create order
             $order = Order::create([
-                'user_id' => Auth::id(), // Will be null for guest users
+                'user_id' => $userId, // Will be null for guest users
                 'branch_id' => $validated['branch_id'],
                 'delivery_address_id' => $deliveryAddressId,
                 'delivery_zone_id' => $deliveryZoneId,
