@@ -29,6 +29,9 @@ class RefundRequest extends Model
         'processed_by',
         'processed_at',
         'refund_reference',
+        'recipient_code',
+        'transfer_code',
+        'bank_code',
     ];
 
     protected $casts = [

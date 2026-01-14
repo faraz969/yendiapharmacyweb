@@ -78,6 +78,7 @@ Route::prefix('paystack')->name('paystack.')->group(function () {
     Route::post('/initialize', [PaystackPaymentController::class, 'initialize'])->name('initialize');
     Route::post('/verify', [PaystackPaymentController::class, 'verify'])->name('verify');
     Route::get('/callback', [PaystackPaymentController::class, 'callback'])->name('callback');
+    Route::post('/webhook', [\App\Http\Controllers\Web\PaystackWebhookController::class, 'handle'])->name('webhook');
 });
 
 // Authenticated User Routes

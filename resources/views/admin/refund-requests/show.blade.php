@@ -82,8 +82,20 @@
                 @endif
 
                 @if($refundRequest->refund_reference)
-                    <div class="alert alert-success">
-                        <strong>Refund Reference:</strong> {{ $refundRequest->refund_reference }}
+                    <div class="alert alert-info">
+                        <strong>Transfer Reference:</strong> {{ $refundRequest->refund_reference }}
+                    </div>
+                @endif
+
+                @if($refundRequest->transfer_code)
+                    <div class="alert alert-info">
+                        <strong>Transfer Code:</strong> {{ $refundRequest->transfer_code }}
+                    </div>
+                @endif
+
+                @if($refundRequest->recipient_code)
+                    <div class="alert alert-info">
+                        <strong>Recipient Code:</strong> {{ $refundRequest->recipient_code }}
                     </div>
                 @endif
 
@@ -186,9 +198,14 @@
         @endif
 
         @if($refundRequest->status === 'approved')
+            <div class="alert alert-info mb-3">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Note:</strong> Transfers are automatically processed when a refund request is approved. 
+                If the transfer was not initiated, you can manually process it using the form below.
+            </div>
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-check-circle me-2"></i>Process Refund</h6>
+                    <h6 class="mb-0"><i class="fas fa-check-circle me-2"></i>Manually Process Refund (Fallback)</h6>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('admin.refund-requests.mark-processed', $refundRequest->id) }}" method="POST">
