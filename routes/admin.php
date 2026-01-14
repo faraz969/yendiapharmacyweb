@@ -42,11 +42,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Categories
         Route::resource('categories', CategoryController::class);
         
-        // Products
-        Route::resource('products', ProductController::class);
+        // Products - Import routes must come before resource route to avoid conflicts
         Route::get('/products/import', [ProductController::class, 'showImportForm'])->name('products.import');
         Route::post('/products/import', [ProductController::class, 'import'])->name('products.import.store');
         Route::get('/products/import/template', [ProductController::class, 'downloadTemplate'])->name('products.import.template');
+        
+        // Products resource route
+        Route::resource('products', ProductController::class);
         
         // Vendors
         Route::resource('vendors', VendorController::class);
