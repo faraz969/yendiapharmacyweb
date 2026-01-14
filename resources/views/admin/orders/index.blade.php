@@ -221,17 +221,25 @@
                             </td>
                             <td>
                                 @php
-                                    $paymentStatus = $order->payment_status ?? 'pending';
-                                    $paymentBadgeColors = [
-                                        'paid' => 'success',
-                                        'pending' => 'warning',
-                                        'failed' => 'danger',
-                                        'refunded' => 'info',
-                                    ];
-                                    $paymentColor = $paymentBadgeColors[$paymentStatus] ?? 'secondary';
+                                    // Check if order is from insurance request
+                                    $isInsuranceOrder = $order->insuranceRequest !== null;
+                                    
+                                    if ($isInsuranceOrder) {
+                                        $paymentStatus = 'Ins.Paid';
+                                        $paymentColor = 'success';
+                                    } else {
+                                        $paymentStatus = $order->payment_status ?? 'pending';
+                                        $paymentBadgeColors = [
+                                            'paid' => 'success',
+                                            'pending' => 'warning',
+                                            'failed' => 'danger',
+                                            'refunded' => 'info',
+                                        ];
+                                        $paymentColor = $paymentBadgeColors[$paymentStatus] ?? 'secondary';
+                                    }
                                 @endphp
                                 <span class="badge bg-{{ $paymentColor }}">
-                                    {{ ucfirst($paymentStatus) }}
+                                    {{ $isInsuranceOrder ? 'Ins.Paid' : ucfirst($paymentStatus) }}
                                 </span>
                             </td>
                             <td>

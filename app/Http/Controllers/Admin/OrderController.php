@@ -16,7 +16,7 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $query = Order::with(['user', 'items.product', 'branch', 'deliveredBy.branch']);
+        $query = Order::with(['user', 'items.product', 'branch', 'deliveredBy.branch', 'insuranceRequest']);
 
         // If branch staff, filter by their branch
         if ($user->isBranchStaff()) {
