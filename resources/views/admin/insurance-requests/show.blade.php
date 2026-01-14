@@ -119,10 +119,30 @@
 
                 @if($insuranceRequest->order)
                     <div class="alert alert-info">
-                        <strong>Order Created:</strong> 
-                        <a href="{{ route('admin.orders.show', $insuranceRequest->order) }}">
-                            {{ $insuranceRequest->order->order_number }}
-                        </a>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Order Created:</strong> 
+                                <a href="{{ route('admin.orders.show', $insuranceRequest->order) }}" class="text-decoration-none">
+                                    {{ $insuranceRequest->order->order_number }}
+                                </a>
+                            </div>
+                            <div>
+                                @php
+                                    $orderBadgeColors = [
+                                        'pending' => 'warning',
+                                        'approved' => 'info',
+                                        'packed' => 'primary',
+                                        'out_for_delivery' => 'info',
+                                        'delivered' => 'success',
+                                        'cancelled' => 'danger',
+                                    ];
+                                    $orderColor = $orderBadgeColors[$insuranceRequest->order->status] ?? 'secondary';
+                                @endphp
+                                <span class="badge bg-{{ $orderColor }}">
+                                    Order Status: {{ ucfirst(str_replace('_', ' ', $insuranceRequest->order->status)) }}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 @endif
             </div>

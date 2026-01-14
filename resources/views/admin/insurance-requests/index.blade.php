@@ -95,6 +95,7 @@
                         <th>Insurance #</th>
                         <th>Items</th>
                         <th>Status</th>
+                        <th>Order Status</th>
                         <th>Created</th>
                         <th>Actions</th>
                     </tr>
@@ -122,6 +123,32 @@
                                     {{ ucfirst(str_replace('_', ' ', $request->status)) }}
                                 </span>
                             </td>
+                            <td>
+                                @if($request->order)
+                                    @php
+                                        $orderBadgeColors = [
+                                            'pending' => 'warning',
+                                            'approved' => 'info',
+                                            'packed' => 'primary',
+                                            'out_for_delivery' => 'info',
+                                            'delivered' => 'success',
+                                            'cancelled' => 'danger',
+                                        ];
+                                        $orderColor = $orderBadgeColors[$request->order->status] ?? 'secondary';
+                                    @endphp
+                                    <span class="badge bg-{{ $orderColor }}">
+                                        {{ ucfirst(str_replace('_', ' ', $request->order->status)) }}
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">
+                                        <a href="{{ route('admin.orders.show', $request->order) }}" class="text-decoration-none">
+                                            {{ $request->order->order_number }}
+                                        </a>
+                                    </small>
+                                @else
+                                    <span class="text-muted">No Order</span>
+                                @endif
+                            </td>
                             <td>{{ $request->created_at->format('M d, Y') }}</td>
                             <td>
                                 <a href="{{ route('admin.insurance-requests.show', $request) }}" class="btn btn-sm btn-primary">
@@ -131,7 +158,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center">No insurance requests found.</td>
+                            <td colspan="10" class="text-center">No insurance requests found.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -22,7 +22,7 @@ class InsuranceRequestController extends Controller
     {
         $user = Auth::user();
         
-        $query = InsuranceRequest::with(['user', 'approvedBy', 'branch', 'insuranceCompany', 'items']);
+        $query = InsuranceRequest::with(['user', 'approvedBy', 'branch', 'insuranceCompany', 'items', 'order']);
 
         // If branch staff, filter by their branch
         if ($user->isBranchStaff()) {
@@ -89,7 +89,7 @@ class InsuranceRequestController extends Controller
     {
         $user = Auth::user();
 
-        $query = InsuranceRequest::with(['user', 'approvedBy', 'branch', 'insuranceCompany', 'items']);
+        $query = InsuranceRequest::with(['user', 'approvedBy', 'branch', 'insuranceCompany', 'items', 'order']);
 
         // If branch staff, filter by their branch
         if ($user->isBranchStaff()) {
@@ -152,6 +152,8 @@ class InsuranceRequestController extends Controller
             'Insurance Company',
             'Insurance Number',
             'Status',
+            'Order Number',
+            'Order Status',
             'Branch',
             'Items Count',
             'Approved By',
@@ -174,6 +176,8 @@ class InsuranceRequestController extends Controller
                     optional($request->insuranceCompany)->name,
                     $request->insurance_number,
                     $request->status,
+                    optional($request->order)->order_number ?? 'N/A',
+                    optional($request->order)->status ?? 'N/A',
                     optional($request->branch)->name,
                     $request->items->count(),
                     optional($request->approvedBy)->name,
