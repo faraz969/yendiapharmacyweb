@@ -342,6 +342,9 @@
                     <a href="{{ route('admin.insurance-requests.index') }}" class="{{ request()->routeIs('admin.insurance-requests.*') ? 'active' : '' }}">
                         <i class="fas fa-shield-alt"></i> Insurance Requests
                     </a>
+                    <a href="{{ route('admin.refund-requests.index') }}" class="{{ request()->routeIs('admin.refund-requests.*') ? 'active' : '' }}">
+                        <i class="fas fa-money-bill-wave"></i> Refund Requests
+                    </a>
                 </li>
                 <li>
                     <a href="{{ route('admin.delivery-zones.index') }}" class="{{ request()->routeIs('admin.delivery-zones.*') ? 'active' : '' }}">

@@ -136,6 +136,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/insurance-requests/{insuranceRequest}/approve', [InsuranceRequestController::class, 'approve'])->name('insurance-requests.approve');
         Route::post('/insurance-requests/{insuranceRequest}/reject', [InsuranceRequestController::class, 'reject'])->name('insurance-requests.reject');
         Route::post('/insurance-requests/{insuranceRequest}/create-order', [InsuranceRequestController::class, 'createOrder'])->name('insurance-requests.create-order');
+        
+        // Refund Requests
+        Route::get('/refund-requests', [\App\Http\Controllers\Admin\RefundRequestController::class, 'index'])->name('refund-requests.index');
+        Route::get('/refund-requests/{refundRequest}', [\App\Http\Controllers\Admin\RefundRequestController::class, 'show'])->name('refund-requests.show');
+        Route::post('/refund-requests/{refundRequest}/approve', [\App\Http\Controllers\Admin\RefundRequestController::class, 'approve'])->name('refund-requests.approve');
+        Route::post('/refund-requests/{refundRequest}/reject', [\App\Http\Controllers\Admin\RefundRequestController::class, 'reject'])->name('refund-requests.reject');
+        Route::post('/refund-requests/{refundRequest}/mark-processed', [\App\Http\Controllers\Admin\RefundRequestController::class, 'markAsProcessed'])->name('refund-requests.mark-processed');
+        Route::post('/refund-requests/{refundRequest}/mark-completed', [\App\Http\Controllers\Admin\RefundRequestController::class, 'markAsCompleted'])->name('refund-requests.mark-completed');
     });
 });
 

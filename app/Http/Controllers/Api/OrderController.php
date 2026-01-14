@@ -258,11 +258,23 @@ class OrderController extends Controller
             ], 400);
         }
 
-        // Check if order has been paid
+        // Check if order has been paid - if so, require refund request
         if ($order->payment_status === 'paid') {
+            // Check if refund request already exists
+            if ($order->refundRequest) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'A refund request already exists for this order.',
+                    'refund_request_id' => $order->refundRequest->id,
+                ], 400);
+            }
+
+            // Return response indicating refund request is needed
             return response()->json([
                 'success' => false,
-                'message' => 'Cannot cancel paid orders. Please contact support for a refund.',
+                'message' => 'This order has been paid. Please submit a refund request to cancel it.',
+                'requires_refund_request' => true,
+                'order_id' => $order->id,
             ], 400);
         }
 

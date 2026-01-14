@@ -106,6 +106,11 @@ class Order extends Model
         return $this->hasOne(InsuranceRequest::class, 'order_id');
     }
 
+    public function refundRequest()
+    {
+        return $this->hasOne(RefundRequest::class);
+    }
+
     // Business Logic
     public function calculateTotal()
     {

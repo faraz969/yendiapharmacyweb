@@ -86,6 +86,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}/cancel', [OrderController::class, 'cancel']);
     });
     
+    // Refund Requests
+    Route::prefix('refund-requests')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\RefundRequestController::class, 'index']);
+        Route::post('/', [\App\Http\Controllers\Api\RefundRequestController::class, 'store']);
+        Route::get('/{id}', [\App\Http\Controllers\Api\RefundRequestController::class, 'show']);
+    });
+    
     // Prescriptions (can be accessed by guests)
     Route::prefix('prescriptions')->group(function () {
         Route::get('/', [PrescriptionController::class, 'index']);

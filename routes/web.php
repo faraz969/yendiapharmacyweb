@@ -85,6 +85,13 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/orders', [UserOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [UserOrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/cancel', [UserOrderController::class, 'cancel'])->name('orders.cancel');
+    
+    // Refund Requests
+    Route::get('/refund-requests', [\App\Http\Controllers\Web\User\RefundRequestController::class, 'index'])->name('refund-requests.index');
+    Route::get('/refund-requests/create/{order}', [\App\Http\Controllers\Web\User\RefundRequestController::class, 'create'])->name('refund-requests.create');
+    Route::post('/refund-requests/{order}', [\App\Http\Controllers\Web\User\RefundRequestController::class, 'store'])->name('refund-requests.store');
+    Route::get('/refund-requests/{refundRequest}', [\App\Http\Controllers\Web\User\RefundRequestController::class, 'show'])->name('refund-requests.show');
     
     // Profile
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');

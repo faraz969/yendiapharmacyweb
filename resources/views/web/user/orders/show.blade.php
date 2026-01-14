@@ -184,6 +184,39 @@
                             <p class="mb-0">{{ $order->rejection_reason }}</p>
                         </div>
                     @endif
+
+                    @if($order->refundRequest)
+                        <div class="alert alert-info mt-3">
+                            <h6><i class="fas fa-info-circle me-2"></i>Refund Request</h6>
+                            <p class="mb-2">Refund Request #{{ $order->refundRequest->refund_number }}</p>
+                            <p class="mb-0">
+                                Status: 
+                                <span class="badge bg-{{ $order->refundRequest->status === 'pending' ? 'warning' : ($order->refundRequest->status === 'approved' ? 'info' : ($order->refundRequest->status === 'rejected' ? 'danger' : ($order->refundRequest->status === 'processed' ? 'primary' : 'success'))) }}">
+                                    {{ ucfirst($order->refundRequest->status) }}
+                                </span>
+                            </p>
+                            <a href="{{ route('user.refund-requests.show', $order->refundRequest) }}" class="btn btn-sm btn-outline-primary mt-2">
+                                View Refund Request Details
+                            </a>
+                        </div>
+                    @endif
+
+                    @if(($order->status === 'pending' || $order->status === 'approved') && !$order->refundRequest)
+                        <div class="mt-4">
+                            @if($order->payment_status === 'paid')
+                                <a href="{{ route('user.refund-requests.create', $order) }}" class="btn btn-danger">
+                                    <i class="fas fa-ban me-2"></i>Cancel Order & Request Refund
+                                </a>
+                            @else
+                                <form action="{{ route('user.orders.cancel', $order) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this order? This action cannot be undone.');">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-ban me-2"></i>Cancel Order
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
