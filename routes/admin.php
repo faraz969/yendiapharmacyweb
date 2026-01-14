@@ -44,6 +44,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Products
         Route::resource('products', ProductController::class);
+        Route::get('/products/import', [ProductController::class, 'showImportForm'])->name('products.import');
+        Route::post('/products/import', [ProductController::class, 'import'])->name('products.import.store');
+        Route::get('/products/import/template', [ProductController::class, 'downloadTemplate'])->name('products.import.template');
         
         // Vendors
         Route::resource('vendors', VendorController::class);

@@ -7,9 +7,14 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-cube me-2"></i>All Products</h5>
-        <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Add New Product
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.products.import') }}" class="btn btn-success">
+                <i class="fas fa-file-csv me-2"></i>Import CSV
+            </a>
+            <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add New Product
+            </a>
+        </div>
     </div>
     <div class="card-body">
         <!-- Filters -->
