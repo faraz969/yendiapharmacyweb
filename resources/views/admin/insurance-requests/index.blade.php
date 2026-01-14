@@ -12,12 +12,14 @@
         <!-- Filters -->
         <form method="GET" action="{{ route('admin.insurance-requests.index') }}" class="mb-4">
             <div class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <input type="text" name="search" class="form-control" placeholder="Search by request number, customer name, phone, or insurance number..." value="{{ request('search') }}">
-                </div>
                 <div class="col-md-3">
+                    <label class="form-label small">Search</label>
+                    <input type="text" name="search" class="form-control" placeholder="Request #, Name, Phone, Insurance #..." value="{{ request('search') }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Insurance Company</label>
                     <select name="insurance_company_id" class="form-select">
-                        <option value="">All Insurance Companies</option>
+                        <option value="">All Companies</option>
                         @foreach($insuranceCompanies as $company)
                             <option value="{{ $company->id }}" {{ request('insurance_company_id') == $company->id ? 'selected' : '' }}>
                                 {{ $company->name }}
@@ -27,6 +29,7 @@
                 </div>
                 @if(isset($branches) && $branches)
                 <div class="col-md-2">
+                    <label class="form-label small">Branch</label>
                     <select name="branch_id" class="form-select">
                         <option value="">All Branches</option>
                         @foreach($branches as $branch)
@@ -38,6 +41,7 @@
                 </div>
                 @endif
                 <div class="col-md-2">
+                    <label class="form-label small">Status</label>
                     <select name="status" class="form-select">
                         <option value="">All Status</option>
                         @foreach($statuses as $status)
@@ -47,10 +51,29 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Date (Single)</label>
+                    <input type="date" name="date" class="form-control" value="{{ request('date') }}" title="Single date takes precedence over date range">
+                </div>
                 <div class="col-md-1 d-grid">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-filter"></i> Filter
                     </button>
+                </div>
+            </div>
+            <div class="row g-3 align-items-end mt-2">
+                <div class="col-md-3">
+                    <label class="form-label small">Date Range: From</label>
+                    <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">Date Range: To</label>
+                    <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ route('admin.insurance-requests.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
                 </div>
             </div>
         </form>

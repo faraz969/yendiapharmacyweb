@@ -29,26 +29,45 @@ class InsuranceRequestController extends Controller
             $query->where('branch_id', $user->branch_id);
         }
 
-        if ($request->has('status') && $request->status !== '') {
+        // Status filter - works independently
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        if ($request->has('insurance_company_id') && $request->insurance_company_id !== '') {
+        // Insurance company filter - works independently
+        if ($request->filled('insurance_company_id')) {
             $query->where('insurance_company_id', $request->insurance_company_id);
         }
 
-        if ($request->has('branch_id') && $request->branch_id !== '' && !$user->isBranchStaff()) {
+        // Branch filter - works independently (only for admins)
+        if ($request->filled('branch_id') && !$user->isBranchStaff()) {
             $query->where('branch_id', $request->branch_id);
         }
 
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('request_number', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('customer_phone', 'like', "%{$search}%")
-                  ->orWhere('insurance_number', 'like', "%{$search}%");
-            });
+        // Search filter - works independently
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            if (!empty($search)) {
+                $query->where(function($q) use ($search) {
+                    $q->where('request_number', 'like', "%{$search}%")
+                      ->orWhere('customer_name', 'like', "%{$search}%")
+                      ->orWhere('customer_phone', 'like', "%{$search}%")
+                      ->orWhere('insurance_number', 'like', "%{$search}%");
+                });
+            }
+        }
+
+        // Date filter - single date takes precedence over date range
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        } else {
+            // Date range filter - from date to date (only if single date is not provided)
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
         }
 
         $requests = $query->latest()->paginate(20)->appends($request->query());
@@ -77,26 +96,45 @@ class InsuranceRequestController extends Controller
             $query->where('branch_id', $user->branch_id);
         }
 
-        if ($request->has('status') && $request->status !== '') {
+        // Status filter - works independently
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        if ($request->has('insurance_company_id') && $request->insurance_company_id !== '') {
+        // Insurance company filter - works independently
+        if ($request->filled('insurance_company_id')) {
             $query->where('insurance_company_id', $request->insurance_company_id);
         }
 
-        if ($request->has('branch_id') && $request->branch_id !== '' && !$user->isBranchStaff()) {
+        // Branch filter - works independently (only for admins)
+        if ($request->filled('branch_id') && !$user->isBranchStaff()) {
             $query->where('branch_id', $request->branch_id);
         }
 
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('request_number', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('customer_phone', 'like', "%{$search}%")
-                  ->orWhere('insurance_number', 'like', "%{$search}%");
-            });
+        // Search filter - works independently
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            if (!empty($search)) {
+                $query->where(function($q) use ($search) {
+                    $q->where('request_number', 'like', "%{$search}%")
+                      ->orWhere('customer_name', 'like', "%{$search}%")
+                      ->orWhere('customer_phone', 'like', "%{$search}%")
+                      ->orWhere('insurance_number', 'like', "%{$search}%");
+                });
+            }
+        }
+
+        // Date filter - single date takes precedence over date range
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        } else {
+            // Date range filter - from date to date (only if single date is not provided)
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
         }
 
         $requests = $query->latest()->get();
