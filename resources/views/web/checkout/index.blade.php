@@ -192,20 +192,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Latitude (Optional)</label>
-                                    <input type="number" step="any" name="latitude" class="form-control" value="{{ old('latitude') }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Longitude (Optional)</label>
-                                    <input type="number" step="any" name="longitude" class="form-control" value="{{ old('longitude') }}">
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
