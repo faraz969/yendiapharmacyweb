@@ -47,6 +47,17 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
 
+// Password Reset Routes
+Route::prefix('password-reset')->name('password.reset.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Web\Auth\PasswordResetController::class, 'showResetForm'])->name('request');
+    Route::post('/', [\App\Http\Controllers\Web\Auth\PasswordResetController::class, 'generateOtp'])->name('generate');
+    Route::get('/verify', [\App\Http\Controllers\Web\Auth\PasswordResetController::class, 'showVerifyForm'])->name('verify');
+    Route::post('/verify', [\App\Http\Controllers\Web\Auth\PasswordResetController::class, 'verifyOtp'])->name('verify.post');
+    Route::post('/resend', [\App\Http\Controllers\Web\Auth\PasswordResetController::class, 'resendOtp'])->name('resend');
+    Route::get('/new', [\App\Http\Controllers\Web\Auth\PasswordResetController::class, 'showNewPasswordForm'])->name('new');
+    Route::post('/new', [\App\Http\Controllers\Web\Auth\PasswordResetController::class, 'resetPassword'])->name('reset');
+});
+
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('cart.index');
     Route::post('/add', [CartController::class, 'add'])->name('cart.add');

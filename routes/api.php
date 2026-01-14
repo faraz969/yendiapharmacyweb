@@ -48,6 +48,13 @@ Route::get('/insurance-companies', [InsuranceController::class, 'getCompanies'])
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+// Password reset routes (public)
+Route::prefix('password-reset')->group(function () {
+    Route::post('/generate-otp', [\App\Http\Controllers\Api\PasswordResetController::class, 'generateOtp']);
+    Route::post('/verify-otp', [\App\Http\Controllers\Api\PasswordResetController::class, 'verifyOtp']);
+    Route::post('/reset', [\App\Http\Controllers\Api\PasswordResetController::class, 'resetPassword']);
+});
+
 // Payment routes (can be accessed by guests for checkout)
 Route::prefix('paystack')->group(function () {
     Route::post('/initialize', [PaystackPaymentController::class, 'initialize']);

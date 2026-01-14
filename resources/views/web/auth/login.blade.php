@@ -43,6 +43,10 @@
                             <label class="form-check-label" for="remember">Remember me</label>
                         </div>
 
+                        <div class="mb-3 text-end">
+                            <a href="{{ route('password.reset.request') }}" class="text-primary">Forgot Password?</a>
+                        </div>
+
                         <button type="submit" class="btn btn-primary w-100 mb-3">
                             <i class="fas fa-sign-in-alt me-2"></i>Login
                         </button>
