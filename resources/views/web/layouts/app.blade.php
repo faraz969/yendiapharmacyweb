@@ -588,6 +588,9 @@
                                             <a class="dropdown-item" href="{{ route('user.orders.index') }}">
                                                 <i class="fas fa-shopping-bag me-2"></i>My Orders
                                             </a>
+                                            <a class="dropdown-item" href="{{ route('user.refund-requests.index') }}">
+                                                <i class="fas fa-money-bill-wave me-2"></i>Refund Requests
+                                            </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" href="{{ route('user.addresses.index') }}">
