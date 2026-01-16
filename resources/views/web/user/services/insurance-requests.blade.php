@@ -32,14 +32,42 @@
                                     <td>{{ $request->insurance_number }}</td>
                                     <td>{{ $request->items->count() }} item(s)</td>
                                     <td>
-                                        @if($request->status === 'pending')
-                                            <span class="badge bg-warning">Pending</span>
-                                        @elseif($request->status === 'approved')
-                                            <span class="badge bg-success">Approved</span>
-                                        @elseif($request->status === 'rejected')
-                                            <span class="badge bg-danger">Rejected</span>
-                                        @elseif($request->status === 'order_created')
-                                            <span class="badge bg-info">Order Created</span>
+                                        @if($request->order && $request->order->status !== 'pending')
+                                            @php
+                                                $orderBadgeColors = [
+                                                    'approved' => 'info',
+                                                    'packing' => 'primary',
+                                                    'packed' => 'primary',
+                                                    'out_for_delivery' => 'info',
+                                                    'delivered' => 'success',
+                                                    'cancelled' => 'danger',
+                                                    'rejected' => 'danger',
+                                                ];
+                                                $orderColor = $orderBadgeColors[$request->order->status] ?? 'secondary';
+                                                $orderStatusLabels = [
+                                                    'approved' => 'Order Approved',
+                                                    'packing' => 'Order Packing',
+                                                    'packed' => 'Order Packed',
+                                                    'out_for_delivery' => 'Order Out for Delivery',
+                                                    'delivered' => 'Order Delivered',
+                                                    'cancelled' => 'Order Cancelled',
+                                                    'rejected' => 'Order Rejected',
+                                                ];
+                                                $orderStatusLabel = $orderStatusLabels[$request->order->status] ?? 'Order ' . ucfirst(str_replace('_', ' ', $request->order->status));
+                                            @endphp
+                                            <span class="badge bg-{{ $orderColor }}">
+                                                {{ $orderStatusLabel }}
+                                            </span>
+                                        @else
+                                            @if($request->status === 'pending')
+                                                <span class="badge bg-warning">Pending</span>
+                                            @elseif($request->status === 'approved')
+                                                <span class="badge bg-success">Approved</span>
+                                            @elseif($request->status === 'rejected')
+                                                <span class="badge bg-danger">Rejected</span>
+                                            @elseif($request->status === 'order_created')
+                                                <span class="badge bg-info">Order Created</span>
+                                            @endif
                                         @endif
                                     </td>
                                     <td>{{ $request->created_at->format('M d, Y h:i A') }}</td>

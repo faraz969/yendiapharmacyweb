@@ -13,9 +13,37 @@
             <div class="card shadow mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Request #{{ $request->request_number }}</h5>
-                    <span class="badge bg-{{ $request->status === 'approved' ? 'success' : ($request->status === 'rejected' ? 'danger' : ($request->status === 'order_created' ? 'info' : 'warning')) }}">
-                        {{ ucfirst(str_replace('_', ' ', $request->status)) }}
-                    </span>
+                    @if($request->order && $request->order->status !== 'pending')
+                        @php
+                            $orderBadgeColors = [
+                                'approved' => 'info',
+                                'packing' => 'primary',
+                                'packed' => 'primary',
+                                'out_for_delivery' => 'info',
+                                'delivered' => 'success',
+                                'cancelled' => 'danger',
+                                'rejected' => 'danger',
+                            ];
+                            $orderColor = $orderBadgeColors[$request->order->status] ?? 'secondary';
+                            $orderStatusLabels = [
+                                'approved' => 'Order Approved',
+                                'packing' => 'Order Packing',
+                                'packed' => 'Order Packed',
+                                'out_for_delivery' => 'Order Out for Delivery',
+                                'delivered' => 'Order Delivered',
+                                'cancelled' => 'Order Cancelled',
+                                'rejected' => 'Order Rejected',
+                            ];
+                            $orderStatusLabel = $orderStatusLabels[$request->order->status] ?? 'Order ' . ucfirst(str_replace('_', ' ', $request->order->status));
+                        @endphp
+                        <span class="badge bg-{{ $orderColor }}">
+                            {{ $orderStatusLabel }}
+                        </span>
+                    @else
+                        <span class="badge bg-{{ $request->status === 'approved' ? 'success' : ($request->status === 'rejected' ? 'danger' : ($request->status === 'order_created' ? 'info' : 'warning')) }}">
+                            {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                        </span>
+                    @endif
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">

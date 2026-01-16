@@ -118,7 +118,7 @@ class InsuranceController extends Controller
     {
         $user = Auth::user();
         
-        $query = InsuranceRequest::with(['insuranceCompany', 'branch', 'items', 'approvedBy']);
+        $query = InsuranceRequest::with(['insuranceCompany', 'branch', 'items', 'approvedBy', 'order']);
         
         if ($user) {
             $query->where('user_id', $user->id);
