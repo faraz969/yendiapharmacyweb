@@ -228,6 +228,7 @@ class ProductController extends Controller
             'description',
             'sku',
             'barcode',
+            'image_url',
             'selling_price',
             'cost_price',
             'discount',
@@ -259,6 +260,7 @@ class ProductController extends Controller
                 'Product description',
                 'SKU001',
                 'BARCODE001',
+                'products/sample-product.jpg',
                 '10.00',
                 '5.00',
                 '0.00',
@@ -334,6 +336,7 @@ class ProductController extends Controller
                 'description' => 'description',
                 'sku' => 'sku',
                 'barcode' => 'barcode',
+                'image_url' => 'image_url',
                 'selling_price' => 'selling_price',
                 'cost_price' => 'cost_price',
                 'discount' => 'discount',
@@ -390,6 +393,21 @@ class ProductController extends Controller
                     continue;
                 }
 
+                // Handle image URL - can be single URL or comma-separated URLs
+                $imageUrls = [];
+                if (!empty($data['image_url'])) {
+                    // Split by comma if multiple URLs provided
+                    $urls = explode(',', $data['image_url']);
+                    foreach ($urls as $url) {
+                        $url = trim($url);
+                        if (!empty($url)) {
+                            // Remove leading/trailing slashes and ensure proper path format
+                            $url = ltrim($url, '/');
+                            $imageUrls[] = $url;
+                        }
+                    }
+                }
+
                 // Prepare product data
                 $productData = [
                     'category_id' => $category->id,
@@ -397,6 +415,7 @@ class ProductController extends Controller
                     'description' => $data['description'] ?? null,
                     'sku' => !empty($data['sku']) ? $data['sku'] : Product::generateUniqueSku(),
                     'barcode' => $data['barcode'] ?? null,
+                    'images' => !empty($imageUrls) ? $imageUrls : null,
                     'selling_price' => floatval($data['selling_price'] ?? 0),
                     'cost_price' => floatval($data['cost_price'] ?? 0),
                     'discount' => floatval($data['discount'] ?? 0),
