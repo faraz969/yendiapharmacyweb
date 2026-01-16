@@ -268,6 +268,18 @@ class CheckoutController extends Controller
                 ]);
             }
 
+            // Create admin notification for new order
+            Notification::create([
+                'for_admin' => true,
+                'order_id' => $order->id,
+                'title' => 'New Order Received',
+                'message' => "New order #{$order->order_number} from {$order->customer_name}. Amount: " . \App\Models\Setting::formatPrice($order->total_amount),
+                'type' => 'info',
+                'link' => route('admin.orders.show', $order->id),
+                'is_active' => true,
+                'is_read' => false,
+            ]);
+
             // Don't clear cart yet - wait for payment confirmation
             // Return order ID for payment processing
             if ($request->expectsJson()) {

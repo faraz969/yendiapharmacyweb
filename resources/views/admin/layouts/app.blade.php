@@ -167,6 +167,24 @@
                 gap: 10px;
             }
         }
+
+        .notification-dropdown {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .notification-dropdown .dropdown-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .notification-dropdown .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .notification-dropdown .dropdown-item:last-child {
+            border-bottom: none;
+        }
         
         .page-title {
             font-size: 1.5rem;
@@ -454,11 +472,42 @@
     <div class="main-content">
         <div class="header">
             <h1 class="page-title">@yield('page-title', 'Dashboard')</h1>
-            <div class="user-menu">
-                @if(Auth::user()->isBranchStaff())
-                    <span class="me-3"><i class="fas fa-building"></i> {{ Auth::user()->branch->name ?? 'Branch Staff' }}</span>
-                @endif
-                <span><i class="fas fa-user"></i> {{ Auth::user()->name }}</span>
+            <div class="d-flex align-items-center gap-3">
+                <!-- Notifications Dropdown -->
+                <div class="dropdown" id="admin-notifications-dropdown">
+                    <button class="btn btn-link text-dark position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bell fa-lg"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-badge" style="display: none;">0</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown" style="width: 350px; max-height: 500px; overflow-y: auto;">
+                        <li class="dropdown-header d-flex justify-content-between align-items-center">
+                            <strong>Notifications</strong>
+                            <div>
+                                <button class="btn btn-sm btn-link p-0" onclick="markAllAsRead()" id="mark-all-read-btn" style="display: none;">Mark all read</button>
+                                <button class="btn btn-sm btn-link p-0 ms-2" onclick="clearAllRead()" id="clear-all-read-btn" style="display: none;">Clear read</button>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li id="notifications-list">
+                            <div class="text-center p-3">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="dropdown-item-text text-center">
+                            <a href="{{ route('admin.notifications.index') }}" class="text-decoration-none">View all notifications</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="user-menu">
+                    @if(Auth::user()->isBranchStaff())
+                        <span class="me-3"><i class="fas fa-building"></i> {{ Auth::user()->branch->name ?? 'Branch Staff' }}</span>
+                    @endif
+                    <span><i class="fas fa-user"></i> {{ Auth::user()->name }}</span>
+                </div>
             </div>
         </div>
 
@@ -640,6 +689,193 @@
             
             // Update count every 30 seconds
             setInterval(updateAllNotificationCounts, 30000);
+        });
+
+        // Admin Notifications Dropdown
+        function loadAdminNotifications() {
+            fetch('{{ route("admin.notifications.admin.list") }}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('notifications-list');
+                const badge = document.getElementById('notification-badge');
+                const markAllBtn = document.getElementById('mark-all-read-btn');
+                const clearAllBtn = document.getElementById('clear-all-read-btn');
+                
+                // Update badge
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+                
+                // Show/hide action buttons
+                const hasUnread = data.notifications.some(n => !n.is_read);
+                const hasRead = data.notifications.some(n => n.is_read);
+                markAllBtn.style.display = hasUnread ? 'inline' : 'none';
+                clearAllBtn.style.display = hasRead ? 'inline' : 'none';
+                
+                // Render notifications
+                if (data.notifications.length === 0) {
+                    list.innerHTML = '<div class="text-center p-3 text-muted">No notifications</div>';
+                } else {
+                    list.innerHTML = data.notifications.map(notif => {
+                        const readClass = notif.is_read ? '' : 'fw-bold';
+                        const typeIcon = {
+                            'info': 'fa-info-circle text-info',
+                            'success': 'fa-check-circle text-success',
+                            'warning': 'fa-exclamation-triangle text-warning',
+                            'error': 'fa-times-circle text-danger',
+                            'promotion': 'fa-gift text-primary'
+                        }[notif.type] || 'fa-bell';
+                        const timeAgo = getTimeAgo(notif.created_at);
+                        
+                        return `
+                            <li class="dropdown-item ${readClass}" style="white-space: normal;">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas ${typeIcon} me-2 mt-1"></i>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <div class="fw-bold">${notif.title}</div>
+                                                <div class="small text-muted">${notif.message}</div>
+                                                <div class="small text-muted">${timeAgo}</div>
+                                            </div>
+                                            <div class="ms-2">
+                                                ${!notif.is_read ? '<button class="btn btn-sm btn-link p-0" onclick="markAsRead(' + notif.id + ')" title="Mark as read"><i class="fas fa-check"></i></button>' : ''}
+                                                <button class="btn btn-sm btn-link p-0 text-danger" onclick="clearNotification(' + notif.id + ')" title="Clear"><i class="fas fa-times"></i></button>
+                                            </div>
+                                        </div>
+                                        ${notif.link ? '<a href="' + notif.link + '" class="stretched-link"></a>' : ''}
+                                    </div>
+                                </div>
+                            </li>
+                        `;
+                    }).join('');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading admin notifications:', error);
+            });
+        }
+
+        function markAsRead(notificationId) {
+            fetch(`{{ route('admin.notifications.mark-read', '') }}/${notificationId}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadAdminNotifications();
+                }
+            })
+            .catch(error => {
+                console.error('Error marking notification as read:', error);
+            });
+        }
+
+        function markAllAsRead() {
+            fetch('{{ route("admin.notifications.mark-all-read") }}', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadAdminNotifications();
+                }
+            })
+            .catch(error => {
+                console.error('Error marking all as read:', error);
+            });
+        }
+
+        function clearNotification(notificationId) {
+            if (!confirm('Are you sure you want to clear this notification?')) return;
+            
+            fetch(`{{ route('admin.notifications.clear', '') }}/${notificationId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadAdminNotifications();
+                }
+            })
+            .catch(error => {
+                console.error('Error clearing notification:', error);
+            });
+        }
+
+        function clearAllRead() {
+            if (!confirm('Are you sure you want to clear all read notifications?')) return;
+            
+            fetch('{{ route("admin.notifications.clear-all-read") }}', {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadAdminNotifications();
+                }
+            })
+            .catch(error => {
+                console.error('Error clearing all read notifications:', error);
+            });
+        }
+
+        function getTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) return 'Just now';
+            if (diffInSeconds < 3600) return Math.floor(diffInSeconds / 60) + 'm ago';
+            if (diffInSeconds < 86400) return Math.floor(diffInSeconds / 3600) + 'h ago';
+            if (diffInSeconds < 604800) return Math.floor(diffInSeconds / 86400) + 'd ago';
+            return date.toLocaleDateString();
+        }
+
+        // Load notifications on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdminNotifications();
+            // Refresh notifications every 30 seconds
+            setInterval(loadAdminNotifications, 30000);
+        });
+
+        // Refresh notifications when dropdown is opened
+        document.getElementById('notificationDropdown')?.addEventListener('click', function() {
+            loadAdminNotifications();
         });
     </script>
     

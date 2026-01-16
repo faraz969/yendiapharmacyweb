@@ -84,6 +84,18 @@ class RefundRequestController extends Controller
                 'status' => 'pending',
             ]);
 
+            // Create admin notification for new refund request
+            \App\Models\Notification::create([
+                'for_admin' => true,
+                'refund_request_id' => $refundRequest->id,
+                'title' => 'New Refund Request',
+                'message' => "New refund request #{$refundRequest->refund_number} for order #{$order->order_number}. Amount: " . \App\Models\Setting::formatPrice($refundRequest->refund_amount),
+                'type' => 'warning',
+                'link' => route('admin.refund-requests.show', $refundRequest->id),
+                'is_active' => true,
+                'is_read' => false,
+            ]);
+
             // Cancel the order
             $oldStatus = $order->status;
             $order->update([

@@ -12,7 +12,10 @@ class Notification extends Model
 
     protected $fillable = [
         'user_id',
+        'for_admin',
         'order_id',
+        'insurance_request_id',
+        'refund_request_id',
         'title',
         'message',
         'type',
@@ -26,6 +29,7 @@ class Notification extends Model
     ];
 
     protected $casts = [
+        'for_admin' => 'boolean',
         'is_active' => 'boolean',
         'is_read' => 'boolean',
         'start_date' => 'datetime',
@@ -46,6 +50,22 @@ class Notification extends Model
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * Get the insurance request associated with the notification
+     */
+    public function insuranceRequest()
+    {
+        return $this->belongsTo(InsuranceRequest::class);
+    }
+
+    /**
+     * Get the refund request associated with the notification
+     */
+    public function refundRequest()
+    {
+        return $this->belongsTo(RefundRequest::class);
     }
 
     /**

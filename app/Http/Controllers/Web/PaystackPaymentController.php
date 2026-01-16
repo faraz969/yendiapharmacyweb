@@ -212,6 +212,25 @@ class PaystackPaymentController extends Controller
                                 }
                             }
                             
+                            // Create admin notification for new order
+                            try {
+                                \App\Models\Notification::create([
+                                    'for_admin' => true,
+                                    'order_id' => $order->id,
+                                    'title' => 'New Order Received',
+                                    'message' => "New order #{$order->order_number} from {$order->customer_name}. Amount: " . \App\Models\Setting::formatPrice($order->total_amount),
+                                    'type' => 'info',
+                                    'link' => route('admin.orders.show', $order->id),
+                                    'is_active' => true,
+                                    'is_read' => false,
+                                ]);
+                            } catch (\Exception $e) {
+                                Log::warning('Failed to create admin notification for order', [
+                                    'order_id' => $order->id,
+                                    'error' => $e->getMessage(),
+                                ]);
+                            }
+                            
                             // Send SMS notification (for both authenticated users and guests)
                             try {
                                 $smsService = app(SmsService::class);

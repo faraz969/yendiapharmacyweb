@@ -17,6 +17,75 @@ class NotificationController extends Controller
         return view('admin.notifications.index', compact('notifications'));
     }
 
+    /**
+     * Get admin notifications (for dropdown/panel)
+     */
+    public function getAdminNotifications()
+    {
+        $notifications = Notification::where('for_admin', true)
+            ->orderBy('is_read', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        $unreadCount = Notification::where('for_admin', true)
+            ->where('is_read', false)
+            ->count();
+
+        return response()->json([
+            'notifications' => $notifications,
+            'unread_count' => $unreadCount,
+        ]);
+    }
+
+    /**
+     * Mark notification as read
+     */
+    public function markAsRead(Notification $notification)
+    {
+        if ($notification->for_admin) {
+            $notification->update(['is_read' => true]);
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false, 'message' => 'Notification not found'], 404);
+    }
+
+    /**
+     * Mark all admin notifications as read
+     */
+    public function markAllAsRead()
+    {
+        Notification::where('for_admin', true)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Clear (delete) notification
+     */
+    public function clear(Notification $notification)
+    {
+        if ($notification->for_admin) {
+            $notification->delete();
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false, 'message' => 'Notification not found'], 404);
+    }
+
+    /**
+     * Clear all read admin notifications
+     */
+    public function clearAllRead()
+    {
+        Notification::where('for_admin', true)
+            ->where('is_read', true)
+            ->delete();
+
+        return response()->json(['success' => true]);
+    }
+
     public function create()
     {
         return view('admin.notifications.create');

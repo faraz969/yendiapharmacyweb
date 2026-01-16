@@ -110,6 +110,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Notifications
         Route::resource('notifications', NotificationController::class);
+        Route::get('/notifications/admin/list', [NotificationController::class, 'getAdminNotifications'])->name('notifications.admin.list');
+        Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+        Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+        Route::delete('/notifications/{notification}/clear', [NotificationController::class, 'clear'])->name('notifications.clear');
+        Route::delete('/notifications/clear-all-read', [NotificationController::class, 'clearAllRead'])->name('notifications.clear-all-read');
         
         // Settings
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');

@@ -66,6 +66,18 @@ class ServiceController extends Controller
             'status' => 'pending',
         ]);
 
+        // Create admin notification for new insurance request
+        \App\Models\Notification::create([
+            'for_admin' => true,
+            'insurance_request_id' => $insuranceRequest->id,
+            'title' => 'New Insurance Request',
+            'message' => "New insurance request #{$insuranceRequest->request_number} from {$insuranceRequest->customer_name}",
+            'type' => 'info',
+            'link' => route('admin.insurance-requests.show', $insuranceRequest->id),
+            'is_active' => true,
+            'is_read' => false,
+        ]);
+
         // Create request items
         foreach ($validated['items'] as $item) {
             \App\Models\InsuranceRequestItem::create([
