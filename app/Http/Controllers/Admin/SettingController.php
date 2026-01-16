@@ -40,7 +40,6 @@ class SettingController extends Controller
             'topbar_tagline' => 'nullable|string|max:255',
             'currency' => 'required|string|max:10',
             'currency_symbol' => 'required|string|max:10',
-            'show_out_of_stock_products' => 'nullable|boolean',
         ]);
 
         // Handle favicon
