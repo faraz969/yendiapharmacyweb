@@ -35,6 +35,7 @@ Route::get('/marketing-banners', [BannerController::class, 'marketingBanners']);
 Route::get('/branches', [BranchController::class, 'index']);
 Route::get('/branches/{id}', [BranchController::class, 'show']);
 Route::get('/delivery-zones', [\App\Http\Controllers\Api\DeliveryZoneController::class, 'index']);
+Route::get('/app-notices', [\App\Http\Controllers\Api\AppNoticeController::class, 'index']);
 Route::get('/notifications', [NotificationController::class, 'index']);
 // Note: /notifications/{id} moved to authenticated routes to avoid conflict with /notifications/user
 

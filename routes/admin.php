@@ -144,6 +144,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/refund-requests/{refundRequest}/reject', [\App\Http\Controllers\Admin\RefundRequestController::class, 'reject'])->name('refund-requests.reject');
         Route::post('/refund-requests/{refundRequest}/mark-processed', [\App\Http\Controllers\Admin\RefundRequestController::class, 'markAsProcessed'])->name('refund-requests.mark-processed');
         Route::post('/refund-requests/{refundRequest}/mark-completed', [\App\Http\Controllers\Admin\RefundRequestController::class, 'markAsCompleted'])->name('refund-requests.mark-completed');
+        
+        // App Notices
+        Route::resource('app-notices', \App\Http\Controllers\Admin\AppNoticeController::class);
     });
 });
 

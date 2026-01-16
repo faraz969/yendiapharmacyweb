@@ -387,6 +387,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.app-notices.index') }}" class="{{ request()->routeIs('admin.app-notices.*') ? 'active' : '' }}">
+                        <i class="fas fa-mobile-alt"></i> App Notices
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
                         <i class="fas fa-cog"></i> Settings
                     </a>
