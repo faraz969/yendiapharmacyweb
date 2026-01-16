@@ -32,12 +32,25 @@ class DeliveryZone extends Model
         return $this->hasMany(Order::class);
     }
 
-    public function calculateDeliveryFee($orderAmount)
+    public function calculateDeliveryFee($orderAmount = null)
     {
-        if ($orderAmount >= $this->min_order_amount) {
-            return 0; // Free delivery
-        }
+        // Always return the delivery fee - min_order_amount is a minimum order requirement,
+        // not a free delivery threshold
         return $this->delivery_fee;
+    }
+    
+    /**
+     * Check if order amount meets minimum order requirement
+     * 
+     * @param float $orderAmount
+     * @return bool
+     */
+    public function meetsMinimumOrderAmount($orderAmount)
+    {
+        if ($this->min_order_amount == null || $this->min_order_amount <= 0) {
+            return true; // No minimum requirement
+        }
+        return $orderAmount >= $this->min_order_amount;
     }
 
     public function isPointInZone($latitude, $longitude)

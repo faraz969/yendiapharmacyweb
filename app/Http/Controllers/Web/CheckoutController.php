@@ -144,6 +144,12 @@ class CheckoutController extends Controller
             if ($deliveryType === 'delivery' && $request->delivery_zone_id) {
                 $deliveryZone = DeliveryZone::find($request->delivery_zone_id);
                 if ($deliveryZone) {
+                    // Validate minimum order amount
+                    if (!$deliveryZone->meetsMinimumOrderAmount($subtotal)) {
+                        DB::rollBack();
+                        return back()->withInput()->with('error', "Minimum order amount for this delivery zone is " . number_format($deliveryZone->min_order_amount, 2) . ". Your current order total is " . number_format($subtotal, 2) . ".");
+                    }
+                    // Always charge delivery fee (unless it's 0)
                     $deliveryFee = $deliveryZone->calculateDeliveryFee($subtotal);
                 }
             }

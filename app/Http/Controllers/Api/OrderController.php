@@ -140,6 +140,17 @@ class OrderController extends Controller
             if ($deliveryType === 'delivery' && $deliveryZoneId) {
                 $deliveryZone = DeliveryZone::find($deliveryZoneId);
                 if ($deliveryZone) {
+                    // Validate minimum order amount
+                    if (!$deliveryZone->meetsMinimumOrderAmount($subtotal)) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => "Minimum order amount for this delivery zone is " . number_format($deliveryZone->min_order_amount, 2) . ". Your current order total is " . number_format($subtotal, 2) . ".",
+                            'errors' => [
+                                'subtotal' => ['Minimum order amount not met for selected delivery zone.']
+                            ]
+                        ], 422);
+                    }
+                    // Always charge delivery fee (unless it's 0)
                     $deliveryFee = $deliveryZone->calculateDeliveryFee($subtotal);
                 }
             }
