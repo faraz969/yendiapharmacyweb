@@ -40,6 +40,7 @@ class SettingController extends Controller
             'topbar_tagline' => 'nullable|string|max:255',
             'currency' => 'required|string|max:10',
             'currency_symbol' => 'required|string|max:10',
+            'show_out_of_stock_products' => 'nullable|boolean',
         ]);
 
         // Handle favicon
@@ -120,6 +121,9 @@ class SettingController extends Controller
         // Update currency
         Setting::set('currency', $validated['currency']);
         Setting::set('currency_symbol', $validated['currency_symbol']);
+
+        // Update show out of stock products setting
+        Setting::set('show_out_of_stock_products', $request->has('show_out_of_stock_products') ? '1' : '0');
 
         return redirect()->route('admin.settings.index')
             ->with('success', 'Settings updated successfully.');

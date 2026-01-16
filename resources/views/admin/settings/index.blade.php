@@ -242,6 +242,27 @@
                 </div>
             </div>
 
+            <!-- Product Display Settings -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-box me-2"></i>Product Display Settings</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="show_out_of_stock_products" name="show_out_of_stock_products" 
+                                {{ old('show_out_of_stock_products', $settings['show_out_of_stock_products']->value ?? '1') == '1' ? 'checked' : '' }}>
+                            <label class="form-check-label" for="show_out_of_stock_products">
+                                <strong>Show Out of Stock Products</strong>
+                            </label>
+                        </div>
+                        <small class="form-text text-muted d-block mt-2">
+                            When unchecked, products with zero stock will be hidden from customers on both web and mobile app.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
             <!-- Navbar Categories -->
             <div class="card mb-3">
                 <div class="card-header bg-light">

@@ -59,7 +59,30 @@ class ProductController extends Controller
                 $query->latest();
         }
 
-        $products = $query->paginate(12);
+        $products = $query->get();
+        
+        // Check if we should hide out of stock products
+        $showOutOfStock = \App\Models\Setting::shouldShowOutOfStockProducts();
+        
+        // Filter out products with zero stock if setting is disabled
+        if (!$showOutOfStock) {
+            $products = $products->filter(function ($product) {
+                return $product->total_stock > 0;
+            });
+        }
+        
+        // Paginate manually after filtering
+        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 12;
+        $currentItems = $products->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        $products = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentItems,
+            $products->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+        
         $categories = Category::where('is_active', true)->orderBy('name')->get();
 
         return view('web.products.index', compact('products', 'categories'));
@@ -76,13 +99,29 @@ class ProductController extends Controller
             }])
             ->findOrFail($id);
 
+        // Check if we should hide out of stock products
+        $showOutOfStock = \App\Models\Setting::shouldShowOutOfStockProducts();
+        
+        // If setting is disabled and product is out of stock, return 404
+        if (!$showOutOfStock && $product->total_stock <= 0) {
+            abort(404, 'Product not found');
+        }
+
         // Related products
         $relatedProducts = Product::where('is_active', true)
             ->where('is_expired', false)
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
-            ->take(4)
             ->get();
+        
+        // Filter out-of-stock related products if setting is disabled
+        if (!$showOutOfStock) {
+            $relatedProducts = $relatedProducts->filter(function ($relatedProduct) {
+                return $relatedProduct->total_stock > 0;
+            });
+        }
+        
+        $relatedProducts = $relatedProducts->take(4);
 
         // Log product view activity
         ActivityLogService::logAction(
@@ -110,7 +149,29 @@ class ProductController extends Controller
             ->where('category_id', $id)
             ->with('category')
             ->latest()
-            ->paginate(12);
+            ->get();
+        
+        // Check if we should hide out of stock products
+        $showOutOfStock = \App\Models\Setting::shouldShowOutOfStockProducts();
+        
+        // Filter out products with zero stock if setting is disabled
+        if (!$showOutOfStock) {
+            $products = $products->filter(function ($product) {
+                return $product->total_stock > 0;
+            });
+        }
+        
+        // Paginate manually after filtering
+        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 12;
+        $currentItems = $products->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        $products = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentItems,
+            $products->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         $categories = Category::where('is_active', true)->orderBy('name')->get();
 

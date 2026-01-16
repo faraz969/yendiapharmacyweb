@@ -40,8 +40,19 @@ class HomeController extends Controller
             ->where('is_expired', false)
             ->with('category')
             ->latest()
-            ->take(8)
             ->get();
+        
+        // Check if we should hide out of stock products
+        $showOutOfStock = \App\Models\Setting::shouldShowOutOfStockProducts();
+        
+        // Filter out products with zero stock if setting is disabled
+        if (!$showOutOfStock) {
+            $featuredProducts = $featuredProducts->filter(function ($product) {
+                return $product->total_stock > 0;
+            });
+        }
+        
+        $featuredProducts = $featuredProducts->take(8);
 
         $categories = Category::where('is_active', true)
             ->orderBy('sort_order')

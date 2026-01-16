@@ -34,12 +34,24 @@ class ProductController extends Controller
 
         $products = $query->paginate($request->get('per_page', 15));
 
-        // Ensure total_stock is included for each product
+        // Check if we should hide out of stock products
+        $showOutOfStock = \App\Models\Setting::shouldShowOutOfStockProducts();
+
+        // Ensure total_stock is included and filter out-of-stock products if setting is disabled
         $products->getCollection()->transform(function ($product) {
             $productArray = $product->toArray();
             $productArray['total_stock'] = $product->total_stock;
             return $productArray;
         });
+
+        // Filter out products with zero stock if setting is disabled
+        if (!$showOutOfStock) {
+            $products->setCollection(
+                $products->getCollection()->filter(function ($product) {
+                    return ($product['total_stock'] ?? 0) > 0;
+                })
+            );
+        }
 
         return response()->json([
             'success' => true,
@@ -47,7 +59,7 @@ class ProductController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
         $product = Product::with(['category', 'batches' => function ($query) {
             $query->where('is_expired', false)
@@ -56,6 +68,14 @@ class ProductController extends Controller
         }])
         ->where('is_active', true)
         ->findOrFail($id);
+
+        // Check if we should hide out of stock products
+        $showOutOfStock = \App\Models\Setting::shouldShowOutOfStockProducts();
+        
+        // If setting is disabled and product is out of stock, return 404
+        if (!$showOutOfStock && $product->total_stock <= 0) {
+            abort(404, 'Product not found');
+        }
 
         // Ensure total_stock is included in the response
         $productData = $product->toArray();

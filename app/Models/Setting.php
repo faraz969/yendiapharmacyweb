@@ -160,4 +160,12 @@ class Setting extends Model
         }
         return asset('favicon.ico'); // Default favicon
     }
+
+    /**
+     * Check if out of stock products should be shown
+     */
+    public static function shouldShowOutOfStockProducts()
+    {
+        return self::get('show_out_of_stock_products', '1') == '1';
+    }
 }
