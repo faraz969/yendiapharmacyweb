@@ -412,4 +412,32 @@ class InsuranceRequestController extends Controller
                 ->with('success', 'Order created successfully. Customer needs to pay delivery fee only.');
         });
     }
+
+    public function destroy(InsuranceRequest $insuranceRequest)
+    {
+        // Check if branch staff can only delete their branch requests
+        $user = Auth::user();
+        if ($user->isBranchStaff() && $insuranceRequest->branch_id !== $user->branch_id) {
+            abort(403, 'You can only delete insurance requests for your branch.');
+        }
+
+        // Delete associated images
+        if ($insuranceRequest->card_front_image && Storage::disk('public')->exists($insuranceRequest->card_front_image)) {
+            Storage::disk('public')->delete($insuranceRequest->card_front_image);
+        }
+        if ($insuranceRequest->card_back_image && Storage::disk('public')->exists($insuranceRequest->card_back_image)) {
+            Storage::disk('public')->delete($insuranceRequest->card_back_image);
+        }
+        if ($insuranceRequest->prescription_image && Storage::disk('public')->exists($insuranceRequest->prescription_image)) {
+            Storage::disk('public')->delete($insuranceRequest->prescription_image);
+        }
+
+        // Delete items
+        $insuranceRequest->items()->delete();
+
+        $insuranceRequest->delete();
+
+        return redirect()->route('admin.insurance-requests.index')
+            ->with('success', 'Insurance request deleted successfully.');
+    }
 }

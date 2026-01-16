@@ -77,10 +77,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/prescriptions/{prescription}/approve', [PrescriptionController::class, 'approve'])->name('prescriptions.approve');
         Route::post('/prescriptions/{prescription}/reject', [PrescriptionController::class, 'reject'])->name('prescriptions.reject');
         Route::get('/prescriptions/{prescription}/download', [PrescriptionController::class, 'download'])->name('prescriptions.download');
+        Route::delete('/prescriptions/{prescription}', [PrescriptionController::class, 'destroy'])->name('prescriptions.destroy');
         
         // Item Requests
         Route::resource('item-requests', ItemRequestController::class);
         Route::post('/item-requests/{itemRequest}/update-status', [ItemRequestController::class, 'updateStatus'])->name('item-requests.update-status');
+        Route::delete('/item-requests/{itemRequest}', [ItemRequestController::class, 'destroy'])->name('item-requests.destroy');
         
         // Delivery Zones
         Route::resource('delivery-zones', DeliveryZoneController::class);
@@ -130,6 +132,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Activity Logs
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
         Route::get('/activity-logs/{activityLog}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
+        Route::delete('/activity-logs/{activityLog}', [ActivityLogController::class, 'destroy'])->name('activity-logs.destroy');
         
         // Insurance Companies
         Route::resource('insurance-companies', InsuranceCompanyController::class);
@@ -143,6 +146,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/insurance-requests/{insuranceRequest}/reject', [InsuranceRequestController::class, 'reject'])->name('insurance-requests.reject');
         Route::delete('/insurance-requests/{insuranceRequest}/items/{itemId}', [InsuranceRequestController::class, 'removeItem'])->name('insurance-requests.remove-item');
         Route::post('/insurance-requests/{insuranceRequest}/create-order', [InsuranceRequestController::class, 'createOrder'])->name('insurance-requests.create-order');
+        Route::delete('/insurance-requests/{insuranceRequest}', [InsuranceRequestController::class, 'destroy'])->name('insurance-requests.destroy');
         
         // Refund Requests
         Route::get('/refund-requests', [\App\Http\Controllers\Admin\RefundRequestController::class, 'index'])->name('refund-requests.index');
@@ -152,6 +156,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/refund-requests/{refundRequest}/reject', [\App\Http\Controllers\Admin\RefundRequestController::class, 'reject'])->name('refund-requests.reject');
         Route::post('/refund-requests/{refundRequest}/mark-processed', [\App\Http\Controllers\Admin\RefundRequestController::class, 'markAsProcessed'])->name('refund-requests.mark-processed');
         Route::post('/refund-requests/{refundRequest}/mark-completed', [\App\Http\Controllers\Admin\RefundRequestController::class, 'markAsCompleted'])->name('refund-requests.mark-completed');
+        Route::delete('/refund-requests/{refundRequest}', [\App\Http\Controllers\Admin\RefundRequestController::class, 'destroy'])->name('refund-requests.destroy');
         
         // App Notices
         Route::resource('app-notices', \App\Http\Controllers\Admin\AppNoticeController::class);

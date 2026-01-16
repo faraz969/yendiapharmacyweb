@@ -77,4 +77,18 @@ class ItemRequestController extends Controller
 
         return back()->with('success', 'Item request status updated successfully.');
     }
+
+    public function destroy(ItemRequest $itemRequest)
+    {
+        // Check if branch staff can only delete their branch requests
+        $user = Auth::user();
+        if ($user->isBranchStaff() && $itemRequest->branch_id !== $user->branch_id) {
+            abort(403, 'You can only delete item requests for your branch.');
+        }
+
+        $itemRequest->delete();
+
+        return redirect()->route('admin.item-requests.index')
+            ->with('success', 'Item request deleted successfully.');
+    }
 }

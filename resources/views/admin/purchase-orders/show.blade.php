@@ -130,9 +130,20 @@
 </div>
 
 <div class="mt-3">
-    <a href="{{ route('admin.purchase-orders.index') }}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left me-2"></i>Back to Purchase Orders
-    </a>
+    <div class="d-flex justify-content-between">
+        <a href="{{ route('admin.purchase-orders.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Purchase Orders
+        </a>
+        @if($purchaseOrder->status !== 'received')
+        <form action="{{ route('admin.purchase-orders.destroy', $purchaseOrder->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this purchase order? This action cannot be undone.');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash me-2"></i>Delete Purchase Order
+            </button>
+        </form>
+        @endif
+    </div>
 </div>
 @endsection
 

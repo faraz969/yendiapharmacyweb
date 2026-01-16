@@ -82,10 +82,17 @@
                 </div>
                 @endif
             </div>
-            <div class="card-footer">
+            <div class="card-footer d-flex justify-content-between">
                 <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Logs
                 </a>
+                <form action="{{ route('admin.activity-logs.destroy', $activityLog) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this activity log? This action cannot be undone.');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete Activity Log
+                    </button>
+                </form>
             </div>
         </div>
     </div>

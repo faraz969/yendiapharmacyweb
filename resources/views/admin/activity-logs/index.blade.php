@@ -105,6 +105,13 @@
                                    class="btn btn-sm btn-info" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </a>
+                                <form action="{{ route('admin.activity-logs.destroy', $log) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this activity log? This action cannot be undone.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     @empty

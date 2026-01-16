@@ -77,6 +77,15 @@
                                 <a href="{{ route('admin.purchase-orders.show', $po->id) }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-eye"></i> View
                                 </a>
+                                @if($po->status !== 'received')
+                                <form action="{{ route('admin.purchase-orders.destroy', $po->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this purchase order? This action cannot be undone.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                                @endif
                             </td>
                         </tr>
                     @empty

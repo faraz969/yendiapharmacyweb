@@ -94,4 +94,23 @@ class PrescriptionController extends Controller
 
         return Storage::disk('public')->download($prescription->file_path);
     }
+
+    public function destroy(Prescription $prescription)
+    {
+        // Check if branch staff can only delete their branch prescriptions
+        $user = Auth::user();
+        if ($user->isBranchStaff() && $prescription->branch_id !== $user->branch_id) {
+            abort(403, 'You can only delete prescriptions for your branch.');
+        }
+
+        // Delete prescription file if exists
+        if ($prescription->file_path && Storage::disk('public')->exists($prescription->file_path)) {
+            Storage::disk('public')->delete($prescription->file_path);
+        }
+
+        $prescription->delete();
+
+        return redirect()->route('admin.prescriptions.index')
+            ->with('success', 'Prescription deleted successfully.');
+    }
 }

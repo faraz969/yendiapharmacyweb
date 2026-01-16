@@ -163,10 +163,17 @@
     </div>
 </div>
 
-<div class="mt-3">
+<div class="mt-3 d-flex justify-content-between">
     <a href="{{ route('admin.prescriptions.index') }}" class="btn btn-secondary">
         <i class="fas fa-arrow-left me-2"></i>Back to Prescriptions
     </a>
+    <form action="{{ route('admin.prescriptions.destroy', $prescription->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this prescription? This action cannot be undone.');">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash me-2"></i>Delete Prescription
+        </button>
+    </form>
 </div>
 
 @push('scripts')

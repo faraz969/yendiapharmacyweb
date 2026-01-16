@@ -111,9 +111,18 @@
 </div>
 
 <div class="mt-3">
-    <a href="{{ route('admin.item-requests.index') }}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left me-2"></i>Back to Item Requests
-    </a>
+    <div class="d-flex justify-content-between">
+        <a href="{{ route('admin.item-requests.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Item Requests
+        </a>
+        <form action="{{ route('admin.item-requests.destroy', $itemRequest->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this item request? This action cannot be undone.');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash me-2"></i>Delete Item Request
+            </button>
+        </form>
+    </div>
 </div>
 @endsection
 

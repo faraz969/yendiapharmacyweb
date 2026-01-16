@@ -241,5 +241,22 @@
         @endif
     </div>
 </div>
+
+<div class="mt-3">
+    <div class="d-flex justify-content-between">
+        <a href="{{ route('admin.refund-requests.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Refund Requests
+        </a>
+        @if(!in_array($refundRequest->status, ['processed', 'completed']))
+        <form action="{{ route('admin.refund-requests.destroy', $refundRequest) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this refund request? This action cannot be undone.');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash me-2"></i>Delete Refund Request
+            </button>
+        </form>
+        @endif
+    </div>
+</div>
 @endsection
 

@@ -68,4 +68,17 @@ class ActivityLogController extends Controller
 
         return view('admin.activity-logs.show', compact('activityLog'));
     }
+
+    public function destroy(ActivityLog $activityLog)
+    {
+        // Only allow full admins/managers/staff to delete activity logs
+        if (!Auth::user()->hasAnyRole(['admin', 'manager', 'staff'])) {
+            abort(403, 'You do not have permission to delete activity logs.');
+        }
+
+        $activityLog->delete();
+
+        return redirect()->route('admin.activity-logs.index')
+            ->with('success', 'Activity log deleted successfully.');
+    }
 }

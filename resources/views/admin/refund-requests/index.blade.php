@@ -115,6 +115,15 @@
                                 <a href="{{ route('admin.refund-requests.show', $refundRequest) }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-eye"></i> View
                                 </a>
+                                @if(!in_array($refundRequest->status, ['processed', 'completed']))
+                                <form action="{{ route('admin.refund-requests.destroy', $refundRequest) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this refund request? This action cannot be undone.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                                @endif
                             </td>
                         </tr>
                     @empty

@@ -258,5 +258,19 @@ class RefundRequestController extends Controller
 
         return back()->with('success', 'Refund marked as completed.');
     }
+
+    public function destroy(RefundRequest $refundRequest)
+    {
+        // Prevent deletion if refund is already processed or completed
+        if (in_array($refundRequest->status, ['processed', 'completed'])) {
+            return redirect()->route('admin.refund-requests.index')
+                ->with('error', 'Cannot delete processed or completed refund requests.');
+        }
+
+        $refundRequest->delete();
+
+        return redirect()->route('admin.refund-requests.index')
+            ->with('success', 'Refund request deleted successfully.');
+    }
 }
 
