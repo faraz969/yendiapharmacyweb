@@ -9,12 +9,30 @@ use Illuminate\Support\Facades\Storage;
 
 class NotificationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $notifications = Notification::orderBy('priority', 'desc')
+        $query = Notification::query();
+        
+        // Filter by notification type: admin-created (default) or admin-received
+        $filterType = $request->get('type', 'created'); // 'created' or 'received'
+        
+        if ($filterType === 'received') {
+            // Show notifications received by admin (for_admin = true)
+            $query->where('for_admin', true);
+        } else {
+            // Show notifications created by admin (for_admin = false or null)
+            $query->where(function($q) {
+                $q->where('for_admin', false)
+                  ->orWhereNull('for_admin');
+            });
+        }
+        
+        $notifications = $query->orderBy('priority', 'desc')
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
-        return view('admin.notifications.index', compact('notifications'));
+            ->paginate(20)
+            ->appends($request->query());
+            
+        return view('admin.notifications.index', compact('notifications', 'filterType'));
     }
 
     /**
