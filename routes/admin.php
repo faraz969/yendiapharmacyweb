@@ -141,6 +141,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/insurance-requests/{insuranceRequest}', [InsuranceRequestController::class, 'show'])->name('insurance-requests.show');
         Route::post('/insurance-requests/{insuranceRequest}/approve', [InsuranceRequestController::class, 'approve'])->name('insurance-requests.approve');
         Route::post('/insurance-requests/{insuranceRequest}/reject', [InsuranceRequestController::class, 'reject'])->name('insurance-requests.reject');
+        Route::delete('/insurance-requests/{insuranceRequest}/items/{itemId}', [InsuranceRequestController::class, 'removeItem'])->name('insurance-requests.remove-item');
         Route::post('/insurance-requests/{insuranceRequest}/create-order', [InsuranceRequestController::class, 'createOrder'])->name('insurance-requests.create-order');
         
         // Refund Requests

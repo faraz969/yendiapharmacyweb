@@ -82,7 +82,12 @@
 
                 <!-- Items -->
                 <div class="mb-3">
-                    <strong>Requested Items:</strong>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>Requested Items:</strong>
+                        @if($insuranceRequest->status === 'pending' && $insuranceRequest->items->count() > 1)
+                            <small class="text-muted">You can remove unavailable items before approval</small>
+                        @endif
+                    </div>
                     <div class="table-responsive mt-2">
                         <table class="table table-sm table-bordered">
                             <thead>
@@ -90,6 +95,9 @@
                                     <th>Product Name</th>
                                     <th>Quantity</th>
                                     <th>Notes</th>
+                                    @if($insuranceRequest->status === 'pending')
+                                        <th>Actions</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -98,6 +106,24 @@
                                         <td>{{ $item->product_name }}</td>
                                         <td>{{ $item->quantity }}</td>
                                         <td>{{ $item->notes ?? 'N/A' }}</td>
+                                        @if($insuranceRequest->status === 'pending')
+                                            <td>
+                                                @if($insuranceRequest->items->count() > 1)
+                                                    <form action="{{ route('admin.insurance-requests.remove-item', [$insuranceRequest->id, $item->id]) }}" 
+                                                          method="POST" 
+                                                          class="d-inline"
+                                                          onsubmit="return confirm('Are you sure you want to remove this item? This action cannot be undone.');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-danger" title="Remove item">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <span class="text-muted small">Cannot remove last item</span>
+                                                @endif
+                                            </td>
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>

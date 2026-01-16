@@ -288,6 +288,31 @@ class InsuranceRequestController extends Controller
         return back()->with('success', 'Insurance request rejected.');
     }
 
+    /**
+     * Remove an item from insurance request
+     */
+    public function removeItem(Request $request, InsuranceRequest $insuranceRequest, $itemId)
+    {
+        if ($insuranceRequest->status !== 'pending') {
+            return back()->with('error', 'Items can only be removed from pending insurance requests.');
+        }
+
+        $item = $insuranceRequest->items()->find($itemId);
+        
+        if (!$item) {
+            return back()->with('error', 'Item not found.');
+        }
+
+        // Prevent removing all items
+        if ($insuranceRequest->items()->count() <= 1) {
+            return back()->with('error', 'Cannot remove the last item. Please reject the request instead.');
+        }
+
+        $item->delete();
+
+        return back()->with('success', 'Item removed successfully.');
+    }
+
     public function createOrder(Request $request, InsuranceRequest $insuranceRequest)
     {
         if ($insuranceRequest->status !== 'approved') {
