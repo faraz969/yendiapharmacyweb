@@ -83,6 +83,26 @@ class InsuranceRequestController extends Controller
     }
 
     /**
+     * Get count of pending insurance requests for sidebar badge
+     */
+    public function getNewCount()
+    {
+        $user = Auth::user();
+        $query = InsuranceRequest::where('status', 'pending');
+
+        // If branch staff, filter by their branch
+        if ($user->isBranchStaff()) {
+            $query->where('branch_id', $user->branch_id);
+        }
+
+        $count = $query->count();
+
+        return response()->json([
+            'count' => $count,
+        ]);
+    }
+
+    /**
      * Export insurance requests to CSV (respecting current filters)
      */
     public function export(Request $request)

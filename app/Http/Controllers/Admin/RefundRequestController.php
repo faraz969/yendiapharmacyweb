@@ -57,6 +57,18 @@ class RefundRequestController extends Controller
         return view('admin.refund-requests.index', compact('refundRequests', 'statuses'));
     }
 
+    /**
+     * Get count of pending refund requests for sidebar badge
+     */
+    public function getNewCount()
+    {
+        $count = RefundRequest::where('status', 'pending')->count();
+
+        return response()->json([
+            'count' => $count,
+        ]);
+    }
+
     public function show(RefundRequest $refundRequest)
     {
         $refundRequest->load(['order.items.product', 'user', 'processedBy']);

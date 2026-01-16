@@ -131,8 +131,8 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             display: none;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            justify-content: space-between;
+            gap: 15px;
             font-weight: 600;
             animation: slideDown 0.3s ease-out;
         }
@@ -148,6 +148,7 @@
             border-radius: 12px;
             font-size: 0.9rem;
             font-weight: 700;
+            margin-left: 5px;
         }
         
         @keyframes slideDown {
@@ -162,6 +163,8 @@
         @media (max-width: 768px) {
             .new-order-notification {
                 left: 0;
+                flex-direction: column;
+                gap: 10px;
             }
         }
         
@@ -336,14 +339,22 @@
                     <a href="{{ route('admin.item-requests.index') }}" class="{{ request()->routeIs('admin.item-requests.*') ? 'active' : '' }}">
                         <i class="fas fa-inbox"></i> Item Requests
                     </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.insurance-companies.index') }}" class="{{ request()->routeIs('admin.insurance-companies.*') ? 'active' : '' }}">
                         <i class="fas fa-shield-alt"></i> Insurance Companies
                     </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.insurance-requests.index') }}" class="{{ request()->routeIs('admin.insurance-requests.*') ? 'active' : '' }}">
                         <i class="fas fa-shield-alt"></i> Insurance Requests
+                        <span class="badge" id="new-insurance-requests-badge" style="display: none;">0</span>
                     </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.refund-requests.index') }}" class="{{ request()->routeIs('admin.refund-requests.*') ? 'active' : '' }}">
                         <i class="fas fa-money-bill-wave"></i> Refund Requests
+                        <span class="badge" id="new-refund-requests-badge" style="display: none;">0</span>
                     </a>
                 </li>
                 <li>
@@ -420,12 +431,23 @@
         </ul>
     </div>
 
-    <!-- New Order Notification -->
-    <div class="new-order-notification" id="new-order-notification">
-        <i class="fas fa-bell"></i>
-        <span>New order has arrived</span>
-        <span class="badge" id="new-order-count-badge">0</span>
-        <button type="button" class="btn-close btn-close-white ms-auto" onclick="document.getElementById('new-order-notification').classList.remove('show')" aria-label="Close"></button>
+    <!-- New Notifications Bar -->
+    <div class="new-order-notification" id="new-notifications-bar">
+        <div class="d-flex align-items-center gap-3">
+            <i class="fas fa-bell"></i>
+            <div class="d-flex align-items-center gap-3">
+                <span id="new-orders-text" style="display: none;">
+                    <strong>New Orders:</strong> <span class="badge" id="new-order-count-badge">0</span>
+                </span>
+                <span id="new-insurance-requests-text" style="display: none;">
+                    <strong>New Insurance Requests:</strong> <span class="badge" id="new-insurance-requests-count-badge">0</span>
+                </span>
+                <span id="new-refund-requests-text" style="display: none;">
+                    <strong>New Refund Requests:</strong> <span class="badge" id="new-refund-requests-count-badge">0</span>
+                </span>
+            </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white ms-auto" onclick="document.getElementById('new-notifications-bar').classList.remove('show')" aria-label="Close"></button>
     </div>
 
     <!-- Main Content -->
@@ -476,8 +498,9 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     <script>
-        // Update new orders count badge
-        function updateNewOrdersCount() {
+        // Update all notification counts
+        function updateAllNotificationCounts() {
+            // Update Orders Count
             fetch('{{ route("admin.orders.new-count") }}', {
                 method: 'GET',
                 headers: {
@@ -500,35 +523,123 @@
                 }
                 
                 // Update top bar notification
-                const notification = document.getElementById('new-order-notification');
-                const countBadge = document.getElementById('new-order-count-badge');
-                const mainContent = document.querySelector('.main-content');
-                if (notification && countBadge) {
+                const ordersText = document.getElementById('new-orders-text');
+                const ordersCountBadge = document.getElementById('new-order-count-badge');
+                if (ordersText && ordersCountBadge) {
                     if (data.count > 0) {
-                        countBadge.textContent = data.count;
-                        notification.classList.add('show');
-                        if (mainContent) {
-                            mainContent.classList.add('with-notification');
-                        }
+                        ordersCountBadge.textContent = data.count;
+                        ordersText.style.display = 'inline';
                     } else {
-                        notification.classList.remove('show');
-                        if (mainContent) {
-                            mainContent.classList.remove('with-notification');
-                        }
+                        ordersText.style.display = 'none';
                     }
                 }
             })
             .catch(error => {
                 console.error('Error fetching new orders count:', error);
             });
+
+            // Update Insurance Requests Count
+            fetch('{{ route("admin.insurance-requests.new-count") }}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update sidebar badge
+                const badge = document.getElementById('new-insurance-requests-badge');
+                if (badge) {
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+                
+                // Update top bar notification
+                const insuranceText = document.getElementById('new-insurance-requests-text');
+                const insuranceCountBadge = document.getElementById('new-insurance-requests-count-badge');
+                if (insuranceText && insuranceCountBadge) {
+                    if (data.count > 0) {
+                        insuranceCountBadge.textContent = data.count;
+                        insuranceText.style.display = 'inline';
+                    } else {
+                        insuranceText.style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching new insurance requests count:', error);
+            });
+
+            // Update Refund Requests Count
+            fetch('{{ route("admin.refund-requests.new-count") }}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update sidebar badge
+                const badge = document.getElementById('new-refund-requests-badge');
+                if (badge) {
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+                
+                // Update top bar notification
+                const refundText = document.getElementById('new-refund-requests-text');
+                const refundCountBadge = document.getElementById('new-refund-requests-count-badge');
+                if (refundText && refundCountBadge) {
+                    if (data.count > 0) {
+                        refundCountBadge.textContent = data.count;
+                        refundText.style.display = 'inline';
+                    } else {
+                        refundText.style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching new refund requests count:', error);
+            });
+
+            // Show/hide notification bar based on any count
+            setTimeout(() => {
+                const notificationBar = document.getElementById('new-notifications-bar');
+                const mainContent = document.querySelector('.main-content');
+                const hasNewOrders = document.getElementById('new-orders-text')?.style.display === 'inline';
+                const hasNewInsurance = document.getElementById('new-insurance-requests-text')?.style.display === 'inline';
+                const hasNewRefund = document.getElementById('new-refund-requests-text')?.style.display === 'inline';
+                
+                if (notificationBar && mainContent) {
+                    if (hasNewOrders || hasNewInsurance || hasNewRefund) {
+                        notificationBar.classList.add('show');
+                        mainContent.classList.add('with-notification');
+                    } else {
+                        notificationBar.classList.remove('show');
+                        mainContent.classList.remove('with-notification');
+                    }
+                }
+            }, 100);
         }
         
         // Update count on page load
         document.addEventListener('DOMContentLoaded', function() {
-            updateNewOrdersCount();
+            updateAllNotificationCounts();
             
             // Update count every 30 seconds
-            setInterval(updateNewOrdersCount, 30000);
+            setInterval(updateAllNotificationCounts, 30000);
         });
     </script>
     

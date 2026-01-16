@@ -132,6 +132,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Insurance Requests
         Route::get('/insurance-requests', [InsuranceRequestController::class, 'index'])->name('insurance-requests.index');
         Route::get('/insurance-requests/export', [InsuranceRequestController::class, 'export'])->name('insurance-requests.export');
+        Route::get('/insurance-requests/new-count', [InsuranceRequestController::class, 'getNewCount'])->name('insurance-requests.new-count');
         Route::get('/insurance-requests/{insuranceRequest}', [InsuranceRequestController::class, 'show'])->name('insurance-requests.show');
         Route::post('/insurance-requests/{insuranceRequest}/approve', [InsuranceRequestController::class, 'approve'])->name('insurance-requests.approve');
         Route::post('/insurance-requests/{insuranceRequest}/reject', [InsuranceRequestController::class, 'reject'])->name('insurance-requests.reject');
@@ -139,6 +140,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Refund Requests
         Route::get('/refund-requests', [\App\Http\Controllers\Admin\RefundRequestController::class, 'index'])->name('refund-requests.index');
+        Route::get('/refund-requests/new-count', [\App\Http\Controllers\Admin\RefundRequestController::class, 'getNewCount'])->name('refund-requests.new-count');
         Route::get('/refund-requests/{refundRequest}', [\App\Http\Controllers\Admin\RefundRequestController::class, 'show'])->name('refund-requests.show');
         Route::post('/refund-requests/{refundRequest}/approve', [\App\Http\Controllers\Admin\RefundRequestController::class, 'approve'])->name('refund-requests.approve');
         Route::post('/refund-requests/{refundRequest}/reject', [\App\Http\Controllers\Admin\RefundRequestController::class, 'reject'])->name('refund-requests.reject');
