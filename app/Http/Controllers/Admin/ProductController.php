@@ -600,8 +600,9 @@ class ProductController extends Controller
                 $message .= ". Errors: " . count($errors);
             }
 
+            // Always redirect back to import page to show errors
             if ($successCount > 0) {
-                return redirect()->route('admin.products.index')
+                return redirect()->route('admin.products.import')
                     ->with('success', $message)
                     ->with('import_errors', $errors);
             } else {

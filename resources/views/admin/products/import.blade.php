@@ -16,13 +16,13 @@
             </div>
         @endif
 
-        @if(session('import_errors') && count(session('import_errors')) > 0)
+        @if(session('import_errors') && is_array(session('import_errors')) && count(session('import_errors')) > 0)
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                <strong><i class="fas fa-exclamation-triangle me-2"></i>Import completed with errors:</strong>
+                <strong><i class="fas fa-exclamation-triangle me-2"></i>Import completed with errors ({{ count(session('import_errors')) }} errors):</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                <ul class="mb-0 mt-2" style="max-height: 300px; overflow-y: auto;">
+                <ul class="mb-0 mt-2" style="max-height: 400px; overflow-y: auto; font-size: 0.9rem;">
                     @foreach(session('import_errors') as $error)
-                        <li>{{ $error }}</li>
+                        <li class="mb-1">{{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
