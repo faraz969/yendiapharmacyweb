@@ -324,10 +324,33 @@ class ProductController extends Controller
                 return back()->withErrors(['csv_file' => 'CSV file is empty or invalid.']);
             }
 
-            // Normalize headers (trim and lowercase)
+            // Normalize headers (trim whitespace, handle BOM, and lowercase)
             $headers = array_map(function($header) {
-                return trim(strtolower($header));
+                // Remove BOM if present
+                $header = preg_replace('/^\xEF\xBB\xBF/', '', $header);
+                // Trim and normalize
+                $header = trim($header);
+                // Remove any non-printable characters
+                $header = preg_replace('/[\x00-\x1F\x7F]/', '', $header);
+                return strtolower($header);
             }, $headers);
+            
+            // Verify required headers exist
+            $requiredHeaders = ['category_name', 'name'];
+            $missingHeaders = [];
+            foreach ($requiredHeaders as $required) {
+                if (!in_array($required, $headers)) {
+                    $missingHeaders[] = $required;
+                }
+            }
+            
+            if (!empty($missingHeaders)) {
+                fclose($handle);
+                return back()->withErrors(['csv_file' => 'CSV file is missing required columns: ' . implode(', ', $missingHeaders) . '. Found columns: ' . implode(', ', $headers)]);
+            }
+            
+            // Debug: Log headers for troubleshooting
+            Log::info('CSV Import Headers', ['headers' => $headers]);
 
             // Expected columns mapping
             $columnMap = [
@@ -363,30 +386,64 @@ class ProductController extends Controller
                     continue;
                 }
 
+                // Ensure row has enough columns (pad with empty strings if needed)
+                while (count($row) < count($headers)) {
+                    $row[] = '';
+                }
+
                 // Map row data to associative array
                 $data = [];
                 foreach ($headers as $index => $header) {
                     if (isset($row[$index])) {
-                        $data[$header] = trim($row[$index]);
+                        // Trim and normalize the value
+                        $value = trim($row[$index]);
+                        // Remove any null bytes or special characters that might cause issues
+                        $value = str_replace(["\0", "\r"], '', $value);
+                        $data[$header] = $value;
+                    } else {
+                        // Set empty string for missing columns to maintain array structure
+                        $data[$header] = '';
                     }
                 }
 
                 // Validate required fields
-                if (empty($data['name'])) {
+                if (empty($data['name'] ?? '')) {
                     $errors[] = "Row {$rowNumber}: Product name is required.";
                     $skipCount++;
                     continue;
                 }
 
-                // Get or create category
-                $categoryName = $data['category_name'] ?? '';
+                // Get category name - headers are already normalized to lowercase
+                $categoryName = trim($data['category_name'] ?? '');
+                
+                // If category_name key doesn't exist, try alternative keys
                 if (empty($categoryName)) {
+                    // Check if the header exists with a different name
+                    foreach ($headers as $header) {
+                        if (stripos($header, 'category') !== false) {
+                            $categoryName = trim($data[$header] ?? '');
+                            if (!empty($categoryName)) {
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // If still empty, log for debugging
+                if (empty($categoryName)) {
+                    Log::warning('Category name not found in CSV row', [
+                        'row_number' => $rowNumber,
+                        'headers' => $headers,
+                        'row_data' => $row,
+                        'mapped_data' => $data
+                    ]);
                     $errors[] = "Row {$rowNumber}: Category name is required.";
                     $skipCount++;
                     continue;
                 }
 
-                $category = Category::where('name', $categoryName)->first();
+                // Make category lookup case-insensitive and trim whitespace
+                $category = Category::whereRaw('LOWER(TRIM(name)) = LOWER(?)', [trim($categoryName)])->first();
                 if (!$category) {
                     $errors[] = "Row {$rowNumber}: Category '{$categoryName}' not found. Please create it first.";
                     $skipCount++;
