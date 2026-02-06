@@ -465,23 +465,53 @@ class ProductController extends Controller
                     }
                 }
 
-                // Prepare product data
+                // Prepare product data with proper type conversion
+                // Handle selling_price - remove any currency symbols or commas
+                $sellingPrice = $data['selling_price'] ?? '0';
+                $sellingPrice = str_replace([',', '$', '€', '£'], '', trim($sellingPrice));
+                $sellingPrice = floatval($sellingPrice);
+                
+                // Handle cost_price - remove any currency symbols or commas
+                $costPrice = $data['cost_price'] ?? '0';
+                $costPrice = str_replace([',', '$', '€', '£'], '', trim($costPrice));
+                $costPrice = floatval($costPrice);
+                
+                // Handle discount - remove any currency symbols or commas
+                $discount = $data['discount'] ?? '0';
+                $discount = str_replace([',', '$', '€', '£'], '', trim($discount));
+                $discount = floatval($discount);
+                
+                // Handle conversion_factor
+                $conversionFactor = $data['conversion_factor'] ?? '1';
+                $conversionFactor = intval(trim($conversionFactor));
+                
+                // Handle barcode - might be in scientific notation from Excel
+                $barcode = $data['barcode'] ?? null;
+                if (!empty($barcode)) {
+                    // If barcode is in scientific notation (e.g., 5.017E+12), convert it
+                    if (stripos($barcode, 'e+') !== false || stripos($barcode, 'e-') !== false) {
+                        $barcode = number_format((float)$barcode, 0, '', '');
+                    } else {
+                        $barcode = trim($barcode);
+                    }
+                }
+                
                 $productData = [
                     'category_id' => $category->id,
-                    'name' => $data['name'],
-                    'description' => $data['description'] ?? null,
-                    'sku' => !empty($data['sku']) ? $data['sku'] : Product::generateUniqueSku(),
-                    'barcode' => $data['barcode'] ?? null,
+                    'name' => trim($data['name']),
+                    'description' => !empty($data['description']) ? trim($data['description']) : null,
+                    'sku' => !empty($data['sku']) ? trim($data['sku']) : Product::generateUniqueSku(),
+                    'barcode' => $barcode,
                     'images' => !empty($imageUrls) ? $imageUrls : null,
-                    'selling_price' => floatval($data['selling_price'] ?? 0),
-                    'cost_price' => floatval($data['cost_price'] ?? 0),
-                    'discount' => floatval($data['discount'] ?? 0),
-                    'purchase_unit' => $data['purchase_unit'] ?? 'box',
-                    'selling_unit' => $data['selling_unit'] ?? 'tablet',
-                    'conversion_factor' => intval($data['conversion_factor'] ?? 1),
-                    'prescription_notes' => $data['prescription_notes'] ?? null,
-                    'min_stock_level' => !empty($data['min_stock_level']) ? intval($data['min_stock_level']) : 0,
-                    'max_stock_level' => !empty($data['max_stock_level']) ? intval($data['max_stock_level']) : null,
+                    'selling_price' => $sellingPrice,
+                    'cost_price' => $costPrice,
+                    'discount' => $discount,
+                    'purchase_unit' => !empty($data['purchase_unit']) ? trim($data['purchase_unit']) : 'box',
+                    'selling_unit' => !empty($data['selling_unit']) ? trim($data['selling_unit']) : 'tablet',
+                    'conversion_factor' => $conversionFactor,
+                    'prescription_notes' => !empty($data['prescription_notes']) ? trim($data['prescription_notes']) : null,
+                    'min_stock_level' => !empty($data['min_stock_level']) ? intval(trim($data['min_stock_level'])) : 0,
+                    'max_stock_level' => !empty($data['max_stock_level']) ? intval(trim($data['max_stock_level'])) : null,
                     'requires_prescription' => $this->parseBoolean($data['requires_prescription'] ?? 'false'),
                     'track_expiry' => $this->parseBoolean($data['track_expiry'] ?? 'true'),
                     'track_batch' => $this->parseBoolean($data['track_batch'] ?? 'true'),
@@ -489,10 +519,10 @@ class ProductController extends Controller
                 ];
 
                 // Validate SKU uniqueness
-                if (!empty($data['sku'])) {
+                if (!empty($productData['sku'])) {
                     $existingProduct = Product::withTrashed()->where('sku', $productData['sku'])->first();
                     if ($existingProduct) {
-                        $errors[] = "Row {$rowNumber}: SKU '{$productData['sku']}' already exists.";
+                        $errors[] = "Row {$rowNumber}: SKU '{$productData['sku']}' already exists (Product ID: {$existingProduct->id}).";
                         $skipCount++;
                         continue;
                     }
@@ -502,21 +532,23 @@ class ProductController extends Controller
                 if (!empty($productData['barcode'])) {
                     $existingProduct = Product::withTrashed()->where('barcode', $productData['barcode'])->first();
                     if ($existingProduct) {
-                        $errors[] = "Row {$rowNumber}: Barcode '{$productData['barcode']}' already exists.";
+                        $errors[] = "Row {$rowNumber}: Barcode '{$productData['barcode']}' already exists (Product ID: {$existingProduct->id}).";
                         $skipCount++;
                         continue;
                     }
                 }
 
-                // Validate numeric fields
-                if ($productData['selling_price'] <= 0) {
-                    $errors[] = "Row {$rowNumber}: Selling price must be greater than 0.";
+                // Validate numeric fields - handle empty or invalid values
+                $sellingPrice = $productData['selling_price'];
+                if (empty($sellingPrice) || !is_numeric($sellingPrice) || floatval($sellingPrice) <= 0) {
+                    $errors[] = "Row {$rowNumber}: Selling price must be a number greater than 0. Found: '{$data['selling_price'] ?? 'empty'}'";
                     $skipCount++;
                     continue;
                 }
 
-                if ($productData['conversion_factor'] < 1) {
-                    $errors[] = "Row {$rowNumber}: Conversion factor must be at least 1.";
+                $conversionFactor = $productData['conversion_factor'];
+                if (empty($conversionFactor) || !is_numeric($conversionFactor) || intval($conversionFactor) < 1) {
+                    $errors[] = "Row {$rowNumber}: Conversion factor must be at least 1. Found: '{$data['conversion_factor'] ?? 'empty'}'";
                     $skipCount++;
                     continue;
                 }
@@ -525,6 +557,21 @@ class ProductController extends Controller
                 try {
                     Product::create($productData);
                     $successCount++;
+                } catch (\Illuminate\Database\QueryException $e) {
+                    // Database constraint errors
+                    $errorMsg = $e->getMessage();
+                    if (strpos($errorMsg, 'Duplicate entry') !== false) {
+                        $errors[] = "Row {$rowNumber}: Duplicate entry - " . $errorMsg;
+                    } else {
+                        $errors[] = "Row {$rowNumber}: Database error - " . $errorMsg;
+                    }
+                    $skipCount++;
+                    Log::error('Product CSV import database error', [
+                        'row' => $rowNumber,
+                        'data' => $productData,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
                 } catch (\Exception $e) {
                     $errors[] = "Row {$rowNumber}: Error creating product - " . $e->getMessage();
                     $skipCount++;
@@ -532,6 +579,7 @@ class ProductController extends Controller
                         'row' => $rowNumber,
                         'data' => $productData,
                         'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
                     ]);
                 }
             }
