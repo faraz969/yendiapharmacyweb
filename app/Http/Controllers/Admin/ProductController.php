@@ -541,14 +541,16 @@ class ProductController extends Controller
                 // Validate numeric fields - handle empty or invalid values
                 $sellingPrice = $productData['selling_price'];
                 if (empty($sellingPrice) || !is_numeric($sellingPrice) || floatval($sellingPrice) <= 0) {
-                    $errors[] = "Row {$rowNumber}: Selling price must be a number greater than 0. Found: '{$data['selling_price'] ?? 'empty'}'";
+                    $foundValue = isset($data['selling_price']) && $data['selling_price'] !== '' ? $data['selling_price'] : 'empty';
+                    $errors[] = "Row {$rowNumber}: Selling price must be a number greater than 0. Found: '{$foundValue}'";
                     $skipCount++;
                     continue;
                 }
 
                 $conversionFactor = $productData['conversion_factor'];
                 if (empty($conversionFactor) || !is_numeric($conversionFactor) || intval($conversionFactor) < 1) {
-                    $errors[] = "Row {$rowNumber}: Conversion factor must be at least 1. Found: '{$data['conversion_factor'] ?? 'empty'}'";
+                    $foundValue = isset($data['conversion_factor']) && $data['conversion_factor'] !== '' ? $data['conversion_factor'] : 'empty';
+                    $errors[] = "Row {$rowNumber}: Conversion factor must be at least 1. Found: '{$foundValue}'";
                     $skipCount++;
                     continue;
                 }
