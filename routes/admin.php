@@ -71,6 +71,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/orders/new-count', [OrderController::class, 'getNewOrdersCount'])->name('orders.new-count');
         Route::get('/orders/delivery-persons', [OrderController::class, 'getDeliveryPersons'])->name('orders.delivery-persons');
         Route::post('/orders/bulk-assign-delivery', [OrderController::class, 'bulkAssignDelivery'])->name('orders.bulk-assign-delivery');
+        Route::post('/orders/bulk-destroy', [OrderController::class, 'bulkDestroy'])->name('orders.bulk-destroy');
         Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->name('orders.approve');
         Route::post('/orders/{order}/reject', [OrderController::class, 'reject'])->name('orders.reject');
         Route::post('/orders/{order}/pack', [OrderController::class, 'pack'])->name('orders.pack');

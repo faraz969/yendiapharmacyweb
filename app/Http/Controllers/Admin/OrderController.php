@@ -575,16 +575,69 @@ class OrderController extends Controller
         }
         
         try {
-            // Delete related order items first
-            $order->items()->delete();
-            
-            // Delete the order
-            $order->delete();
+            $this->deleteOrder($order);
             
             return redirect()->route('admin.orders.index')
                 ->with('success', 'Order deleted successfully.');
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to delete order: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Bulk delete selected orders
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $user = Auth::user();
+        
+        if ($user->isBranchStaff()) {
+            abort(403, 'Access denied. Only full admins can delete orders.');
+        }
+        
+        $request->validate([
+            'order_ids' => 'required|array|min:1',
+            'order_ids.*' => 'integer|exists:orders,id',
+        ]);
+
+        $orders = Order::whereIn('id', $request->order_ids)->get();
+        $deletedCount = 0;
+        $skippedCount = 0;
+
+        foreach ($orders as $order) {
+            if ($order->payment_status === 'paid') {
+                $skippedCount++;
+                continue;
+            }
+            
+            try {
+                $this->deleteOrder($order);
+                $deletedCount++;
+            } catch (\Exception $e) {
+                // Continue with other orders
+            }
+        }
+
+        $message = '';
+        if ($deletedCount > 0) {
+            $message .= $deletedCount === 1 ? '1 order deleted successfully.' : "{$deletedCount} orders deleted successfully.";
+        }
+        if ($skippedCount > 0) {
+            $message .= ($message ? ' ' : '') . "{$skippedCount} order(s) skipped (already paid).";
+        }
+        if ($deletedCount === 0 && $skippedCount === 0) {
+            $message = 'No orders were deleted.';
+        }
+
+        return redirect()->back()->with($deletedCount > 0 ? 'success' : 'error', $message);
+    }
+
+    /**
+     * Delete an order and its items
+     */
+    private function deleteOrder(Order $order)
+    {
+        $order->items()->delete();
+        $order->delete();
     }
 }

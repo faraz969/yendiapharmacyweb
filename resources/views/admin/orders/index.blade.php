@@ -131,6 +131,19 @@
         </div>
         @endif
 
+        @if(!Auth::user()->isBranchStaff())
+        <form id="bulkOrdersForm" action="{{ route('admin.orders.bulk-destroy') }}" method="POST" style="display:none;">
+            @csrf
+            <div id="bulkOrderIdsForDelete"></div>
+        </form>
+        <div id="bulkDeleteActionsBar" class="d-none alert alert-secondary d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <span id="bulkSelectedCount">0</span> order(s) selected
+            <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteBtn">
+                <i class="fas fa-trash me-1"></i>Delete Selected
+            </button>
+        </div>
+        @endif
+
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
@@ -160,9 +173,7 @@
                         <tr>
                             @if(!Auth::user()->isBranchStaff())
                             <td>
-                                @if($order->status === 'packed' && ($order->delivery_type ?? 'delivery') === 'delivery')
-                                <input type="checkbox" class="order-checkbox" value="{{ $order->id }}" data-status="{{ $order->status }}">
-                                @endif
+                                <input type="checkbox" class="order-checkbox" value="{{ $order->id }}" data-status="{{ $order->status }}" data-can-assign="{{ ($order->status === 'packed' && ($order->delivery_type ?? 'delivery') === 'delivery') ? '1' : '0' }}">
                             </td>
                             @endif
                             <td><code>{{ $order->order_number }}</code></td>
@@ -437,39 +448,21 @@
     });
 })();
 
-// Bulk assignment functionality
+
+// Bulk assignment and bulk delete functionality
 (function() {
     const selectAllCheckbox = document.getElementById('selectAllOrders');
     const orderCheckboxes = document.querySelectorAll('.order-checkbox');
     const bulkAssignBtn = document.getElementById('bulkAssignBtn');
-    const bulkOrderIdsInput = document.getElementById('bulkOrderIds');
     const selectedOrdersCount = document.getElementById('selectedOrdersCount');
+    const bulkDeleteActionsBar = document.getElementById('bulkDeleteActionsBar');
+    const bulkSelectedCount = document.getElementById('bulkSelectedCount');
     
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
-            orderCheckboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
-            updateBulkAssignButton();
-        });
-    }
-    
-    if (orderCheckboxes.length > 0) {
-        orderCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                if (selectAllCheckbox) {
-                    selectAllCheckbox.checked = Array.from(orderCheckboxes).every(cb => cb.checked);
-                }
-                updateBulkAssignButton();
-            });
-        });
-    }
-    
-    function updateBulkAssignButton() {
+    function updateBulkActions() {
         const selected = Array.from(orderCheckboxes).filter(cb => cb.checked);
         const selectedIds = selected.map(cb => cb.value);
         
-        // Update hidden inputs for order IDs
+        // Update hidden inputs for bulk assign modal
         const container = document.getElementById('bulkOrderIdsContainer');
         if (container) {
             container.innerHTML = '';
@@ -486,12 +479,64 @@
             selectedOrdersCount.textContent = selected.length;
         }
         if (bulkAssignBtn) {
-            bulkAssignBtn.disabled = selected.length === 0;
+            const canAssignCount = selected.filter(cb => cb.dataset.canAssign === '1').length;
+            bulkAssignBtn.disabled = canAssignCount === 0;
+        }
+        
+        // Update bulk delete bar
+        if (bulkDeleteActionsBar && bulkSelectedCount) {
+            bulkDeleteActionsBar.classList.toggle('d-none', selected.length === 0);
+            bulkSelectedCount.textContent = selected.length;
         }
     }
     
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            orderCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkActions();
+        });
+    }
+    
+    if (orderCheckboxes.length > 0) {
+        orderCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = Array.from(orderCheckboxes).every(cb => cb.checked);
+                }
+                updateBulkActions();
+            });
+        });
+    }
+    
+    // Bulk delete button
+    document.getElementById('bulkDeleteBtn')?.addEventListener('click', function() {
+        const selected = Array.from(orderCheckboxes).filter(cb => cb.checked);
+        if (selected.length === 0) {
+            alert('Please select at least one order.');
+            return;
+        }
+        if (!confirm('Are you sure you want to delete the selected order(s)? Paid orders will be skipped.')) {
+            return;
+        }
+        const form = document.getElementById('bulkOrdersForm');
+        const container = document.getElementById('bulkOrderIdsForDelete');
+        if (form && container) {
+            container.innerHTML = '';
+            selected.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'order_ids[]';
+                input.value = cb.value;
+                container.appendChild(input);
+            });
+            form.submit();
+        }
+    });
+    
     // Update on page load
-    updateBulkAssignButton();
+    updateBulkActions();
 })();
 </script>
 @endpush
