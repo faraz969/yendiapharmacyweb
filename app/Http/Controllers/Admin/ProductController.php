@@ -42,6 +42,11 @@ class ProductController extends Controller
             }
         }
 
+        // Export to Excel/CSV (exports ALL products, ignoring filters)
+        if ($request->has('export') && $request->export === 'excel') {
+            return $this->exportToExcel();
+        }
+
         $products = $query->latest()->paginate(20);
         $categories = Category::where('is_active', true)->get();
 
@@ -269,6 +274,74 @@ class ProductController extends Controller
         }
 
         $product->delete();
+    }
+
+    /**
+     * Export all products to CSV (streams in chunks for large datasets)
+     */
+    private function exportToExcel()
+    {
+        $filename = 'products_' . date('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $columns = [
+            'ID',
+            'Name',
+            'SKU',
+            'Barcode',
+            'Category',
+            'Selling Price',
+            'Cost Price',
+            'Discount',
+            'Stock',
+            'Purchase Unit',
+            'Selling Unit',
+            'Requires Prescription',
+            'Status',
+            'Expired',
+            'Created At',
+        ];
+
+        $callback = function () use ($columns) {
+            $file = fopen('php://output', 'w');
+
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($file, $columns);
+
+            Product::with('category')
+                ->orderBy('id')
+                ->chunk(500, function ($products) use ($file) {
+                    foreach ($products as $product) {
+                        $status = $product->is_expired ? 'Expired' : ($product->is_active ? 'Active' : 'Inactive');
+                        $stock = $product->track_batch ? number_format($product->total_stock) . ' ' . $product->selling_unit : 'N/A';
+
+                        fputcsv($file, [
+                            $product->id,
+                            $product->name,
+                            $product->sku ?? '',
+                            $product->barcode ?? '',
+                            $product->category ? $product->category->name : 'N/A',
+                            number_format($product->selling_price, 2),
+                            number_format($product->cost_price ?? 0, 2),
+                            number_format($product->discount ?? 0, 2),
+                            $stock,
+                            $product->purchase_unit ?? '',
+                            $product->selling_unit ?? '',
+                            $product->requires_prescription ? 'Yes' : 'No',
+                            $status,
+                            $product->is_expired ? 'Yes' : 'No',
+                            $product->created_at->format('Y-m-d H:i:s'),
+                        ]);
+                    }
+                });
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     /**

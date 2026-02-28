@@ -8,13 +8,16 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-cube me-2"></i>All Products</h5>
         <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('admin.products.index', ['export' => 'excel']) }}" class="btn btn-success">
+                <i class="fas fa-file-excel me-2"></i>Export to Excel
+            </a>
             <form action="{{ route('admin.products.activate-all') }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to activate ALL products?');">
                 @csrf
                 <button type="submit" class="btn btn-outline-success">
                     <i class="fas fa-check-circle me-2"></i>Activate All
                 </button>
             </form>
-            <a href="{{ route('admin.products.import') }}" class="btn btn-success">
+            <a href="{{ route('admin.products.import') }}" class="btn btn-outline-primary">
                 <i class="fas fa-file-csv me-2"></i>Import CSV
             </a>
             <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
