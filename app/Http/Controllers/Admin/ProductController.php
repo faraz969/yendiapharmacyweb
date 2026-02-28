@@ -185,22 +185,90 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        // Delete images
+        $this->deleteProduct($product);
+
+        return redirect()->route('admin.products.index')
+            ->with('success', 'Product deleted successfully.');
+    }
+
+    /**
+     * Bulk delete selected products
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'product_ids' => 'required|array|min:1',
+            'product_ids.*' => 'integer|exists:products,id',
+        ]);
+
+        $products = Product::whereIn('id', $request->product_ids)->get();
+        $count = 0;
+
+        foreach ($products as $product) {
+            $this->deleteProduct($product);
+            $count++;
+        }
+
+        $message = $count === 1
+            ? '1 product deleted successfully.'
+            : "{$count} products deleted successfully.";
+
+        return redirect()->route('admin.products.index')
+            ->with('success', $message);
+    }
+
+    /**
+     * Bulk update status of selected products (active/inactive)
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        $request->validate([
+            'product_ids' => 'required|array|min:1',
+            'product_ids.*' => 'integer|exists:products,id',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $count = Product::whereIn('id', $request->product_ids)
+            ->update(['is_active' => $request->status === 'active']);
+
+        $statusLabel = $request->status === 'active' ? 'active' : 'inactive';
+        $message = $count === 1
+            ? "1 product set to {$statusLabel}."
+            : "{$count} products set to {$statusLabel}.";
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * Activate all products at once
+     */
+    public function activateAll(Request $request)
+    {
+        $count = Product::query()->update(['is_active' => true]);
+
+        $message = $count === 1
+            ? '1 product activated.'
+            : "{$count} products activated.";
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * Delete a product (images, video, and soft delete)
+     */
+    private function deleteProduct(Product $product)
+    {
         if ($product->images) {
             foreach ($product->images as $image) {
                 Storage::disk('public')->delete($image);
             }
         }
 
-        // Delete video
         if ($product->video) {
             Storage::disk('public')->delete($product->video);
         }
 
         $product->delete();
-
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Product deleted successfully.');
     }
 
     /**

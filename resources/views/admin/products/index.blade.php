@@ -7,7 +7,13 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-cube me-2"></i>All Products</h5>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
+            <form action="{{ route('admin.products.activate-all') }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to activate ALL products?');">
+                @csrf
+                <button type="submit" class="btn btn-outline-success">
+                    <i class="fas fa-check-circle me-2"></i>Activate All
+                </button>
+            </form>
             <a href="{{ route('admin.products.import') }}" class="btn btn-success">
                 <i class="fas fa-file-csv me-2"></i>Import CSV
             </a>
@@ -49,10 +55,31 @@
             </div>
         </form>
 
+        <form id="bulkForm" action="{{ route('admin.products.bulk-destroy') }}" method="POST" onsubmit="return handleBulkSubmit(event);">
+            @csrf
+            <input type="hidden" name="status" id="bulkStatusInput" value="">
+            <div id="bulkActionsBar" class="d-none alert alert-secondary d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                <span id="selectedCount">0</span> product(s) selected
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit" formaction="{{ route('admin.products.bulk-status') }}" class="btn btn-success btn-sm" data-status="active">
+                        <i class="fas fa-check me-1"></i>Set Active
+                    </button>
+                    <button type="submit" formaction="{{ route('admin.products.bulk-status') }}" class="btn btn-secondary btn-sm" data-status="inactive">
+                        <i class="fas fa-times me-1"></i>Set Inactive
+                    </button>
+                    <button type="submit" formaction="{{ route('admin.products.bulk-destroy') }}" class="btn btn-danger btn-sm" data-action="delete">
+                        <i class="fas fa-trash me-1"></i>Delete Selected
+                    </button>
+                </div>
+            </div>
+
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" id="selectAll" class="form-check-input" title="Select all">
+                        </th>
                         <th>ID</th>
                         <th>Image</th>
                         <th>Name</th>
@@ -67,6 +94,9 @@
                 <tbody>
                     @forelse($products as $product)
                         <tr>
+                            <td>
+                                <input type="checkbox" name="product_ids[]" value="{{ $product->id }}" class="form-check-input product-checkbox">
+                            </td>
                             <td>{{ $product->id }}</td>
                             <td>
                                 @if($product->images && is_array($product->images) && count($product->images) > 0)
@@ -122,7 +152,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center">No products found. <a href="{{ route('admin.products.create') }}">Create one</a></td>
+                            <td colspan="10" class="text-center">No products found. <a href="{{ route('admin.products.create') }}">Create one</a></td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -131,7 +161,56 @@
         <div class="mt-3">
             {{ $products->appends(request()->query())->links() }}
         </div>
+        </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+function handleBulkSubmit(event) {
+    const n = document.querySelectorAll('.product-checkbox:checked').length;
+    if (n === 0) {
+        alert('Please select at least one product.');
+        return false;
+    }
+    const btn = event.submitter;
+    if (btn?.dataset?.status) {
+        document.getElementById('bulkStatusInput').value = btn.dataset.status;
+        return true;
+    }
+    if (btn?.dataset?.action === 'delete') {
+        return confirm('Are you sure you want to delete the selected product(s)?');
+    }
+    return true;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.product-checkbox');
+    const bulkActionsBar = document.getElementById('bulkActionsBar');
+    const selectedCount = document.getElementById('selectedCount');
+
+    function updateBulkActions() {
+        const checked = document.querySelectorAll('.product-checkbox:checked');
+        const count = checked.length;
+        bulkActionsBar.classList.toggle('d-none', count === 0);
+        selectedCount.textContent = count;
+    }
+
+    selectAll?.addEventListener('change', function() {
+        checkboxes.forEach(cb => cb.checked = this.checked);
+        updateBulkActions();
+    });
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            const checked = document.querySelectorAll('.product-checkbox:checked');
+            selectAll.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
+            updateBulkActions();
+        });
+    });
+});
+</script>
+@endpush
 @endsection
 
