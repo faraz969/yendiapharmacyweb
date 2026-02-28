@@ -199,18 +199,28 @@ class PurchaseOrderController extends Controller
             'unit_cost',
         ];
 
-        $callback = function () use ($columns) {
+        $vendors = Vendor::where('is_active', true)->orderBy('id')->limit(2)->pluck('id')->toArray();
+        $products = Product::where('is_active', true)->orderBy('id')->limit(3)->get(['id', 'sku']);
+
+        $callback = function () use ($columns, $vendors, $products) {
             $file = fopen('php://output', 'w');
 
-            // Add BOM for Excel compatibility
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
             fputcsv($file, $columns);
 
-            // Sample rows - 2 purchase orders (different vendors/dates) with multiple items each
-            fputcsv($file, ['1', date('Y-m-d'), date('Y-m-d', strtotime('+7 days')), 'Sample order 1', 'SKU001', '', '100', '5.50']);
-            fputcsv($file, ['1', date('Y-m-d'), date('Y-m-d', strtotime('+7 days')), 'Sample order 1', 'SKU002', '', '50', '12.00']);
-            fputcsv($file, ['2', date('Y-m-d'), date('Y-m-d', strtotime('+14 days')), 'Sample order 2', '', '1', '200', '5.25']);
+            $vendor1 = $vendors[0] ?? 1;
+            $vendor2 = $vendors[1] ?? $vendor1;
+            $product1 = $products[0] ?? null;
+            $product2 = $products[1] ?? $product1;
+
+            $sku1 = $product1 ? $product1->sku : 'REPLACE_WITH_SKU';
+            $sku2 = $product2 ? $product2->sku : 'REPLACE_WITH_SKU';
+            $id1 = $product1 ? (string) $product1->id : '1';
+
+            fputcsv($file, [$vendor1, date('Y-m-d'), date('Y-m-d', strtotime('+7 days')), 'Sample order 1', $sku1, '', '100', '5.50']);
+            fputcsv($file, [$vendor1, date('Y-m-d'), date('Y-m-d', strtotime('+7 days')), 'Sample order 1', $sku2, '', '50', '12.00']);
+            fputcsv($file, [$vendor2, date('Y-m-d'), date('Y-m-d', strtotime('+14 days')), 'Sample order 2', '', $id1, '200', '5.25']);
 
             fclose($file);
         };
@@ -292,7 +302,8 @@ class PurchaseOrderController extends Controller
 
             $headers = array_map(function ($header) {
                 $header = preg_replace('/^\xEF\xBB\xBF/', '', trim($header));
-                return strtolower(preg_replace('/[\x00-\x1F\x7F]/', '', $header));
+                $header = strtolower(preg_replace('/[\x00-\x1F\x7F]/', '', $header));
+                return str_replace(' ', '_', $header);
             }, $headers);
 
             $requiredHeaders = ['vendor_id', 'order_date', 'quantity', 'unit_cost'];
@@ -410,7 +421,16 @@ class PurchaseOrderController extends Controller
             fclose($handle);
 
             if (empty($poGroups)) {
-                return back()->withErrors(['csv_file' => 'No valid purchase order data found in CSV.']);
+                $errorMessage = 'No valid purchase order data found in CSV.';
+                if (!empty($errors)) {
+                    $errorMessage .= ' Please fix the following and try again: ' . implode(' ', array_slice($errors, 0, 5));
+                    if (count($errors) > 5) {
+                        $errorMessage .= ' (and ' . (count($errors) - 5) . ' more)';
+                    }
+                } else {
+                    $errorMessage .= ' Ensure your CSV has valid data rows with vendor_id, order_date, product_sku (or product_id), quantity, and unit_cost. Download the products list to get valid SKUs and verify vendor IDs exist.';
+                }
+                return back()->withErrors(['csv_file' => $errorMessage])->with('import_errors', $errors);
             }
 
             DB::beginTransaction();
