@@ -5,11 +5,16 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>All Purchase Orders</h5>
-        <a href="{{ route('admin.purchase-orders.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Create PO
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.purchase-orders.import') }}" class="btn btn-outline-primary">
+                <i class="fas fa-file-csv me-2"></i>Import CSV
+            </a>
+            <a href="{{ route('admin.purchase-orders.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create PO
+            </a>
+        </div>
     </div>
     <div class="card-body">
         <form method="GET" action="{{ route('admin.purchase-orders.index') }}" class="mb-4">

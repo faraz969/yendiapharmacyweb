@@ -53,7 +53,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Vendors
         Route::resource('vendors', VendorController::class);
         
-        // Purchase Orders
+        // Purchase Orders - Import routes must come before resource route
+        Route::get('/purchase-orders/import', [PurchaseOrderController::class, 'showImportForm'])->name('purchase-orders.import');
+        Route::post('/purchase-orders/import', [PurchaseOrderController::class, 'import'])->name('purchase-orders.import.store');
+        Route::get('/purchase-orders/import/template', [PurchaseOrderController::class, 'downloadTemplate'])->name('purchase-orders.import.template');
+
         Route::resource('purchase-orders', PurchaseOrderController::class);
         Route::post('/purchase-orders/{purchaseOrder}/receive', [PurchaseOrderController::class, 'receive'])->name('purchase-orders.receive');
         

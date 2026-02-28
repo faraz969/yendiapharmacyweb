@@ -12,6 +12,7 @@ use App\Helpers\OrderHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PurchaseOrderController extends Controller
 {
@@ -164,6 +165,273 @@ class PurchaseOrderController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Error receiving items: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show CSV import form for purchase orders
+     */
+    public function showImportForm()
+    {
+        $vendors = Vendor::where('is_active', true)->orderBy('name')->get();
+        $products = Product::where('is_active', true)->orderBy('name')->get(['id', 'name', 'sku']);
+        return view('admin.purchase-orders.import', compact('vendors', 'products'));
+    }
+
+    /**
+     * Download CSV template for purchase order import
+     */
+    public function downloadTemplate()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="purchase_orders_import_template.csv"',
+        ];
+
+        $columns = [
+            'vendor_id',
+            'order_date',
+            'expected_delivery_date',
+            'notes',
+            'product_sku',
+            'product_id',
+            'quantity',
+            'unit_cost',
+        ];
+
+        $callback = function () use ($columns) {
+            $file = fopen('php://output', 'w');
+
+            // Add BOM for Excel compatibility
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            fputcsv($file, $columns);
+
+            // Sample rows - 2 purchase orders (different vendors/dates) with multiple items each
+            fputcsv($file, ['1', date('Y-m-d'), date('Y-m-d', strtotime('+7 days')), 'Sample order 1', 'SKU001', '', '100', '5.50']);
+            fputcsv($file, ['1', date('Y-m-d'), date('Y-m-d', strtotime('+7 days')), 'Sample order 1', 'SKU002', '', '50', '12.00']);
+            fputcsv($file, ['2', date('Y-m-d'), date('Y-m-d', strtotime('+14 days')), 'Sample order 2', '', '1', '200', '5.25']);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Import purchase orders from CSV
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:10240',
+        ]);
+
+        $file = $request->file('csv_file');
+        $path = $file->getRealPath();
+
+        $errors = [];
+        $createdCount = 0;
+        $rowNumber = 1;
+
+        try {
+            $handle = fopen($path, 'r');
+
+            if ($handle === false) {
+                return back()->withErrors(['csv_file' => 'Unable to read CSV file.']);
+            }
+
+            // Skip BOM if present
+            rewind($handle);
+            $bom = fread($handle, 3);
+            if ($bom !== "\xEF\xBB\xBF") {
+                fseek($handle, 0);
+            }
+
+            $headers = fgetcsv($handle);
+            if (!$headers) {
+                fclose($handle);
+                return back()->withErrors(['csv_file' => 'CSV file is empty or invalid.']);
+            }
+
+            $headers = array_map(function ($header) {
+                $header = preg_replace('/^\xEF\xBB\xBF/', '', trim($header));
+                return strtolower(preg_replace('/[\x00-\x1F\x7F]/', '', $header));
+            }, $headers);
+
+            $requiredHeaders = ['vendor_id', 'order_date', 'quantity', 'unit_cost'];
+            $missingHeaders = array_diff($requiredHeaders, $headers);
+            $hasProductSku = in_array('product_sku', $headers);
+            $hasProductId = in_array('product_id', $headers);
+            if (!empty($missingHeaders) || (!$hasProductSku && !$hasProductId)) {
+                if (empty($missingHeaders) && !$hasProductSku && !$hasProductId) {
+                    $missingHeaders[] = 'product_sku or product_id';
+                }
+                fclose($handle);
+                return back()->withErrors([
+                    'csv_file' => 'CSV file is missing required columns: ' . implode(', ', $missingHeaders) . '. Found: ' . implode(', ', $headers)
+                ]);
+            }
+
+            $columnMap = array_flip($headers);
+
+            // Group rows by PO key (vendor_id + order_date + expected_delivery_date + notes)
+            $poGroups = [];
+
+            while (($row = fgetcsv($handle)) !== false) {
+                $rowNumber++;
+
+                if (empty(array_filter($row))) {
+                    continue;
+                }
+
+                while (count($row) < count($headers)) {
+                    $row[] = '';
+                }
+
+                $getCol = function ($key) use ($row, $columnMap) {
+                    $idx = $columnMap[$key] ?? null;
+                    return $idx !== null ? trim($row[$idx] ?? '') : '';
+                };
+
+                $vendorId = $getCol('vendor_id');
+                $orderDate = $getCol('order_date');
+                $productSku = $getCol('product_sku');
+                $productId = $getCol('product_id');
+                $quantity = $getCol('quantity');
+                $unitCost = $getCol('unit_cost');
+
+                if (empty($vendorId) || empty($orderDate) || (empty($productSku) && empty($productId)) || empty($quantity) || empty($unitCost)) {
+                    $errors[] = "Row {$rowNumber}: Missing required fields (vendor_id, order_date, product_sku or product_id, quantity, unit_cost)";
+                    continue;
+                }
+
+                $vendor = Vendor::find($vendorId);
+                if (!$vendor || !$vendor->is_active) {
+                    $errors[] = "Row {$rowNumber}: Invalid or inactive vendor ID: {$vendorId}";
+                    continue;
+                }
+
+                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $orderDate) || !strtotime($orderDate)) {
+                    $errors[] = "Row {$rowNumber}: Invalid order_date format. Use YYYY-MM-DD.";
+                    continue;
+                }
+
+                if ($expectedDelivery = $getCol('expected_delivery_date')) {
+                    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $expectedDelivery) || !strtotime($expectedDelivery)) {
+                        $errors[] = "Row {$rowNumber}: Invalid expected_delivery_date format. Use YYYY-MM-DD.";
+                        continue;
+                    }
+                }
+
+                $product = null;
+                if (!empty($productSku)) {
+                    $product = Product::where('sku', $productSku)->where('is_active', true)->first();
+                    if (!$product && is_numeric($productSku)) {
+                        $product = Product::find($productSku);
+                    }
+                }
+                if (!$product && !empty($productId) && is_numeric($productId)) {
+                    $product = Product::find($productId);
+                }
+                if (!$product || !$product->is_active) {
+                    $identifier = $productSku ?: $productId ?: 'N/A';
+                    $errors[] = "Row {$rowNumber}: Product not found or inactive for SKU/ID: {$identifier}";
+                    continue;
+                }
+
+                if (!is_numeric($quantity) || (int) $quantity < 1) {
+                    $errors[] = "Row {$rowNumber}: Quantity must be a positive integer";
+                    continue;
+                }
+
+                if (!is_numeric($unitCost) || (float) $unitCost < 0) {
+                    $errors[] = "Row {$rowNumber}: Unit cost must be a non-negative number";
+                    continue;
+                }
+
+                $expectedDelivery = $getCol('expected_delivery_date');
+                $notes = $getCol('notes');
+                $poKey = "{$vendorId}|{$orderDate}|{$expectedDelivery}|{$notes}";
+
+                if (!isset($poGroups[$poKey])) {
+                    $poGroups[$poKey] = [
+                        'vendor_id' => (int) $vendorId,
+                        'order_date' => $orderDate,
+                        'expected_delivery_date' => $expectedDelivery ?: null,
+                        'notes' => $notes ?: null,
+                        'items' => [],
+                    ];
+                }
+
+                $poGroups[$poKey]['items'][] = [
+                    'product_id' => $product->id,
+                    'quantity' => (int) $quantity,
+                    'unit_cost' => (float) $unitCost,
+                ];
+            }
+
+            fclose($handle);
+
+            if (empty($poGroups)) {
+                return back()->withErrors(['csv_file' => 'No valid purchase order data found in CSV.']);
+            }
+
+            DB::beginTransaction();
+
+            foreach ($poGroups as $poData) {
+                $items = $poData['items'];
+                if (empty($items)) {
+                    continue;
+                }
+
+                $purchaseOrder = PurchaseOrder::create([
+                    'vendor_id' => $poData['vendor_id'],
+                    'created_by' => Auth::id(),
+                    'po_number' => OrderHelper::generatePONumber(),
+                    'order_date' => $poData['order_date'],
+                    'expected_delivery_date' => $poData['expected_delivery_date'],
+                    'status' => 'pending',
+                    'notes' => $poData['notes'],
+                    'total_amount' => 0,
+                ]);
+
+                $total = 0;
+                foreach ($items as $item) {
+                    $itemTotal = $item['quantity'] * $item['unit_cost'];
+                    PurchaseOrderItem::create([
+                        'purchase_order_id' => $purchaseOrder->id,
+                        'product_id' => $item['product_id'],
+                        'quantity' => $item['quantity'],
+                        'unit_cost' => $item['unit_cost'],
+                        'total_cost' => $itemTotal,
+                        'received_quantity' => 0,
+                    ]);
+                    $total += $itemTotal;
+                }
+
+                $purchaseOrder->update(['total_amount' => $total]);
+                $createdCount++;
+            }
+
+            DB::commit();
+
+            $message = "Successfully created {$createdCount} purchase order(s).";
+            if (!empty($errors)) {
+                return redirect()->route('admin.purchase-orders.import')
+                    ->with('success', $message)
+                    ->with('import_errors', $errors);
+            }
+
+            return redirect()->route('admin.purchase-orders.index')
+                ->with('success', $message);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Purchase order CSV import error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return back()->withErrors(['csv_file' => 'An error occurred during import: ' . $e->getMessage()]);
         }
     }
 
