@@ -219,6 +219,42 @@ class PurchaseOrderController extends Controller
     }
 
     /**
+     * Download all products list as CSV (for reference when creating purchase order imports)
+     */
+    public function downloadProductsList()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="products_list_' . date('Y-m-d') . '.csv"',
+        ];
+
+        $callback = function () {
+            $file = fopen('php://output', 'w');
+
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            fputcsv($file, ['product_id', 'product_sku', 'product_name']);
+
+            Product::where('is_active', true)
+                ->orderBy('name')
+                ->select('id', 'sku', 'name')
+                ->chunk(500, function ($products) use ($file) {
+                    foreach ($products as $product) {
+                        fputcsv($file, [
+                            $product->id,
+                            $product->sku ?? '',
+                            $product->name ?? '',
+                        ]);
+                    }
+                });
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
      * Import purchase orders from CSV
      */
     public function import(Request $request)

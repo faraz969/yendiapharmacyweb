@@ -57,6 +57,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/purchase-orders/import', [PurchaseOrderController::class, 'showImportForm'])->name('purchase-orders.import');
         Route::post('/purchase-orders/import', [PurchaseOrderController::class, 'import'])->name('purchase-orders.import.store');
         Route::get('/purchase-orders/import/template', [PurchaseOrderController::class, 'downloadTemplate'])->name('purchase-orders.import.template');
+        Route::get('/purchase-orders/import/products-csv', [PurchaseOrderController::class, 'downloadProductsList'])->name('purchase-orders.import.products-csv');
 
         Route::resource('purchase-orders', PurchaseOrderController::class);
         Route::post('/purchase-orders/{purchaseOrder}/receive', [PurchaseOrderController::class, 'receive'])->name('purchase-orders.receive');

@@ -128,8 +128,14 @@
 
                 <div class="card mt-3">
                     <div class="card-body">
-                        <h6 class="card-title"><i class="fas fa-box me-2"></i>Sample Product SKUs</h6>
-                        <ul class="list-unstyled mb-0" style="max-height: 200px; overflow-y: auto;">
+                        <h6 class="card-title"><i class="fas fa-box me-2"></i>Product Reference</h6>
+                        <p class="text-muted small">Download full list of products with SKUs for reference when preparing your import file.</p>
+                        <a href="{{ route('admin.purchase-orders.import.products-csv') }}" class="btn btn-outline-primary w-100 mb-3">
+                            <i class="fas fa-file-csv me-2"></i>Download All Products (CSV)
+                        </a>
+                        <hr>
+                        <p class="mb-2 small text-muted">Sample SKUs ({{ $products->count() }} total):</p>
+                        <ul class="list-unstyled mb-0" style="max-height: 150px; overflow-y: auto;">
                             @forelse($products->take(10) as $product)
                                 <li><code>{{ $product->sku }}</code> - {{ Str::limit($product->name, 25) }}</li>
                             @empty
