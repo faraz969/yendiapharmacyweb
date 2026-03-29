@@ -30,6 +30,7 @@ use App\Http\Controllers\Delivery\DeliveryDashboardController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/search/suggestions', [ProductController::class, 'searchSuggestions'])->name('products.search.suggestions');
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/category/{id}', [ProductController::class, 'category'])->name('products.category');
 

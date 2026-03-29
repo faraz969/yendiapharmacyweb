@@ -433,6 +433,55 @@
         .search-icon-wrapper button:hover {
             color: #158d43 !important;
         }
+
+        .header-search-suggestions {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: #fff;
+            border: 1px solid #a5d6a7;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            max-height: 320px;
+            overflow-y: auto;
+            z-index: 1050;
+            display: none;
+        }
+
+        .header-search-suggestions.is-open {
+            display: block;
+        }
+
+        .header-search-suggestions button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 10px 14px;
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .header-search-suggestions button:last-child {
+            border-bottom: none;
+        }
+
+        .header-search-suggestions button:hover,
+        .header-search-suggestions button:focus {
+            background: #e8f5e9;
+            outline: none;
+        }
+
+        .header-search-suggestions .hint {
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            color: #888;
+        }
     </style>
     @stack('styles')
 </head>
@@ -513,11 +562,11 @@
                 
                 <!-- Search Bar -->
                 <div class="col-12 col-md-7 col-lg-7 order-3 order-md-2">
-                    <form action="{{ route('products.index') }}" method="GET" class="search-bar-form" style="margin: 0 10px;">
-                        <div class="search-bar-container" style="display: flex; align-items: center; background: white; border: 1px solid #a5d6a7; border-radius: 8px; padding: 0; overflow: hidden;">
+                    <form action="{{ route('products.index') }}" method="GET" class="search-bar-form" style="margin: 0 10px;" data-suggestions-url="{{ route('products.search.suggestions') }}">
+                        <div class="search-bar-container" style="display: flex; align-items: center; background: white; border: 1px solid #a5d6a7; border-radius: 8px; padding: 0; overflow: visible;">
                             <!-- All Categories Dropdown -->
                             <div class="search-category-dropdown" style="position: relative; padding: 10px 15px; border-right: 1px solid #e5e7eb;">
-                                <select name="category" class="form-select border-0 shadow-none" style="padding: 0; font-size: 0.95rem; color: #1e3a8a; background: transparent; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23999\"><path d=\"M7 10l5 5 5-5z\"/></svg>'); background-repeat: no-repeat; background-position: right 0 center; background-size: 16px; padding-right: 25px;">
+                                <select name="category" id="headerSearchCategory" class="form-select border-0 shadow-none" style="padding: 0; font-size: 0.95rem; color: #1e3a8a; background: transparent; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23999\"><path d=\"M7 10l5 5 5-5z\"/></svg>'); background-repeat: no-repeat; background-position: right 0 center; background-size: 16px; padding-right: 25px;">
                                     <option value="">All Categories</option>
                                     @if(isset($categories))
                                         @foreach($categories as $category)
@@ -528,7 +577,8 @@
                             </div>
                             <!-- Search Input -->
                             <div class="search-input-wrapper" style="flex: 1; position: relative;">
-                                <input type="text" name="search" class="form-control border-0 shadow-none" placeholder="Search for items..." value="{{ request('search') }}" style="padding: 10px 15px; font-size: 0.95rem; background: transparent;">
+                                <input type="text" name="search" id="headerSearchInput" class="form-control border-0 shadow-none" placeholder="Search for items..." value="{{ request('search') }}" autocomplete="off" style="padding: 10px 15px; font-size: 0.95rem; background: transparent;">
+                                <div id="headerSearchSuggestions" class="header-search-suggestions" role="listbox" aria-label="Search suggestions"></div>
                             </div>
                             <!-- Search Icon -->
                             <div class="search-icon-wrapper" style="padding: 10px 15px; border-left: 1px solid #e5e7eb;">
@@ -895,6 +945,91 @@
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var searchForm = document.querySelector('.search-bar-form[data-suggestions-url]');
+            var searchInput = document.getElementById('headerSearchInput');
+            var suggestionsEl = document.getElementById('headerSearchSuggestions');
+            var categorySelect = document.getElementById('headerSearchCategory');
+            var debounceTimer = null;
+            var lastController = null;
+
+            function hideSuggestions() {
+                if (suggestionsEl) {
+                    suggestionsEl.classList.remove('is-open');
+                    suggestionsEl.innerHTML = '';
+                }
+            }
+
+            function showSuggestions(html) {
+                if (!suggestionsEl) return;
+                suggestionsEl.innerHTML = html;
+                suggestionsEl.classList.toggle('is-open', suggestionsEl.childNodes.length > 0);
+            }
+
+            if (searchForm && searchInput && suggestionsEl && searchForm.dataset.suggestionsUrl) {
+                var urlBase = searchForm.dataset.suggestionsUrl;
+
+                searchInput.addEventListener('input', function() {
+                    var q = (searchInput.value || '').trim();
+                    if (debounceTimer) clearTimeout(debounceTimer);
+                    if (lastController) lastController.abort();
+
+                    if (q.length < 2) {
+                        hideSuggestions();
+                        return;
+                    }
+
+                    debounceTimer = setTimeout(function() {
+                        lastController = new AbortController();
+                        var params = new URLSearchParams({ q: q });
+                        if (categorySelect && categorySelect.value) {
+                            params.set('category', categorySelect.value);
+                        }
+                        fetch(urlBase + '?' + params.toString(), {
+                            signal: lastController.signal,
+                            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                        })
+                            .then(function(r) { return r.json(); })
+                            .then(function(items) {
+                                if (!Array.isArray(items) || items.length === 0) {
+                                    showSuggestions('<div class="hint">No matching products</div>');
+                                    return;
+                                }
+                                var html = items.map(function(item) {
+                                    var label = String(item.label || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+                                    var href = String(item.url || '#').replace(/"/g, '&quot;');
+                                    return '<button type="button" role="option" class="header-search-suggestion-item" data-url="' + href + '">' + label + '</button>';
+                                }).join('');
+                                showSuggestions(html);
+                            })
+                            .catch(function() {
+                                hideSuggestions();
+                            });
+                    }, 280);
+                });
+
+                suggestionsEl.addEventListener('click', function(e) {
+                    var btn = e.target.closest('.header-search-suggestion-item');
+                    if (btn && btn.dataset.url) {
+                        window.location.href = btn.dataset.url;
+                    }
+                });
+
+                searchInput.addEventListener('blur', function() {
+                    setTimeout(hideSuggestions, 200);
+                });
+
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') hideSuggestions();
+                });
+
+                categorySelect && categorySelect.addEventListener('change', function() {
+                    searchInput.dispatchEvent(new Event('input'));
+                });
+            }
+        });
+    </script>
     <script>
         // Mobile menu toggle chevron rotation
         document.addEventListener('DOMContentLoaded', function() {

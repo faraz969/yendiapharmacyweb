@@ -88,6 +88,55 @@ class ProductController extends Controller
         return view('web.products.index', compact('products', 'categories'));
     }
 
+    /**
+     * JSON autocomplete for header search: "Product name (stock qty)"
+     */
+    public function searchSuggestions(Request $request)
+    {
+        $q = trim((string) $request->get('q', ''));
+        if (mb_strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $q);
+
+        $query = Product::query()
+            ->where('is_active', true)
+            ->where('is_expired', false)
+            ->where(function ($sub) use ($escaped) {
+                $sub->where('name', 'like', '%' . $escaped . '%')
+                    ->orWhere('sku', 'like', '%' . $escaped . '%');
+            })
+            ->orderBy('name')
+            ->limit(40);
+
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        $products = $query->get();
+        $showOutOfStock = \App\Models\Setting::shouldShowOutOfStockProducts();
+
+        $items = [];
+        foreach ($products as $product) {
+            $stock = (int) round((float) $product->total_stock);
+            if (!$showOutOfStock && $stock <= 0) {
+                continue;
+            }
+            $label = $product->name . ' (' . $stock . ')';
+            $items[] = [
+                'id' => $product->id,
+                'label' => $label,
+                'url' => route('products.show', $product->id),
+            ];
+            if (count($items) >= 12) {
+                break;
+            }
+        }
+
+        return response()->json($items);
+    }
+
     public function show($id)
     {
         $product = Product::where('is_active', true)
