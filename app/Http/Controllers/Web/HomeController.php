@@ -36,23 +36,61 @@ class HomeController extends Controller
             ->take(10)
             ->get();
 
-        $featuredProducts = Product::where('is_active', true)
-            ->where('is_expired', false)
-            ->with('category')
-            ->latest()
-            ->get();
-        
-        // Check if we should hide out of stock products
         $showOutOfStock = \App\Models\Setting::shouldShowOutOfStockProducts();
-        
-        // Filter out products with zero stock if setting is disabled
-        if (!$showOutOfStock) {
-            $featuredProducts = $featuredProducts->filter(function ($product) {
-                return $product->total_stock > 0;
-            });
+
+        $featuredCategoryIds = $featuredCategories->pluck('id')->filter()->values()->all();
+
+        // Mix products across featured categories so each filter tab can show matching items
+        $perCategoryLimit = 3;
+        $maxTotal = 24;
+
+        if (!empty($featuredCategoryIds)) {
+            $candidates = Product::where('is_active', true)
+                ->where('is_expired', false)
+                ->whereIn('category_id', $featuredCategoryIds)
+                ->with('category')
+                ->latest()
+                ->limit(200)
+                ->get();
+
+            if (!$showOutOfStock) {
+                $candidates = $candidates->filter(function ($product) {
+                    return $product->total_stock > 0;
+                })->values();
+            }
+
+            $byCategory = $candidates->groupBy('category_id');
+            $featuredProducts = collect();
+
+            foreach ($featuredCategoryIds as $catId) {
+                $slice = ($byCategory[$catId] ?? collect())->take($perCategoryLimit);
+                $featuredProducts = $featuredProducts->merge($slice);
+                if ($featuredProducts->count() >= $maxTotal) {
+                    break;
+                }
+            }
+
+            $featuredProducts = $featuredProducts->unique('id')->take($maxTotal)->values();
+        } else {
+            $featuredProducts = collect();
         }
-        
-        $featuredProducts = $featuredProducts->take(8);
+
+        if ($featuredProducts->isEmpty()) {
+            $featuredProducts = Product::where('is_active', true)
+                ->where('is_expired', false)
+                ->with('category')
+                ->latest()
+                ->limit(50)
+                ->get();
+
+            if (!$showOutOfStock) {
+                $featuredProducts = $featuredProducts->filter(function ($product) {
+                    return $product->total_stock > 0;
+                })->values();
+            }
+
+            $featuredProducts = $featuredProducts->take(8)->values();
+        }
 
         $categories = Category::where('is_active', true)
             ->orderBy('sort_order')

@@ -376,40 +376,39 @@ use Illuminate\Support\Facades\Storage;
                 const productContainer = document.getElementById('productCardsContainer');
                 const productScrollLeftBtn = document.getElementById('productScrollLeft');
                 const productScrollRightBtn = document.getElementById('productScrollRight');
-                
-                if (productContainer && productScrollLeftBtn && productScrollRightBtn) {
+
+                if (productScrollLeftBtn && productScrollRightBtn && productContainer) {
                     productScrollLeftBtn.addEventListener('click', function() {
                         productContainer.scrollBy({ left: -300, behavior: 'smooth' });
                     });
-                    
                     productScrollRightBtn.addEventListener('click', function() {
                         productContainer.scrollBy({ left: 300, behavior: 'smooth' });
                     });
-                    
-                    // Filter buttons
-                    document.querySelectorAll('.product-filter-btn').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            document.querySelectorAll('.product-filter-btn').forEach(b => b.classList.remove('active'));
-                            this.classList.add('active');
-                            const categoryId = this.getAttribute('data-category');
-                            
-                            // Filter products
-                            const productCards = document.querySelectorAll('.product-card-wrapper');
-                            productCards.forEach(card => {
-                                if (categoryId === 'all') {
-                                    card.style.display = 'block';
-                                } else {
-                                    const cardCategoryId = card.getAttribute('data-category-id');
-                                    if (cardCategoryId === categoryId) {
-                                        card.style.display = 'block';
-                                    } else {
-                                        card.style.display = 'none';
-                                    }
-                                }
-                            });
+                }
+
+                // Category filters (independent of scroll buttons)
+                document.querySelectorAll('.product-filter-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        document.querySelectorAll('.product-filter-btn').forEach(function(b) {
+                            b.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        var categoryId = String(this.getAttribute('data-category') || '');
+
+                        document.querySelectorAll('.product-card-wrapper').forEach(function(card) {
+                            var raw = card.getAttribute('data-category-id');
+                            var cardCat = raw === null || raw === '' ? '' : String(raw);
+
+                            if (categoryId === 'all') {
+                                card.style.removeProperty('display');
+                            } else if (cardCat === categoryId) {
+                                card.style.removeProperty('display');
+                            } else {
+                                card.style.display = 'none';
+                            }
                         });
                     });
-                }
+                });
             });
         </script>
     @endif
