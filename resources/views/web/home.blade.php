@@ -484,4 +484,3 @@ use Illuminate\Support\Facades\Storage;
     </section>
 </div>
 @endsection
-
