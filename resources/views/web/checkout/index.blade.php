@@ -321,9 +321,14 @@ function toggleDeliveryForm() {
     const deliveryForm = document.getElementById('deliveryForm');
     const savedAddresses = document.getElementById('savedAddresses');
     
+    const addressField = deliveryForm.querySelector('textarea[name="delivery_address"]');
+
     if (deliveryType && deliveryForm) {
         if (deliveryType.value === 'pickup') {
             deliveryForm.style.display = 'none';
+            if (addressField) {
+                addressField.removeAttribute('required');
+            }
             // Hide saved addresses section for pickup
             if (savedAddresses) {
                 savedAddresses.style.display = 'none';
@@ -334,6 +339,9 @@ function toggleDeliveryForm() {
             document.getElementById('total').textContent = subtotal.toFixed(2);
         } else {
             deliveryForm.style.display = 'block';
+            if (addressField) {
+                addressField.setAttribute('required', 'required');
+            }
             // Show saved addresses section for delivery
             if (savedAddresses) {
                 savedAddresses.style.display = 'block';
