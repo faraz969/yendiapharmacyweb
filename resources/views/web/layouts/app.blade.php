@@ -677,7 +677,7 @@
     </div>
 
     <!-- Main Header -->
-    <header class="main-header bg-white py-md-3 py-1">
+    <header class="main-header bg-white py-md-1 py-1">
         <div class="container">
             <div class="row align-items-center g-0 gx-md-2">
                 <!-- Mobile menu (opens sidebar) -->
