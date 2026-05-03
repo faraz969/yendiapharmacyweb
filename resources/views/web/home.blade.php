@@ -249,8 +249,8 @@ use Illuminate\Support\Facades\Storage;
                 </div>
                 
                 <!-- Product Cards Container -->
-                <div class="product-cards-wrapper" style="position: relative; overflow: hidden;">
-                    <div class="product-cards-container d-flex gap-3" id="productCardsContainer" style="overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;">
+                <div class="product-cards-wrapper" style="position: relative;">
+                    <div class="product-cards-container d-flex gap-3" id="productCardsContainer" style=" scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;">
                         @foreach($featuredProducts as $index => $product)
                             @php
                                 // Determine badge label - only show discount badge
