@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Storage;
                         <div class="container position-relative" style="z-index: 2;">
                             <div class="row align-items-center">
                                 <div class="col-md-6 col-lg-5">
-                                    <h1 class="display-4 fw-bold mb-3 hero-heading-purple" style="line-height: 1.15;">
+                                    <h1 class="fw-bold mb-3 hero-heading-purple" style="line-height: 1.15;">
                                         {{ $banner->title ?? 'Fresh & Healthy' }}<br>
                                     </h1>
                                     <p class="lead mb-4 hero-lead-text" style="font-weight: 500;">
