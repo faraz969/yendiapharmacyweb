@@ -92,67 +92,9 @@ use Illuminate\Support\Facades\Storage;
 @endif
 
 <div class="container">
-    <!-- Featured Categories Section -->
-    @if($featuredCategories->count() > 0)
-        <section class="featured-categories-section mb-5 py-4">
-            <div class="container">
-                <!-- Section Title -->
-                
-                
-                <!-- Category Icons Container -->
-                <div class="category-icons-wrapper" style="position: relative; overflow: visible; padding: 20px 0;">
-                    <div class="category-icons-container d-flex gap-4 justify-content-center flex-wrap" id="categoryIconsContainer">
-                        @foreach($featuredCategories as $index => $category)
-                            <a href="{{ route('products.category', $category->id) }}" class="text-decoration-none category-icon-link" style="flex: 0 0 auto; text-align: center; transition: transform 0.3s; padding: 10px;">
-                                <div class="category-icon-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                                    <!-- Round Icon -->
-                                    <div class="category-icon-circle" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; border: 3px solid #a5d6a7;">
-                                        @if($category->image)
-                                            <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" style="width: 70px; height: 70px; object-fit: contain; border-radius: 50%;">
-                                        @else
-                                            <i class="fas fa-folder" style="font-size: 2.5rem; color: #66bb6a;"></i>
-                                        @endif
-                                    </div>
-                                    <!-- Category Name -->
-                                    <h6 class="category-name mb-0 fw-semibold" style="color: #333; font-size: 0.9rem; max-width: 100px; text-align: center; line-height: 1.2;">
-                                        {{ $category->name }}
-                                    </h6>
-                                    <!-- Item Count -->
-                                    <p class="category-count mb-0 text-muted" style="font-size: 0.8rem; color: #666;">
-                                        {{ $category->products_count ?? 0 }} items
-                                    </p>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <style>
-            .category-icon-link:hover {
-                text-decoration: none;
-            }
-            
-            .category-icon-link:hover .category-icon-circle {
-                transform: scale(1.1);
-                box-shadow: 0 6px 20px rgba(21, 141, 67, 0.3);
-                z-index: 10;
-                position: relative;
-            }
-            
-            .category-icon-link:hover .category-name {
-                color: #158d43;
-            }
-            
-            .category-icon-wrapper {
-                position: relative;
-            }
-        </style>
-    @endif
 
-    <!-- Marketing Banners Section -->
-    @if(isset($marketingBanners) && $marketingBanners->count() > 0)
+<!-- Marketing Banners Section -->
+@if(isset($marketingBanners) && $marketingBanners->count() > 0)
         <section class="marketing-banners-section mb-5 py-4">
             <div class="container">
                 <div class="row g-4 justify-content-center">
@@ -215,6 +157,66 @@ use Illuminate\Support\Facades\Storage;
             }
         </style>
     @endif
+    <!-- Featured Categories Section -->
+    @if($featuredCategories->count() > 0)
+        <section class="featured-categories-section mb-5 py-4">
+            <div class="container">
+                <!-- Section Title -->
+                
+                
+                <!-- Category Icons Container -->
+                <div class="category-icons-wrapper" style="position: relative; overflow: visible; padding: 20px 0;">
+                    <div class="category-icons-container d-flex gap-4 justify-content-center flex-wrap" id="categoryIconsContainer">
+                        @foreach($featuredCategories as $index => $category)
+                            <a href="{{ route('products.category', $category->id) }}" class="text-decoration-none category-icon-link" style="flex: 0 0 auto; text-align: center; transition: transform 0.3s; padding: 10px;">
+                                <div class="category-icon-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                                    <!-- Round Icon -->
+                                    <div class="category-icon-circle" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; border: 3px solid #a5d6a7;">
+                                        @if($category->image)
+                                            <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" style="width: 70px; height: 70px; object-fit: contain; border-radius: 50%;">
+                                        @else
+                                            <i class="fas fa-folder" style="font-size: 2.5rem; color: #66bb6a;"></i>
+                                        @endif
+                                    </div>
+                                    <!-- Category Name -->
+                                    <h6 class="category-name mb-0 fw-semibold" style="color: #333; font-size: 0.9rem; max-width: 100px; text-align: center; line-height: 1.2;">
+                                        {{ $category->name }}
+                                    </h6>
+                                    <!-- Item Count -->
+                                    <p class="category-count mb-0 text-muted" style="font-size: 0.8rem; color: #666;">
+                                        {{ $category->products_count ?? 0 }} items
+                                    </p>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <style>
+            .category-icon-link:hover {
+                text-decoration: none;
+            }
+            
+            .category-icon-link:hover .category-icon-circle {
+                transform: scale(1.1);
+                box-shadow: 0 6px 20px rgba(21, 141, 67, 0.3);
+                z-index: 10;
+                position: relative;
+            }
+            
+            .category-icon-link:hover .category-name {
+                color: #158d43;
+            }
+            
+            .category-icon-wrapper {
+                position: relative;
+            }
+        </style>
+    @endif
+
+    
 
     <!-- Popular Products Section -->
     @if($featuredProducts->count() > 0)
