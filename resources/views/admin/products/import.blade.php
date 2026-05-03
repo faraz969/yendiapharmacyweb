@@ -16,6 +16,25 @@
             </div>
         @endif
 
+        @if(session('bulk_image_success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>{{ session('bulk_image_success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        @if(session('bulk_image_errors') && is_array(session('bulk_image_errors')) && count(session('bulk_image_errors')) > 0)
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong><i class="fas fa-exclamation-triangle me-2"></i>Image path update issues ({{ count(session('bulk_image_errors')) }}):</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <ul class="mb-0 mt-2" style="max-height: 300px; overflow-y: auto; font-size: 0.9rem;">
+                    @foreach(session('bulk_image_errors') as $err)
+                        <li class="mb-1">{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         @if(session('import_errors') && is_array(session('import_errors')) && count(session('import_errors')) > 0)
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <strong><i class="fas fa-exclamation-triangle me-2"></i>Import completed with errors ({{ count(session('import_errors')) }} errors):</strong>
@@ -64,6 +83,35 @@
                                 </button>
                                 <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
                                     <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mb-4 border-secondary" id="bulk-images">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="fas fa-images me-2"></i>Bulk update product image paths</h6>
+                        <p class="text-muted small mb-3">
+                            Upload a CSV to set storage paths for product images (same paths as under <code>storage/app/public</code>, e.g. <code>products/photo.jpg</code>).
+                            Use either <code>id</code> or <code>sku</code> per row (not both required). Multiple images: comma-separated in <code>image_url</code>. Leave <code>image_url</code> empty to clear images.
+                        </p>
+                        <form action="{{ route('admin.products.bulk-images.store') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="bulk_images_csv" class="form-label">CSV file <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control @error('bulk_images_csv') is-invalid @enderror"
+                                       id="bulk_images_csv" name="bulk_images_csv" accept=".csv,.txt" required>
+                                @error('bulk_images_csv')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-secondary">
+                                    <i class="fas fa-upload me-2"></i>Update image paths
+                                </button>
+                                <a href="{{ route('admin.products.bulk-images.template') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-download me-2"></i>Download template
                                 </a>
                             </div>
                         </form>

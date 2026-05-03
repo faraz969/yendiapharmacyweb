@@ -771,4 +771,166 @@ class ProductController extends Controller
         $value = strtolower(trim($value));
         return in_array($value, ['true', '1', 'yes', 'y', 'on']);
     }
+
+    /**
+     * CSV template: bulk-set product image storage paths (under storage/app/public).
+     */
+    public function downloadBulkImagePathsTemplate()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="product_image_paths_template.csv"',
+        ];
+
+        $callback = function () {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fputcsv($file, ['id', 'sku', 'image_url']);
+            fputcsv($file, ['42', '', 'products/example-one.jpg']);
+            fputcsv($file, ['', 'PRD-20250101-0001', 'products/a.jpg,products/b.jpg']);
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Apply image path updates from CSV (id or sku per row + image_url).
+     */
+    public function bulkUpdateImagePaths(Request $request)
+    {
+        $request->validate([
+            'bulk_images_csv' => 'required|file|mimes:csv,txt|max:10240',
+        ]);
+
+        $path = $request->file('bulk_images_csv')->getRealPath();
+        $errors = [];
+        $updated = 0;
+        $rowNumber = 1;
+
+        try {
+            $handle = fopen($path, 'r');
+            if ($handle === false) {
+                return back()->withErrors(['bulk_images_csv' => 'Unable to read the file.']);
+            }
+
+            $firstLine = fgets($handle);
+            if ($firstLine === false) {
+                fclose($handle);
+                return back()->withErrors(['bulk_images_csv' => 'File is empty.']);
+            }
+            rewind($handle);
+            if (substr($firstLine, 0, 3) === "\xEF\xBB\xBF") {
+                fseek($handle, 3);
+            }
+
+            $headerRow = fgetcsv($handle);
+            if (!$headerRow) {
+                fclose($handle);
+                return back()->withErrors(['bulk_images_csv' => 'Missing header row.']);
+            }
+
+            $headers = array_map(function ($header) {
+                $header = preg_replace('/^\xEF\xBB\xBF/', '', $header);
+                $header = trim($header);
+                $header = preg_replace('/[\x00-\x1F\x7F]/', '', $header);
+
+                return strtolower($header);
+            }, $headerRow);
+
+            if (!in_array('image_url', $headers, true)) {
+                fclose($handle);
+                return back()->withErrors(['bulk_images_csv' => 'CSV must include an image_url column.']);
+            }
+
+            $hasId = in_array('id', $headers, true);
+            $hasSku = in_array('sku', $headers, true);
+            if (!$hasId && !$hasSku) {
+                fclose($handle);
+                return back()->withErrors(['bulk_images_csv' => 'CSV must include an id column and/or a sku column.']);
+            }
+
+            while (($row = fgetcsv($handle)) !== false) {
+                $rowNumber++;
+                if (empty(array_filter($row, function ($v) {
+                    return $v !== null && trim((string) $v) !== '';
+                }))) {
+                    continue;
+                }
+
+                while (count($row) < count($headers)) {
+                    $row[] = '';
+                }
+
+                $data = [];
+                foreach ($headers as $index => $header) {
+                    $data[$header] = isset($row[$index]) ? trim((string) $row[$index]) : '';
+                }
+
+                $idRaw = $hasId ? ($data['id'] ?? '') : '';
+                $skuRaw = $hasSku ? ($data['sku'] ?? '') : '';
+                $imageCell = $data['image_url'] ?? '';
+
+                $product = null;
+                if ($idRaw !== '' && is_numeric($idRaw)) {
+                    $product = Product::query()->where('id', (int) $idRaw)->first();
+                    if (!$product) {
+                        $errors[] = "Row {$rowNumber}: No product with id {$idRaw}.";
+                        continue;
+                    }
+                } elseif ($skuRaw !== '') {
+                    $product = Product::query()->where('sku', $skuRaw)->first();
+                    if (!$product) {
+                        $errors[] = "Row {$rowNumber}: No product with sku '{$skuRaw}'.";
+                        continue;
+                    }
+                } else {
+                    $errors[] = "Row {$rowNumber}: Provide id or sku.";
+                    continue;
+                }
+
+                $paths = $this->parseImagePathsCell($imageCell);
+                $product->update(['images' => $paths]);
+                $updated++;
+            }
+
+            fclose($handle);
+
+            $message = $updated === 1
+                ? 'Updated image paths for 1 product.'
+                : "Updated image paths for {$updated} products.";
+
+            return redirect()->route('admin.products.import')
+                ->with('bulk_image_success', $message)
+                ->with('bulk_image_errors', $errors);
+        } catch (\Exception $e) {
+            Log::error('Bulk image path update failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->withErrors(['bulk_images_csv' => 'Update failed: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * @return string[]
+     */
+    private function parseImagePathsCell(string $cell): array
+    {
+        if ($cell === '') {
+            return [];
+        }
+
+        $paths = [];
+        foreach (explode(',', $cell) as $part) {
+            $part = trim($part);
+            if ($part === '') {
+                continue;
+            }
+            $paths[] = ltrim($part, '/');
+        }
+
+        return $paths;
+    }
 }

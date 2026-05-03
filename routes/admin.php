@@ -46,6 +46,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/products/import', [ProductController::class, 'showImportForm'])->name('products.import');
         Route::post('/products/import', [ProductController::class, 'import'])->name('products.import.store');
         Route::get('/products/import/template', [ProductController::class, 'downloadTemplate'])->name('products.import.template');
+        Route::get('/products/bulk-images/template', [ProductController::class, 'downloadBulkImagePathsTemplate'])->name('products.bulk-images.template');
+        Route::post('/products/bulk-images', [ProductController::class, 'bulkUpdateImagePaths'])->name('products.bulk-images.store');
         Route::post('/products/bulk-destroy', [ProductController::class, 'bulkDestroy'])->name('products.bulk-destroy');
         Route::post('/products/bulk-status', [ProductController::class, 'bulkUpdateStatus'])->name('products.bulk-status');
         Route::post('/products/activate-all', [ProductController::class, 'activateAll'])->name('products.activate-all');

@@ -17,6 +17,9 @@
                     <i class="fas fa-check-circle me-2"></i>Activate All
                 </button>
             </form>
+            <a href="{{ route('admin.products.import') }}#bulk-images" class="btn btn-outline-secondary">
+                <i class="fas fa-images me-2"></i>Bulk image paths
+            </a>
             <a href="{{ route('admin.products.import') }}" class="btn btn-outline-primary">
                 <i class="fas fa-file-csv me-2"></i>Import CSV
             </a>
