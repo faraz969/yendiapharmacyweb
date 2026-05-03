@@ -760,6 +760,7 @@ use Illuminate\Support\Facades\Storage;
 
             .hero-subscribe-form {
                 max-width: none;
+                padding:40px;
             }
             .hero-subscribe-pill {
                 flex-direction: column;
