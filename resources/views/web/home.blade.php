@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
                     @php
                         $bannerImage = $banner && $banner->image ? Storage::url($banner->image) : null;
                     @endphp
-                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }} hero-carousel-item" style="background-image: url('{{ $bannerImage }}'); background-position: center center; background-size: cover; background-repeat: no-repeat;">
+                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }} hero-carousel-item" style="background-image: url('{{ $bannerImage }}');">
                         <div class="container position-relative hero-carousel-content" style="z-index: 2;">
                             <div class="row align-items-center">
                                 <div class="col-12 col-md-6 col-lg-5">
@@ -622,6 +622,9 @@ use Illuminate\Support\Facades\Storage;
             position: relative;
             min-height: 420px;
             padding: 72px 0;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
         }
         .hero-banner-section .carousel-inner .hero-carousel-item.active {
             display: flex !important;
@@ -739,6 +742,10 @@ use Illuminate\Support\Facades\Storage;
             
             .hero-carousel-item {
                 max-width: 100%;
+                /* contain = full image visible (no cover crop); soft fill for letterboxing */
+                background-size: cover;
+                background-color: #e8f5e9;
+                background-position: center center;
                 min-height: min(72vh, 540px);
                 padding: 40px 0 52px;
             }
