@@ -16,11 +16,11 @@ use Illuminate\Support\Facades\Storage;
                     @php
                         $bannerImage = $banner && $banner->image ? Storage::url($banner->image) : null;
                     @endphp
-                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }} hero-carousel-item" style="background-image: linear-gradient(105deg, rgba(232, 245, 233, 0.95) 0%, rgba(255,255,255,0.88) 45%, rgba(255,255,255,0.75) 100%), url('{{ $bannerImage }}'); background-blend-mode: normal, normal; background-position: center center; background-size: cover; background-repeat: no-repeat; padding: 72px 0; position: relative; min-height: 420px;">
+                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }} hero-carousel-item" style="background-image:  url('{{ $bannerImage }}'); background-blend-mode: normal, normal; background-position: center center; background-size: cover; background-repeat: no-repeat; padding: 72px 0; position: relative; min-height: 420px;">
                         <div class="container position-relative" style="z-index: 2;">
                             <div class="row align-items-center">
                                 <div class="col-md-6 col-lg-5">
-                                    <h1 class="fw-bold mb-3 hero-heading-purple" style="line-height: 1.15;">
+                                    <h1 class="display-4 fw-bold mb-3 hero-heading-purple" style="line-height: 1.15;">
                                         {{ $banner->title ?? 'Fresh & Healthy' }}<br>
                                     </h1>
                                     <p class="lead mb-4 hero-lead-text" style="font-weight: 500;">
@@ -95,14 +95,15 @@ use Illuminate\Support\Facades\Storage;
 
 <!-- Marketing Banners Section -->
 @if(isset($marketingBanners) && $marketingBanners->count() > 0)
+        @php $homeMarketingBanners = $marketingBanners->take(3); @endphp
         <section class="marketing-banners-section mb-1 py-1">
-            <div class="container">
+            <!-- Desktop: grid -->
+            <div class="d-none d-md-block">
                 <div class="row g-4 justify-content-center">
-                    @foreach($marketingBanners->take(3) as $marketingBanner)
-                        <div class="col-lg-4 col-md-4 col-sm-12">
+                    @foreach($homeMarketingBanners as $marketingBanner)
+                        <div class="col-lg-4 col-md-4">
                             <div class="marketing-banner-card" style="background-color: {{ $marketingBanner->background_color ?? '#f5f5f5' }}; border-radius: 15px; overflow: hidden; padding: 25px 20px; position: relative; height: 200px; display: flex; align-items: center; transition: transform 0.3s, box-shadow 0.3s;">
                                 <div class="row align-items-center w-100 g-0">
-                                    <!-- Left Side: Text Content -->
                                     <div class="col-6">
                                         <h3 class="mb-2 fw-bold" style="color: #1f2937; font-size: 1rem; line-height: 1.3;">
                                             {{ $marketingBanner->title }}
@@ -117,7 +118,6 @@ use Illuminate\Support\Facades\Storage;
                                             <i class="fas fa-arrow-right ms-2"></i>
                                         </a>
                                     </div>
-                                    <!-- Right Side: Product Image -->
                                     <div class="col-6 text-center">
                                         @if($marketingBanner->image)
                                             <img src="{{ asset('storage/' . $marketingBanner->image) }}" alt="{{ $marketingBanner->title }}" style="max-width: 100%; max-height: 180px; object-fit: contain;">
@@ -133,6 +133,52 @@ use Illuminate\Support\Facades\Storage;
                     @endforeach
                 </div>
             </div>
+
+            <!-- Mobile: carousel slides -->
+            <div id="marketingBannersCarousel" class="carousel slide d-md-none home-mobile-carousel" data-bs-ride="carousel" data-bs-interval="6000" data-bs-touch="true">
+                <div class="carousel-inner">
+                    @foreach($homeMarketingBanners as $index => $marketingBanner)
+                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                            <div class="px-1">
+                                <div class="marketing-banner-card marketing-banner-card--mobile" style="background-color: {{ $marketingBanner->background_color ?? '#f5f5f5' }}; border-radius: 15px; overflow: hidden; padding: 20px 16px; position: relative; min-height: 200px; display: flex; align-items: center;">
+                                    <div class="row align-items-center w-100 g-0">
+                                        <div class="col-6">
+                                            <h3 class="mb-2 fw-bold" style="color: #1f2937; font-size: 0.95rem; line-height: 1.3;">
+                                                {{ $marketingBanner->title }}
+                                            </h3>
+                                            @if($marketingBanner->description)
+                                                <p class="mb-2 text-muted" style="font-size: 0.8rem; line-height: 1.45;">
+                                                    {{ Str::limit($marketingBanner->description, 45) }}
+                                                </p>
+                                            @endif
+                                            <a href="{{ $marketingBanner->link ?? '#' }}" class="btn text-white fw-semibold d-inline-flex align-items-center btn-sm" style="background-color: #158d43; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; white-space: nowrap;">
+                                                <span>{{ $marketingBanner->button_text ?? 'Shop Now' }}</span>
+                                                <i class="fas fa-arrow-right ms-2"></i>
+                                            </a>
+                                        </div>
+                                        <div class="col-6 text-center">
+                                            @if($marketingBanner->image)
+                                                <img src="{{ asset('storage/' . $marketingBanner->image) }}" alt="{{ $marketingBanner->title }}" class="img-fluid" style="max-height: 160px; object-fit: contain;">
+                                            @else
+                                                <div style="width: 100%; min-height: 140px; display: flex; align-items: center; justify-content: center; color: #999;">
+                                                    <i class="fas fa-image fa-2x"></i>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                @if($homeMarketingBanners->count() > 1)
+                    <div class="carousel-indicators home-marketing-indicators mb-0">
+                        @foreach($homeMarketingBanners as $index => $marketingBanner)
+                            <button type="button" data-bs-target="#marketingBannersCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}"></button>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </section>
         
         <style>
@@ -145,6 +191,11 @@ use Illuminate\Support\Facades\Storage;
                 box-shadow: 0 12px 30px rgba(0,0,0,0.15) !important;
             }
             
+            .marketing-banner-card--mobile:hover {
+                transform: none;
+                box-shadow: none !important;
+            }
+            
             .marketing-banner-card .btn {
                 white-space: nowrap !important;
                 overflow: hidden;
@@ -155,22 +206,37 @@ use Illuminate\Support\Facades\Storage;
                 background-color: #0f6b32 !important;
                 transform: translateX(5px);
             }
+            
+            .home-mobile-carousel .carousel-indicators.home-marketing-indicators {
+                position: relative;
+                margin-top: 0.75rem;
+                margin-bottom: 0;
+            }
+            
+            .home-mobile-carousel .carousel-indicators.home-marketing-indicators button {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: rgba(21, 141, 67, 0.35);
+                border: none;
+                margin: 0 4px;
+            }
+            
+            .home-mobile-carousel .carousel-indicators.home-marketing-indicators button.active {
+                background-color: #158d43;
+            }
         </style>
     @endif
     <!-- Featured Categories Section -->
     @if($featuredCategories->count() > 0)
         <section class="featured-categories-section mb-1 py-1">
-            <div class="container">
-                <!-- Section Title -->
-                
-                
-                <!-- Category Icons Container -->
+            <!-- Desktop: wrapped grid -->
+            <div class="d-none d-md-block">
                 <div class="category-icons-wrapper" style="position: relative; overflow: visible; padding: 20px 0;">
-                    <div class="category-icons-container d-flex gap-4 justify-content-center flex-wrap" id="categoryIconsContainer">
-                        @foreach($featuredCategories as $index => $category)
+                    <div class="category-icons-container d-flex gap-4 justify-content-center flex-wrap">
+                        @foreach($featuredCategories as $category)
                             <a href="{{ route('products.category', $category->id) }}" class="text-decoration-none category-icon-link" style="flex: 0 0 auto; text-align: center; transition: transform 0.3s; padding: 10px;">
                                 <div class="category-icon-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                                    <!-- Round Icon -->
                                     <div class="category-icon-circle" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; border: 3px solid #a5d6a7;">
                                         @if($category->image)
                                             <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" style="width: 70px; height: 70px; object-fit: contain; border-radius: 50%;">
@@ -178,11 +244,9 @@ use Illuminate\Support\Facades\Storage;
                                             <i class="fas fa-folder" style="font-size: 2.5rem; color: #66bb6a;"></i>
                                         @endif
                                     </div>
-                                    <!-- Category Name -->
                                     <h6 class="category-name mb-0 fw-semibold" style="color: #333; font-size: 0.9rem; max-width: 100px; text-align: center; line-height: 1.2;">
                                         {{ $category->name }}
                                     </h6>
-                                    <!-- Item Count -->
                                     <p class="category-count mb-0 text-muted" style="font-size: 0.8rem; color: #666;">
                                         {{ $category->products_count ?? 0 }} items
                                     </p>
@@ -191,6 +255,54 @@ use Illuminate\Support\Facades\Storage;
                         @endforeach
                     </div>
                 </div>
+            </div>
+
+            <!-- Mobile: carousel (one category per slide) -->
+            <div id="featuredCategoriesCarousel" class="carousel slide d-md-none home-categories-carousel" data-bs-ride="carousel" data-bs-interval="5000" data-bs-touch="true">
+                <div class="carousel-inner py-2">
+                    @foreach($featuredCategories as $index => $category)
+                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                            <div class="d-flex justify-content-center px-3">
+                                <a href="{{ route('products.category', $category->id) }}" class="text-decoration-none category-icon-link category-icon-link--mobile-slide text-center">
+                                    <div class="category-icon-wrapper mx-auto" style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                                        <div class="category-icon-circle" style="width: 110px; height: 110px; border-radius: 50%; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #a5d6a7;">
+                                            @if($category->image)
+                                                <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" style="width: 76px; height: 76px; object-fit: contain; border-radius: 50%;">
+                                            @else
+                                                <i class="fas fa-folder" style="font-size: 2.75rem; color: #66bb6a;"></i>
+                                            @endif
+                                        </div>
+                                        <h6 class="category-name mb-0 fw-semibold px-2" style="color: #333; font-size: 0.95rem; max-width: 260px; line-height: 1.25;">
+                                            {{ $category->name }}
+                                        </h6>
+                                        <p class="category-count mb-0 text-muted" style="font-size: 0.85rem; color: #666;">
+                                            {{ $category->products_count ?? 0 }} items
+                                        </p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                @if($featuredCategories->count() > 1)
+                    <button class="carousel-control-prev home-categories-carousel-control" type="button" data-bs-target="#featuredCategoriesCarousel" data-bs-slide="prev">
+                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: #158d43; color: #fff;" aria-hidden="true">
+                            <i class="fas fa-chevron-left small"></i>
+                        </span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next home-categories-carousel-control" type="button" data-bs-target="#featuredCategoriesCarousel" data-bs-slide="next">
+                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: #158d43; color: #fff;" aria-hidden="true">
+                            <i class="fas fa-chevron-right small"></i>
+                        </span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    <div class="carousel-indicators home-categories-indicators mb-0">
+                        @foreach($featuredCategories as $index => $category)
+                            <button type="button" data-bs-target="#featuredCategoriesCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}" aria-label="{{ $category->name }}"></button>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </section>
         
@@ -210,8 +322,48 @@ use Illuminate\Support\Facades\Storage;
                 color: #158d43;
             }
             
+            .category-icon-link--mobile-slide:active .category-icon-circle {
+                transform: scale(0.98);
+            }
+            
             .category-icon-wrapper {
                 position: relative;
+            }
+            
+            .home-categories-carousel {
+                position: relative;
+                min-height: 220px;
+            }
+            
+            .home-categories-carousel .carousel-indicators.home-categories-indicators {
+                position: relative;
+                margin-top: 0.5rem;
+            }
+            
+            .home-categories-carousel .carousel-indicators.home-categories-indicators button {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: rgba(21, 141, 67, 0.35);
+                border: none;
+                margin: 0 3px;
+            }
+            
+            .home-categories-carousel .carousel-indicators.home-categories-indicators button.active {
+                background-color: #158d43;
+            }
+            
+            .home-categories-carousel-control {
+                width: 12%;
+                opacity: 1;
+            }
+            
+            .home-categories-carousel-control.carousel-control-prev {
+                left: -4px;
+            }
+            
+            .home-categories-carousel-control.carousel-control-next {
+                right: -4px;
             }
         </style>
     @endif
