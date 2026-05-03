@@ -694,7 +694,7 @@
                 </div>
                 
                 <!-- Search Bar -->
-                <div class="col-12 col-md-7 col-lg-7 order-3 order-md-2 px-2 px-md-3">
+                <div class="col-12 col-md-6 col-lg-6 order-3 order-md-2 px-2 px-md-3">
                     <form action="{{ route('products.index') }}" method="GET" class="search-bar-form" style="margin: 0;" data-suggestions-url="{{ route('products.search.suggestions') }}">
                         <div class="search-bar-container header-search-pill" style="display: flex; align-items: center;">
                             <!-- All Categories Dropdown -->
@@ -722,7 +722,7 @@
                 </div>
                 
                 <!-- User Actions -->
-                <div class="col-auto col-md-3 col-lg-3 order-2 order-md-3 pe-1 pe-md-2">
+                <div class="col-auto col-md-4 col-lg-4 order-2 order-md-3 pe-1 pe-md-2">
                     <div class="d-flex align-items-center justify-content-end gap-1 gap-md-3 flex-nowrap">
                         @if($whatsappDigits !== '')
                             <a href="https://wa.me/{{ $whatsappDigits }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none d-none d-lg-flex align-items-center" style="color: #4b5563;">
