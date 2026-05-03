@@ -95,7 +95,7 @@ use Illuminate\Support\Facades\Storage;
 
 <!-- Marketing Banners Section -->
 @if(isset($marketingBanners) && $marketingBanners->count() > 0)
-        <section class="marketing-banners-section mb-5 py-4">
+        <section class="marketing-banners-section mb-1 py-1">
             <div class="container">
                 <div class="row g-4 justify-content-center">
                     @foreach($marketingBanners->take(3) as $marketingBanner)
@@ -159,7 +159,7 @@ use Illuminate\Support\Facades\Storage;
     @endif
     <!-- Featured Categories Section -->
     @if($featuredCategories->count() > 0)
-        <section class="featured-categories-section mb-5 py-4">
+        <section class="featured-categories-section mb-1 py-1">
             <div class="container">
                 <!-- Section Title -->
                 
@@ -220,7 +220,7 @@ use Illuminate\Support\Facades\Storage;
 
     <!-- Popular Products Section -->
     @if($featuredProducts->count() > 0)
-        <section class="popular-products-section mb-5 py-4">
+        <section class="popular-products-section mb-1 py-1">
             <div class="container">
                 <!-- Section Title -->
                 
@@ -490,7 +490,7 @@ use Illuminate\Support\Facades\Storage;
     </style>
 
     <!-- Trust / features bar -->
-    <section class="trust-bar-home mb-5 py-4">
+    <section class="trust-bar-home mb-1 py-1">
         <div class="container">
             <div class="row g-4 justify-content-center trust-bar-inner">
                 <div class="col-md-4 text-center">
