@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 @section('content')
 <!-- Hero Banner Section -->
 @if($banners->count() > 0)
-    <section class="hero-banner-section mb-4 hero-goodlife" style="margin-top:4px;  overflow: hidden; position: relative; min-height: 420px;">
+    <section class="hero-banner-section mb-4 hero-goodlife w-100" style="margin-top:4px; overflow: hidden; position: relative; min-height: 420px; max-width: 100%;">
         <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
             <div class="carousel-inner">
                 @foreach($banners as $index => $banner)
@@ -91,7 +91,7 @@ use Illuminate\Support\Facades\Storage;
     </section>
 @endif
 
-<div class="container">
+<div class="container home-page-container">
 
 <!-- Marketing Banners Section -->
 @if(isset($marketingBanners) && $marketingBanners->count() > 0)
@@ -354,16 +354,17 @@ use Illuminate\Support\Facades\Storage;
             }
             
             .home-categories-carousel-control {
-                width: 12%;
+                width: 2.5rem;
+                min-width: 2.5rem;
                 opacity: 1;
             }
             
             .home-categories-carousel-control.carousel-control-prev {
-                left: -4px;
+                left: 0;
             }
             
             .home-categories-carousel-control.carousel-control-next {
-                right: -4px;
+                right: 0;
             }
         </style>
     @endif
@@ -373,7 +374,7 @@ use Illuminate\Support\Facades\Storage;
     <!-- Popular Products Section -->
     @if($featuredProducts->count() > 0)
         <section class="popular-products-section mb-1 py-1">
-            <div class="container">
+            <div class="w-100 px-0">
                 <!-- Section Title -->
                 
                 
@@ -401,8 +402,8 @@ use Illuminate\Support\Facades\Storage;
                 </div>
                 
                 <!-- Product Cards Container -->
-                <div class="product-cards-wrapper" style="position: relative;">
-                    <div class="product-cards-container d-flex gap-3" id="productCardsContainer" style=" scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;">
+                <div class="product-cards-wrapper">
+                    <div class="product-cards-container d-flex gap-3" id="productCardsContainer" style="overflow-x: auto; max-width: 100%; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;">
                         @foreach($featuredProducts as $index => $product)
                             @php
                                 // Determine badge label - only show discount badge
@@ -478,6 +479,16 @@ use Illuminate\Support\Facades\Storage;
         </section>
         
         <style>
+            .product-cards-wrapper {
+                position: relative;
+                max-width: 100%;
+                overflow: hidden;
+            }
+            
+            .product-cards-container {
+                -webkit-overflow-scrolling: touch;
+            }
+            
             .product-cards-container::-webkit-scrollbar {
                 display: none;
             }
@@ -594,10 +605,42 @@ use Illuminate\Support\Facades\Storage;
             box-shadow: 0 4px 14px rgba(21, 141, 67, 0.35);
         }
         .hero-carousel-btn.carousel-control-prev {
-            left: 12px;
+            left: 8px;
         }
         .hero-carousel-btn.carousel-control-next {
-            right: 12px;
+            right: 8px;
+        }
+        
+        @media (max-width: 767.98px) {
+            .hero-banner-section,
+            .hero-banner-section #bannerCarousel,
+            .hero-banner-section .carousel-inner {
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+            
+            .hero-carousel-item {
+                max-width: 100%;
+            }
+            
+            .hero-carousel-btn.carousel-control-prev {
+                left: 4px;
+            }
+            
+            .hero-carousel-btn.carousel-control-next {
+                right: 4px;
+            }
+            
+            .home-page-container {
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+            
+            .home-mobile-carousel,
+            .home-categories-carousel {
+                max-width: 100%;
+                overflow: hidden;
+            }
         }
         .hero-carousel-dots {
             margin-bottom: 1.25rem;
