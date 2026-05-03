@@ -42,9 +42,29 @@
             background-color: #ffffff;
         }
         
-        /* Top Utility Bar */
+        /* Top Utility Bar (layout: tagline left, links right — original light colors) */
         .top-utility-bar {
-            font-size: 0.875rem;
+            font-size: 0.8125rem;
+        }
+        
+        .top-bar-premium {
+            background: #158d43;
+            border-bottom: 1px solid #e5e7eb !important;
+            color: white;
+        }
+        
+        .top-bar-premium a {
+            color: white;
+        }
+        
+        .top-bar-premium a:hover {
+            color: var(--primary-color) !important;
+        }
+        
+        .top-bar-premium .top-bar-sep {
+            color: #d1d5db;
+            margin: 0 0.35rem;
+            user-select: none;
         }
         
         .top-utility-bar a:hover {
@@ -181,7 +201,52 @@
         
         /* Main Header */
         .main-header {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+        }
+        
+        .header-search-pill {
+            border: 1px solid #a5d6a7 !important;
+            border-radius: 999px !important;
+            overflow: visible !important;
+            background: #fff !important;
+        }
+        
+        .header-search-pill .search-category-dropdown {
+            border-right: 1px solid #e5e7eb !important;
+        }
+        
+        .btn-search-primary {
+            background: var(--green-color) !important;
+            color: #fff !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.5rem 1.35rem !important;
+            border-radius: 999px !important;
+            border: none !important;
+            white-space: nowrap;
+            transition: background 0.2s, transform 0.15s;
+        }
+        
+        .btn-search-primary:hover {
+            background: #0f6b32 !important;
+            color: #fff !important;
+        }
+        
+        .cart-badge-header {
+            background-color: var(--green-color) !important;
+        }
+        
+        .browse-categories-btn {
+            background: transparent !important;
+            color: var(--text-dark) !important;
+            border: none !important;
+            font-weight: 700 !important;
+        }
+        
+        .browse-categories-btn:hover,
+        .browse-categories-btn:focus {
+            color: var(--green-color) !important;
+            background: rgba(21, 141, 67, 0.08) !important;
         }
         
         .main-header .form-select,
@@ -201,14 +266,14 @@
         
         /* Main Navigation */
         .main-navbar {
-            background: var(--green-color) !important;
+            background: #fff !important;
         }
         
         .main-navbar .nav-link {
             color: var(--text-dark) !important;
-            padding: 1rem 1.5rem !important;
-            font-weight: 500;
-            transition: color 0.3s;
+            padding: 0.65rem 1rem !important;
+            font-weight: normal;
+            transition: color 0.2s;
         }
         
         .main-navbar .nav-link:hover {
@@ -419,7 +484,7 @@
         
         .search-bar-container:focus-within {
             border-color: #158d43 !important;
-            box-shadow: 0 0 0 2px rgba(21, 141, 67, 0.1);
+            box-shadow: 0 0 0 2px rgba(21, 141, 67, 0.12);
         }
         
         .search-category-dropdown select:focus {
@@ -486,62 +551,65 @@
     @stack('styles')
 </head>
 <body>
+    @php
+        $contactPhone = \App\Models\Setting::getContactPhone();
+        $whatsappDigits = preg_replace('/\D+/', '', $contactPhone ?? '');
+    @endphp
+
     <!-- Top Utility Bar -->
-    <div class="top-utility-bar bg-light border-bottom py-2 d-none d-md-block">
+    <div class="top-utility-bar top-bar-premium py-2 d-none d-md-block">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-4">
-                    <ul class="list-inline mb-0 small">
-                        @php
-                            $aboutPage = \App\Models\Page::where('slug', 'about-us')->where('is_active', true)->first();
-                        @endphp
-                        
+                <div class="col-md-5">
+                    <p class="mb-0 small d-flex align-items-center gap-2">
+                        <i class="fas fa-circle-info opacity-75"></i>
+                        <span>{{ \App\Models\Setting::getTopbarTagline() }}</span>
+                    </p>
+                </div>
+                <div class="col-md-7 text-md-end">
+                    <ul class="list-inline mb-0 small text-md-end">
                         @auth
                             @if(Auth::user()->isBranchStaff())
-                                <li class="list-inline-item"><a href="{{ route('branch.dashboard') }}" class="text-decoration-none text-muted">Branch Dashboard</a></li>
+                                <li class="list-inline-item"><a href="{{ route('branch.dashboard') }}" class="text-decoration-none">Branch Dashboard</a></li>
                             @else
-                                <li class="list-inline-item"><a href="{{ route('user.dashboard') }}" class="text-decoration-none text-muted">My Account</a></li>
+                                <li class="list-inline-item"><a href="{{ route('user.dashboard') }}" class="text-decoration-none">My Account</a></li>
                             @endif
                         @else
-                            <li class="list-inline-item"><a href="{{ route('login') }}" class="text-decoration-none text-muted">My Account</a></li>
+                            <li class="list-inline-item"><a href="{{ route('login') }}" class="text-decoration-none">My Account</a></li>
                         @endauth
-                        <li class="list-inline-item"><span class="text-muted">|</span></li>
-                       
-                        
-                        <li class="list-inline-item"><a href="{{ route('order.tracking.index') }}" class="text-decoration-none text-muted">Order Tracking</a></li>
+                        <li class="list-inline-item"><span class="top-bar-sep">|</span></li>
+                        <li class="list-inline-item"><a href="{{ route('order.tracking.index') }}" class="text-decoration-none">Order Tracking</a></li>
+                        <li class="list-inline-item"><span class="top-bar-sep">|</span></li>
+                        <li class="list-inline-item"><span class="text-muted">Need help? Call Us: <strong class="text-dark">{{ $contactPhone }}</strong></span></li>
                     </ul>
-                </div>
-                <div class="col-md-4 text-center">
-                    <p class="mb-0 small text-muted">{{ \App\Models\Setting::getTopbarTagline() }}</p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <span class="small text-muted me-3">Need help? Call Us: <strong>{{ \App\Models\Setting::getContactPhone() }}</strong></span>
-                    
                 </div>
             </div>
         </div>
     </div>
     
     <!-- Mobile Top Bar -->
-    <div class="top-utility-bar bg-light border-bottom py-2 d-block d-md-none">
+    <div class="top-utility-bar top-bar-premium py-2 d-block d-md-none">
         <div class="container">
-            <div class="row">
-                <div class="col-12 text-center mb-2">
-                    <span class="small text-muted">Need help? Call: <strong>{{ \App\Models\Setting::getContactPhone() }}</strong></span>
+            <div class="row g-2 align-items-center">
+                <div class="col-12 text-center small">
+                    <span class="d-inline-flex align-items-center gap-2 justify-content-center">
+                        <i class="fas fa-circle-info opacity-75"></i>
+                        {{ \App\Models\Setting::getTopbarTagline() }}
+                    </span>
                 </div>
                 <div class="col-12">
                     <ul class="list-inline mb-0 small text-center">
                         @auth
                             @if(Auth::user()->isBranchStaff())
-                                <li class="list-inline-item"><a href="{{ route('branch.dashboard') }}" class="text-decoration-none text-muted">Branch Dashboard</a></li>
+                                <li class="list-inline-item"><a href="{{ route('branch.dashboard') }}" class="text-decoration-none">Branch Dashboard</a></li>
                             @else
-                                <li class="list-inline-item"><a href="{{ route('user.dashboard') }}" class="text-decoration-none text-muted">My Account</a></li>
+                                <li class="list-inline-item"><a href="{{ route('user.dashboard') }}" class="text-decoration-none">My Account</a></li>
                             @endif
                         @else
-                            <li class="list-inline-item"><a href="{{ route('login') }}" class="text-decoration-none text-muted">My Account</a></li>
+                            <li class="list-inline-item"><a href="{{ route('login') }}" class="text-decoration-none">My Account</a></li>
                         @endauth
-                        <li class="list-inline-item"><span class="text-muted">|</span></li>
-                        <li class="list-inline-item"><a href="{{ route('order.tracking.index') }}" class="text-decoration-none text-muted">Order Tracking</a></li>
+                        <li class="list-inline-item"><span class="top-bar-sep">|</span></li>
+                        <li class="list-inline-item"><a href="{{ route('order.tracking.index') }}" class="text-decoration-none">Order Tracking</a></li>
                     </ul>
                 </div>
             </div>
@@ -549,7 +617,7 @@
     </div>
 
     <!-- Main Header -->
-    <header class="main-header bg-white border-bottom py-3">
+    <header class="main-header bg-white  py-3">
         <div class="container">
             <div class="row align-items-center g-0">
                 <!-- Logo -->
@@ -563,10 +631,10 @@
                 <!-- Search Bar -->
                 <div class="col-12 col-md-7 col-lg-7 order-3 order-md-2">
                     <form action="{{ route('products.index') }}" method="GET" class="search-bar-form" style="margin: 0 10px;" data-suggestions-url="{{ route('products.search.suggestions') }}">
-                        <div class="search-bar-container" style="display: flex; align-items: center; background: white; border: 1px solid #a5d6a7; border-radius: 8px; padding: 0; overflow: visible;">
+                        <div class="search-bar-container header-search-pill" style="display: flex; align-items: center; padding: 4px 6px 4px 4px;">
                             <!-- All Categories Dropdown -->
-                            <div class="search-category-dropdown" style="position: relative; padding: 10px 15px; border-right: 1px solid #e5e7eb;">
-                                <select name="category" id="headerSearchCategory" class="form-select border-0 shadow-none" style="padding: 0; font-size: 0.95rem; color: #1e3a8a; background: transparent; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23999\"><path d=\"M7 10l5 5 5-5z\"/></svg>'); background-repeat: no-repeat; background-position: right 0 center; background-size: 16px; padding-right: 25px;">
+                            <div class="search-category-dropdown" style="position: relative; padding: 8px 14px;">
+                                <select name="category" id="headerSearchCategory" class="form-select border-0 shadow-none" style="padding: 0; font-size: 0.9rem; color: #1e3a8a; background: transparent; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23999\"><path d=\"M7 10l5 5 5-5z\"/></svg>'); background-repeat: no-repeat; background-position: right 0 center; background-size: 16px; padding-right: 25px;">
                                     <option value="">All Categories</option>
                                     @if(isset($categories))
                                         @foreach($categories as $category)
@@ -577,14 +645,12 @@
                             </div>
                             <!-- Search Input -->
                             <div class="search-input-wrapper" style="flex: 1; position: relative;">
-                                <input type="text" name="search" id="headerSearchInput" class="form-control border-0 shadow-none" placeholder="Search for items..." value="{{ request('search') }}" autocomplete="off" style="padding: 10px 15px; font-size: 0.95rem; background: transparent;">
+                                <input type="text" name="search" id="headerSearchInput" class="form-control border-0 shadow-none" placeholder="Search for items..." value="{{ request('search') }}" autocomplete="off" style="padding: 10px 14px; font-size: 0.95rem; background: transparent;">
                                 <div id="headerSearchSuggestions" class="header-search-suggestions" role="listbox" aria-label="Search suggestions"></div>
                             </div>
-                            <!-- Search Icon -->
-                            <div class="search-icon-wrapper" style="padding: 10px 15px; border-left: 1px solid #e5e7eb;">
-                                <button type="submit" class="btn border-0 shadow-none p-0" style="background: transparent; color: #999;">
-                                    <i class="fas fa-search" style="font-size: 1rem;"></i>
-                                </button>
+                            <!-- Search button -->
+                            <div class="search-icon-wrapper border-0" style="padding: 4px 6px 4px 0;">
+                                <button type="submit" class="btn btn-search-primary">Search</button>
                             </div>
                         </div>
                     </form>
@@ -592,17 +658,16 @@
                 
                 <!-- User Actions -->
                 <div class="col-6 col-md-3 col-lg-3 order-2 order-md-3">
-                    <div class="d-flex align-items-center justify-content-end gap-2 gap-md-4">
-                        <a href="{{ route('cart.index') }}" class="text-decoration-none d-flex align-items-center position-relative" style="color: #4b5563;">
-                            <i class="fas fa-shopping-cart" style="font-size: 1.25rem; color: #4b5563;"></i>
-                            @php
-                                $cartCount = count(session()->get('cart', []));
-                            @endphp
-                            @if($cartCount > 0)
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #158d43; font-size: 0.65rem; padding: 2px 6px; margin-left: -8px; margin-top: -5px;">{{ $cartCount }}</span>
-                            @endif
-                            <span class="ms-2 d-none d-md-inline" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Cart</span>
-                        </a>
+                    <div class="d-flex align-items-center justify-content-end gap-2 gap-md-3 flex-wrap">
+                        @if($whatsappDigits !== '')
+                            <a href="https://wa.me/{{ $whatsappDigits }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none d-none d-lg-flex align-items-center" style="color: #4b5563;">
+                                <i class="fab fa-whatsapp" style="font-size: 1.35rem; color: #25d366;"></i>
+                                <span class="ms-2 d-flex flex-column lh-sm">
+                                    <span class="small text-muted" style="font-size: 0.7rem;">WhatsApp Us</span>
+                                    <span class="fw-semibold" style="font-size: 0.85rem;">{{ $contactPhone }}</span>
+                                </span>
+                            </a>
+                        @endif
                         @auth
                             @php
                                 $unreadNotifications = \App\Models\Notification::where('user_id', Auth::id())
@@ -613,9 +678,9 @@
                                 <a href="#" class="text-decoration-none d-flex align-items-center dropdown-toggle position-relative" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #4b5563;">
                                     <i class="fas fa-user" style="font-size: 1.25rem; color: #4b5563;"></i>
                                     @if($unreadNotifications > 0)
-                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #158d43; font-size: 0.65rem; padding: 2px 6px; margin-left: -8px; margin-top: -5px;">{{ $unreadNotifications }}</span>
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill cart-badge-header" style="font-size: 0.65rem; padding: 2px 6px; margin-left: -8px; margin-top: -5px;">{{ $unreadNotifications }}</span>
                                     @endif
-                                    <span class="ms-2 d-none d-md-inline" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Account</span>
+                                    <span class="ms-2 d-none d-md-inline fw-semibold" style="color: #4b5563; font-size: 0.95rem;">Account</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li>
@@ -704,10 +769,21 @@
                         @else
                             <a href="{{ route('login') }}" class="text-decoration-none d-flex align-items-center" style="color: #4b5563;">
                                 <i class="fas fa-user" style="font-size: 1.25rem; color: #4b5563;"></i>
-                                <span class="ms-2 d-none d-md-inline" style="color: #4b5563; font-size: 0.95rem; font-weight: 500;">Account</span>
+                                <span class="ms-2 d-none d-md-inline fw-semibold" style="color: #4b5563; font-size: 0.95rem;">Account</span>
                             </a>
                         @endauth
-                        
+                        <a href="{{ route('cart.index') }}" class="text-decoration-none d-flex align-items-center position-relative" style="color: #4b5563;">
+                            <i class="fas fa-shopping-cart" style="font-size: 1.25rem; color: #4b5563;"></i>
+                            @php
+                                $cartCount = count(session()->get('cart', []));
+                            @endphp
+                            @if($cartCount > 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill cart-badge-header" style="font-size: 0.65rem; padding: 2px 6px; margin-left: -8px; margin-top: -5px;">{{ $cartCount }}</span>
+                            @else
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill cart-badge-header" style="font-size: 0.65rem; padding: 2px 6px; margin-left: -8px; margin-top: -5px;">0</span>
+                            @endif
+                            <span class="ms-2 d-none d-md-inline fw-semibold" style="color: #4b5563; font-size: 0.95rem;">Cart</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -715,12 +791,12 @@
     </header>
 
     <!-- Main Navigation Bar -->
-    <nav class="main-navbar" style="background: white !important; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; padding-top:10px; padding-bottom:10px;">
+    <nav class="main-navbar " style="background: white !important; border-color: #e5e7eb !important; padding-top: 8px; padding-bottom: 8px;">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-12 col-md-3" style="border-right: 1px solid #e5e7eb;">
                     <div class="dropdown">
-                        <button class="btn w-100 text-start py-2 py-md-3 fw-bold text-white dropdown-toggle" type="button" id="browseCategoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: var(--green-color); border: none;">
+                        <button class="btn browse-categories-btn w-100 text-start py-2 py-md-3 dropdown-toggle" type="button" id="browseCategoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-bars me-2"></i>Browse All Categories
                         </button>
                         <ul class="dropdown-menu w-100" aria-labelledby="browseCategoriesDropdown" style="padding-right:5px;padding-left:5px;">
@@ -737,32 +813,25 @@
                 </div>
                 <!-- Desktop Navigation -->
                 <div class="col-md-9 d-none d-md-block">
-                    <ul class="nav mb-0">
-                        <li class="nav-item"><a href="{{ route('home') }}" class="nav-link" style="color: var(--text-dark) !important;">Home</a></li>
-                       
-                           
-                        
-                            <li class="nav-item"><a href="https://yendiapharmacy.com/about/" class="nav-link" style="color: var(--text-dark) !important;">About</a></li>
-                        
-                        
+                    <ul class="nav mb-0 flex-wrap align-items-center">
+                        <li class="nav-item"><a href="{{ route('home') }}" class="nav-link">Home</a></li>
+                        <li class="nav-item"><a href="https://yendiapharmacy.com/about/" class="nav-link">About</a></li>
                         @if(isset($navbarCategories) && $navbarCategories->count() > 0)
                             @foreach($navbarCategories as $category)
                                 <li class="nav-item">
-                                    <a href="{{ route('products.index', ['category' => $category->id]) }}" class="nav-link" style="color: var(--text-dark) !important;">{{ $category->name }}</a>
+                                    <a href="{{ route('products.index', ['category' => $category->id]) }}" class="nav-link">{{ $category->name }}</a>
                                 </li>
                             @endforeach
                         @endif
-                        <li class="nav-item"><a href="https://yendiapharmacy.com/services/" class="nav-link" style="color: var(--text-dark) !important;">Marketing</a></li>
-                        <li class="nav-item"><a href="https://yendiapharmacy.com/why-parter-us/" class="nav-link" style="color: var(--text-dark) !important;">Why Partner Us?</a></li>
-
-                        
-                        <li class="nav-item"><a href="https://yendiapharmacy.com/contact/" class="nav-link" style="color: var(--text-dark) !important;">Contact</a></li>
+                        <li class="nav-item"><a href="https://yendiapharmacy.com/services/" class="nav-link">Marketing</a></li>
+                        <li class="nav-item"><a href="https://yendiapharmacy.com/why-parter-us/" class="nav-link">Why Partner Us?</a></li>
+                        <li class="nav-item"><a href="https://yendiapharmacy.com/contact/" class="nav-link">Contact</a></li>
                     </ul>
                 </div>
                 
                 <!-- Mobile Navigation Toggle Button -->
                 <div class="col-12 d-md-none mt-2">
-                    <button class="btn w-100 text-start fw-bold text-white" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu" aria-expanded="false" aria-controls="mobileNavMenu" style="background: var(--green-color); border: none;">
+                    <button class="btn browse-categories-btn w-100 text-start fw-bold border py-2" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu" aria-expanded="false" aria-controls="mobileNavMenu" style="border-color: #e5e7eb !important;">
                         <i class="fas fa-bars me-2"></i>Menu
                         <i class="fas fa-chevron-down float-end mt-1"></i>
                     </button>

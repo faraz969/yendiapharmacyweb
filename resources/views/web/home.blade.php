@@ -9,52 +9,53 @@ use Illuminate\Support\Facades\Storage;
 @section('content')
 <!-- Hero Banner Section -->
 @if($banners->count() > 0)
-    <section class="hero-banner-section mb-4" style="margin-top:20px; border-radius:30px; margin-left:8px; margin-right:8px; overflow: hidden; position: relative; min-height: 450px;">
+    <section class="hero-banner-section mb-4 hero-goodlife" style="margin-top:4px;  overflow: hidden; position: relative; min-height: 420px;">
         <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
             <div class="carousel-inner">
                 @foreach($banners as $index => $banner)
                     @php
                         $bannerImage = $banner && $banner->image ? Storage::url($banner->image) : null;
                     @endphp
-                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }}" style="background: linear-gradient(135deg, rgba(21, 141, 67, 0.1) 0%, rgba(21, 141, 67, 0.05) 100%), url('{{ $bannerImage }}') center center/cover no-repeat; padding: 80px 0; position: relative; min-height: 450px;">
+                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }} hero-carousel-item" style="background-image: linear-gradient(105deg, rgba(232, 245, 233, 0.95) 0%, rgba(255,255,255,0.88) 45%, rgba(255,255,255,0.75) 100%), url('{{ $bannerImage }}'); background-blend-mode: normal, normal; background-position: center center; background-size: cover; background-repeat: no-repeat; padding: 72px 0; position: relative; min-height: 420px;">
                         <div class="container position-relative" style="z-index: 2;">
                             <div class="row align-items-center">
-                                <div class="col-md-6">
-                                    <h1 class="display-3 fw-bold mb-3" style="color: #158d43; line-height: 1.2; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
+                                <div class="col-md-6 col-lg-5">
+                                    <h1 class="display-4 fw-bold mb-3 hero-heading-purple" style="line-height: 1.15;">
                                         {{ $banner->title ?? 'Fresh & Healthy' }}<br>
                                     </h1>
-                                    <p class="lead mb-4" style="color: #333; font-weight: 500; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">
+                                    <p class="lead mb-4 hero-lead-text" style="font-weight: 500;">
                                         {{ $banner->description ?? 'Save up to 50% off on your first order' }}
                                     </p>
                                     <form class="subscribe-form mb-3" style="max-width: 450px;">
-                                        <div class="subscribe-input-group" style="display: flex; background: white; border-radius: 50px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                        <div class="subscribe-input-group hero-subscribe-pill" style="display: flex; background: white; border-radius: 999px; overflow: hidden; box-shadow: 0 2px 12px rgba(21, 141, 67, 0.1); border: 1px solid #e5e7eb;">
                                             <div class="input-wrapper" style="flex: 1; display: flex; align-items: center; padding: 12px 20px;">
-                                                <i class="fas fa-paper-plane me-2" style="color: #999; font-size: 0.9rem;"></i>
+                                                <i class="fas fa-paper-plane me-2" style="color: #9ca3af; font-size: 0.9rem;"></i>
                                                 <input type="email" class="form-control border-0 shadow-none" placeholder="Your email address" required style="padding: 0; background: transparent; color: #333; font-size: 0.95rem;">
                                             </div>
-                                            <button type="submit" class="btn border-0 px-4" style="background: #158d43; color: white; font-weight: 500; border-radius: 50px 50px 50px 50px; white-space: nowrap;">Subscribe</button>
+                                            <button type="submit" class="btn border-0 px-4 hero-btn-primary" style="color: white; font-weight: 600; border-radius: 999px; white-space: nowrap; margin: 4px;">Subscribe</button>
                                         </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
-                        <!-- Overlay for better text readability -->
-                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, rgba(21, 141, 67, 0.1) 0%, rgba(21, 141, 67, 0.05) 50%, transparent 100%); z-index: 1;"></div>
+                        <div class="hero-slide-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(100deg, rgba(232, 245, 233, 0.55) 0%, rgba(255,255,255,0.2) 55%, transparent 100%); z-index: 1; pointer-events: none;"></div>
                     </div>
                 @endforeach
             </div>
             @if($banners->count() > 1)
-                <!-- Carousel Controls -->
-                <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev" style="width: 5%;">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <button class="carousel-control-prev hero-carousel-btn" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center hero-carousel-circle" aria-hidden="true">
+                        <i class="fas fa-chevron-left"></i>
+                    </span>
                     <span class="visually-hidden">Previous</span>
                 </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next" style="width: 5%;">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <button class="carousel-control-next hero-carousel-btn" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center hero-carousel-circle" aria-hidden="true">
+                        <i class="fas fa-chevron-right"></i>
+                    </span>
                     <span class="visually-hidden">Next</span>
                 </button>
-                <!-- Carousel Indicators -->
-                <div class="carousel-indicators" style="bottom: 20px;">
+                <div class="carousel-indicators hero-carousel-dots">
                     @foreach($banners as $index => $banner)
                         <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}"></button>
                     @endforeach
@@ -64,24 +65,24 @@ use Illuminate\Support\Facades\Storage;
     </section>
 @else
     <!-- Default Hero Banner -->
-    <section class="hero-banner-section mb-4" style="background: linear-gradient(135deg, rgba(21, 141, 67, 0.1) 0%, rgba(21, 141, 67, 0.05) 100%); padding: 80px 0; position: relative; overflow: hidden; min-height: 450px;">
+    <section class="hero-banner-section hero-goodlife mb-4" style="background: linear-gradient(105deg, rgba(232, 245, 233, 0.9) 0%, rgba(255,255,255,0.95) 50%, #ffffff 100%); padding: 80px 0; position: relative; overflow: hidden; min-height: 420px; border-radius: 24px; margin-left: 8px; margin-right: 8px; margin-top: 12px;">
         <div class="container position-relative" style="z-index: 2;">
             <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1 class="display-3 fw-bold mb-3" style="color: #158d43; line-height: 1.2;">
+                <div class="col-md-6 col-lg-5">
+                    <h1 class="display-4 fw-bold mb-3 hero-heading-purple" style="line-height: 1.15;">
                         Your Health<br>
                         <span style="color: #ee7d09;">Our Priority</span>
                     </h1>
-                    <p class="lead mb-4" style="color: #666;">
+                    <p class="lead mb-4 hero-lead-text" style="color: #4b5563;">
                         Save up to 50% off on your first order. Get all your prescription and over-the-counter medications delivered to your doorstep.
                     </p>
                     <form class="subscribe-form mb-3" style="max-width: 450px;">
-                        <div class="subscribe-input-group" style="display: flex; background: white; border-radius: 50px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div class="subscribe-input-group hero-subscribe-pill" style="display: flex; background: white; border-radius: 999px; overflow: hidden; box-shadow: 0 2px 12px rgba(21, 141, 67, 0.1); border: 1px solid #e5e7eb;">
                             <div class="input-wrapper" style="flex: 1; display: flex; align-items: center; padding: 12px 20px;">
-                                <i class="fas fa-paper-plane me-2" style="color: #999; font-size: 0.9rem;"></i>
+                                <i class="fas fa-paper-plane me-2" style="color: #9ca3af; font-size: 0.9rem;"></i>
                                 <input type="email" class="form-control border-0 shadow-none" placeholder="Your email address" required style="padding: 0; background: transparent; color: #333; font-size: 0.95rem;">
                             </div>
-                            <button type="submit" class="btn border-0 px-4" style="background: #158d43; color: white; font-weight: 500; border-radius: 0 50px 50px 0; white-space: nowrap;">Subscribe</button>
+                            <button type="submit" class="btn border-0 px-4 hero-btn-primary" style="color: white; font-weight: 600; border-radius: 999px; white-space: nowrap; margin: 4px;">Subscribe</button>
                         </div>
                     </form>
                 </div>
@@ -260,7 +261,7 @@ use Illuminate\Support\Facades\Storage;
                             @endphp
                             <div class="product-card-wrapper" style="flex: 0 0 auto; width: 280px; height: 100%;" data-category-id="{{ $product->category_id }}">
                                 <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none" style="color: inherit; display: flex; height: 100%;">
-                                    <div class="card product-card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; display: flex; flex-direction: column; width: 100%;">
+                                    <div class="card product-card h-100 border-0 shadow-sm" style=" overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; display: flex; flex-direction: column; width: 100%;">
                                         <!-- Product Image with Badge -->
                                         <div class="position-relative" style="height: 220px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
                                             @if($product->images && is_array($product->images) && count($product->images) > 0)
@@ -414,70 +415,102 @@ use Illuminate\Support\Facades\Storage;
     @endif
 
     <style>
-        /* Banner Carousel Styles */
-        .hero-banner-section .carousel-indicators {
-            margin-bottom: 20px;
+        .hero-heading-purple {
+            color: #158d43 !important;
         }
-        
-        .hero-banner-section .carousel-indicators button {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: rgba(21, 141, 67, 0.3);
-            border: none;
-            margin: 0 5px;
+        .hero-lead-text {
+            color: #374151 !important;
         }
-        
-        .hero-banner-section .carousel-indicators button.active {
-            background-color: #158d43;
+        .hero-btn-primary {
+            background: #158d43 !important;
         }
-        
-        .hero-banner-section .carousel-control-prev,
-        .hero-banner-section .carousel-control-next {
-            opacity: 0.7;
+        .hero-btn-primary:hover {
+            background: #0f6b32 !important;
+            color: #fff !important;
         }
-        
-        .hero-banner-section .carousel-control-prev:hover,
-        .hero-banner-section .carousel-control-next:hover {
+        .hero-carousel-btn {
+            width: auto;
             opacity: 1;
         }
-        
-        /* Subscribe Form Styles */
+        .hero-carousel-circle {
+            width: 48px;
+            height: 48px;
+            background: #158d43;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(21, 141, 67, 0.35);
+        }
+        .hero-carousel-btn.carousel-control-prev {
+            left: 12px;
+        }
+        .hero-carousel-btn.carousel-control-next {
+            right: 12px;
+        }
+        .hero-carousel-dots {
+            margin-bottom: 1.25rem;
+        }
+        .hero-carousel-dots button {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.85);
+            border: none;
+            margin: 0 5px;
+            opacity: 1;
+        }
+        .hero-carousel-dots button.active {
+            background-color: #158d43;
+            transform: scale(1.15);
+        }
         .subscribe-input-group:focus-within {
             box-shadow: 0 4px 12px rgba(21, 141, 67, 0.2) !important;
+            border-color: rgba(21, 141, 67, 0.35) !important;
         }
-        
         .subscribe-input-group input:focus {
             outline: none;
         }
-        
-        .subscribe-input-group button:hover {
-            background: #0f6b32 !important;
+        .trust-bar-home {
+            background: #fff;
+            border-top: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .trust-bar-inner {
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+        }
+        .trust-bar-icon {
+            color: #158d43;
+        }
+        .trust-bar-title {
+            color: #1f2937;
+        }
+        .trust-bar-icon-accent {
+            color: #ee7d09;
         }
     </style>
 
-    <!-- Features -->
-    <section class="mb-5">
-        <div class="row g-4">
-            <div class="col-md-4 text-center">
-                <div class="p-4">
-                    <i class="fas fa-shipping-fast fa-3x mb-3" style="color: #158d43;"></i>
-                    <h5>Fast Delivery</h5>
-                    <p class="text-muted">Quick and reliable delivery to your doorstep</p>
+    <!-- Trust / features bar -->
+    <section class="trust-bar-home mb-5 py-4">
+        <div class="container">
+            <div class="row g-4 justify-content-center trust-bar-inner">
+                <div class="col-md-4 text-center">
+                    <div class="p-4 px-3">
+                        <i class="fas fa-shipping-fast fa-2x mb-3 trust-bar-icon"></i>
+                        <h5 class="fw-bold trust-bar-title">Fast Delivery</h5>
+                        <p class="text-muted mb-0">Quick and reliable delivery to your doorstep</p>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4 text-center">
-                <div class="p-4">
-                    <i class="fas fa-shield-alt fa-3x mb-3" style="color: #158d43;"></i>
-                    <h5>Authentic Products</h5>
-                    <p class="text-muted">100% genuine medications from licensed pharmacies</p>
+                <div class="col-md-4 text-center">
+                    <div class="p-4 px-3">
+                        <i class="fas fa-shield-alt fa-2x mb-3 trust-bar-icon"></i>
+                        <h5 class="fw-bold trust-bar-title">Authentic Products</h5>
+                        <p class="text-muted mb-0">100% genuine medications from licensed pharmacies</p>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4 text-center">
-                <div class="p-4">
-                    <i class="fas fa-user-md fa-3x mb-3" style="color: #ee7d09;"></i>
-                    <h5>Expert Consultation</h5>
-                    <p class="text-muted">Get advice from qualified pharmacists</p>
+                <div class="col-md-4 text-center">
+                    <div class="p-4 px-3">
+                        <i class="fas fa-user-md fa-2x mb-3 trust-bar-icon-accent"></i>
+                        <h5 class="fw-bold trust-bar-title">Expert Consultation</h5>
+                        <p class="text-muted mb-0">Get advice from qualified pharmacists</p>
+                    </div>
                 </div>
             </div>
         </div>
