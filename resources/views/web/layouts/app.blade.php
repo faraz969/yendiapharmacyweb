@@ -71,6 +71,31 @@
             color: var(--primary-color) !important;
         }
         
+        /* Fixed top: utility bar + main header */
+        .site-header-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+        
+        .site-header-fixed .main-header {
+            box-shadow: none;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .site-header-fixed .dropdown-menu {
+            z-index: 1055;
+        }
+        
+        .site-header-spacer {
+            width: 100%;
+            pointer-events: none;
+        }
+        
         /* Mobile Responsive Styles */
         @media (max-width: 767.98px) {
             .top-utility-bar {
@@ -556,6 +581,7 @@
         $whatsappDigits = preg_replace('/\D+/', '', $contactPhone ?? '');
     @endphp
 
+    <div id="siteHeaderFixed" class="site-header-fixed">
     <!-- Top Utility Bar -->
     <div class="top-utility-bar top-bar-premium py-2 d-none d-md-block">
         <div class="container">
@@ -617,13 +643,13 @@
     </div>
 
     <!-- Main Header -->
-    <header class="main-header bg-white  py-3">
+    <header class="main-header bg-white  py-1">
         <div class="container">
             <div class="row align-items-center g-0">
                 <!-- Logo -->
                 <div class="col-6 col-md-2 col-lg-2">
                     <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-                        <img src="{{ \App\Models\Setting::getHeaderLogo() }}" alt="YENDIA Pharmacy" style="height: 79px; width: auto; margin-right: 10px;" class="img-fluid">
+                        <img src="{{ \App\Models\Setting::getHeaderLogo() }}" alt="YENDIA Pharmacy" style="height: 65px; width: auto; margin-right: 10px;" class="img-fluid">
                        
                     </a>
                 </div>
@@ -631,7 +657,7 @@
                 <!-- Search Bar -->
                 <div class="col-12 col-md-7 col-lg-7 order-3 order-md-2">
                     <form action="{{ route('products.index') }}" method="GET" class="search-bar-form" style="margin: 0 10px;" data-suggestions-url="{{ route('products.search.suggestions') }}">
-                        <div class="search-bar-container header-search-pill" style="display: flex; align-items: center; padding: 4px 6px 4px 4px;">
+                        <div class="search-bar-container header-search-pill" style="display: flex; align-items: center; ">
                             <!-- All Categories Dropdown -->
                             <div class="search-category-dropdown" style="position: relative; padding: 8px 14px;">
                                 <select name="category" id="headerSearchCategory" class="form-select border-0 shadow-none" style="padding: 0; font-size: 0.9rem; color: #1e3a8a; background: transparent; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23999\"><path d=\"M7 10l5 5 5-5z\"/></svg>'); background-repeat: no-repeat; background-position: right 0 center; background-size: 16px; padding-right: 25px;">
@@ -789,6 +815,8 @@
             </div>
         </div>
     </header>
+    </div>
+    <div id="siteHeaderSpacer" class="site-header-spacer" aria-hidden="true"></div>
 
     <!-- Main Navigation Bar -->
     <nav class="main-navbar " style="background: white !important; border-color: #e5e7eb !important; padding-top: 8px; padding-bottom: 8px;">
@@ -1118,6 +1146,23 @@
                 }
             }
         });
+    </script>
+    <script>
+        (function () {
+            function syncSiteHeaderSpacer() {
+                var fixed = document.getElementById('siteHeaderFixed');
+                var spacer = document.getElementById('siteHeaderSpacer');
+                if (!fixed || !spacer) return;
+                spacer.style.height = fixed.offsetHeight + 'px';
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', syncSiteHeaderSpacer);
+            } else {
+                syncSiteHeaderSpacer();
+            }
+            window.addEventListener('resize', syncSiteHeaderSpacer);
+            window.addEventListener('load', syncSiteHeaderSpacer);
+        })();
     </script>
     
     @stack('scripts')
