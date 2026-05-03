@@ -257,34 +257,41 @@ use Illuminate\Support\Facades\Storage;
                 </div>
             </div>
 
-            <!-- Mobile: carousel (one category per slide) -->
+            <!-- Mobile: carousel (3 categories per slide) -->
+            @php
+                $categorySlidesMobile = $featuredCategories->chunk(3);
+            @endphp
             <div id="featuredCategoriesCarousel" class="carousel slide d-md-none home-categories-carousel" data-bs-ride="carousel" data-bs-interval="5000" data-bs-touch="true">
                 <div class="carousel-inner py-2">
-                    @foreach($featuredCategories as $index => $category)
-                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                            <div class="d-flex justify-content-center px-3">
-                                <a href="{{ route('products.category', $category->id) }}" class="text-decoration-none category-icon-link category-icon-link--mobile-slide text-center">
-                                    <div class="category-icon-wrapper mx-auto" style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                                        <div class="category-icon-circle" style="width: 110px; height: 110px; border-radius: 50%; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #a5d6a7;">
-                                            @if($category->image)
-                                                <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" style="width: 76px; height: 76px; object-fit: contain; border-radius: 50%;">
-                                            @else
-                                                <i class="fas fa-folder" style="font-size: 2.75rem; color: #66bb6a;"></i>
-                                            @endif
-                                        </div>
-                                        <h6 class="category-name mb-0 fw-semibold px-2" style="color: #333; font-size: 0.95rem; max-width: 260px; line-height: 1.25;">
-                                            {{ $category->name }}
-                                        </h6>
-                                        <p class="category-count mb-0 text-muted" style="font-size: 0.85rem; color: #666;">
-                                            {{ $category->products_count ?? 0 }} items
-                                        </p>
+                    @foreach($categorySlidesMobile as $slideIndex => $categoriesInSlide)
+                        <div class="carousel-item {{ $slideIndex === 0 ? 'active' : '' }}">
+                            <div class="row g-2 gx-1 justify-content-center px-1 home-category-slide-row">
+                                @foreach($categoriesInSlide as $category)
+                                    <div class="col-4">
+                                        <a href="{{ route('products.category', $category->id) }}" class="text-decoration-none category-icon-link category-icon-link--mobile-slide d-block text-center">
+                                            <div class="category-icon-wrapper mx-auto" style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                                <div class="category-icon-circle home-category-circle--compact" style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(0,0,0,0.1); border: 2px solid #a5d6a7;">
+                                                    @if($category->image)
+                                                        <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" style="width: 48px; height: 48px; object-fit: contain; border-radius: 50%;">
+                                                    @else
+                                                        <i class="fas fa-folder" style="font-size: 1.65rem; color: #66bb6a;"></i>
+                                                    @endif
+                                                </div>
+                                                <h6 class="category-name mb-0 fw-semibold px-1" style="color: #333; font-size: 0.72rem; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                    {{ $category->name }}
+                                                </h6>
+                                                <p class="category-count mb-0 text-muted" style="font-size: 0.65rem; color: #666;">
+                                                    {{ $category->products_count ?? 0 }} items
+                                                </p>
+                                            </div>
+                                        </a>
                                     </div>
-                                </a>
+                                @endforeach
                             </div>
                         </div>
                     @endforeach
                 </div>
-                @if($featuredCategories->count() > 1)
+                @if($categorySlidesMobile->count() > 1)
                     <button class="carousel-control-prev home-categories-carousel-control" type="button" data-bs-target="#featuredCategoriesCarousel" data-bs-slide="prev">
                         <span class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: #158d43; color: #fff;" aria-hidden="true">
                             <i class="fas fa-chevron-left small"></i>
@@ -298,8 +305,8 @@ use Illuminate\Support\Facades\Storage;
                         <span class="visually-hidden">Next</span>
                     </button>
                     <div class="carousel-indicators home-categories-indicators mb-0">
-                        @foreach($featuredCategories as $index => $category)
-                            <button type="button" data-bs-target="#featuredCategoriesCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}" aria-label="{{ $category->name }}"></button>
+                        @foreach($categorySlidesMobile as $slideIndex => $categoriesInSlide)
+                            <button type="button" data-bs-target="#featuredCategoriesCarousel" data-bs-slide-to="{{ $slideIndex }}" class="{{ $slideIndex === 0 ? 'active' : '' }}" aria-current="{{ $slideIndex === 0 ? 'true' : 'false' }}" aria-label="Categories slide {{ $slideIndex + 1 }}"></button>
                         @endforeach
                     </div>
                 @endif
@@ -332,7 +339,16 @@ use Illuminate\Support\Facades\Storage;
             
             .home-categories-carousel {
                 position: relative;
-                min-height: 220px;
+                min-height: 160px;
+            }
+            
+            .home-category-slide-row {
+                min-height: 150px;
+            }
+            
+            .home-category-circle--compact {
+                margin-left: auto;
+                margin-right: auto;
             }
             
             .home-categories-carousel .carousel-indicators.home-categories-indicators {
