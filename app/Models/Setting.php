@@ -105,7 +105,10 @@ class Setting extends Model
      */
     public static function getContactPhone()
     {
-        return self::get('contact_phone', '+1 800 900');
+        $value = self::get('contact_phone', '+1 800 900');
+        $trimmed = is_string($value) ? trim($value) : '';
+
+        return $trimmed !== '' ? $value : '+1 800 900';
     }
 
     /**

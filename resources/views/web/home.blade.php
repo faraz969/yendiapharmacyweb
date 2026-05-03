@@ -9,30 +9,30 @@ use Illuminate\Support\Facades\Storage;
 @section('content')
 <!-- Hero Banner Section -->
 @if($banners->count() > 0)
-    <section class="hero-banner-section mb-4 hero-goodlife w-100" style="margin-top:4px; overflow: hidden; position: relative; min-height: 420px; max-width: 100%;">
+    <section class="hero-banner-section mb-4 hero-goodlife w-100" style="margin-top:4px; overflow: hidden; position: relative; max-width: 100%;">
         <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
             <div class="carousel-inner">
                 @foreach($banners as $index => $banner)
                     @php
                         $bannerImage = $banner && $banner->image ? Storage::url($banner->image) : null;
                     @endphp
-                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }} hero-carousel-item" style="background-image:  url('{{ $bannerImage }}'); background-blend-mode: normal, normal; background-position: center center; background-size: cover; background-repeat: no-repeat; padding: 72px 0; position: relative; min-height: 420px;">
-                        <div class="container position-relative" style="z-index: 2;">
+                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }} hero-carousel-item" style="background-image: url('{{ $bannerImage }}'); background-position: center center; background-size: cover; background-repeat: no-repeat;">
+                        <div class="container position-relative hero-carousel-content" style="z-index: 2;">
                             <div class="row align-items-center">
-                                <div class="col-md-6 col-lg-5">
-                                    <h1 class="display-4 fw-bold mb-3 hero-heading-purple" style="line-height: 1.15;">
-                                        {{ $banner->title ?? 'Fresh & Healthy' }}<br>
+                                <div class="col-12 col-md-6 col-lg-5">
+                                    <h1 class="hero-banner-title fw-bold mb-2 mb-md-3 hero-heading-purple">
+                                        {{ $banner->title ?? 'Fresh & Healthy' }}
                                     </h1>
-                                    <p class="lead mb-4 hero-lead-text" style="font-weight: 500;">
+                                    <p class="hero-banner-lead mb-3 mb-md-4 hero-lead-text">
                                         {{ $banner->description ?? 'Save up to 50% off on your first order' }}
                                     </p>
-                                    <form class="subscribe-form mb-3" style="max-width: 450px;">
-                                        <div class="subscribe-input-group hero-subscribe-pill" style="display: flex; background: white; border-radius: 999px; overflow: hidden; box-shadow: 0 2px 12px rgba(21, 141, 67, 0.1); border: 1px solid #e5e7eb;">
-                                            <div class="input-wrapper" style="flex: 1; display: flex; align-items: center; padding: 12px 20px;">
-                                                <i class="fas fa-paper-plane me-2" style="color: #9ca3af; font-size: 0.9rem;"></i>
-                                                <input type="email" class="form-control border-0 shadow-none" placeholder="Your email address" required style="padding: 0; background: transparent; color: #333; font-size: 0.95rem;">
+                                    <form class="subscribe-form mb-0 mb-md-3 hero-subscribe-form">
+                                        <div class="subscribe-input-group hero-subscribe-pill">
+                                            <div class="input-wrapper hero-subscribe-input-wrap">
+                                                <i class="fas fa-paper-plane me-2 hero-subscribe-icon"></i>
+                                                <input type="email" class="form-control border-0 shadow-none" placeholder="Your email address" required>
                                             </div>
-                                            <button type="submit" class="btn border-0 px-4 hero-btn-primary" style="color: white; font-weight: 600; border-radius: 999px; white-space: nowrap; margin: 4px;">Subscribe</button>
+                                            <button type="submit" class="btn border-0 hero-btn-primary hero-subscribe-btn">Subscribe</button>
                                         </div>
                                     </form>
                                 </div>
@@ -65,24 +65,24 @@ use Illuminate\Support\Facades\Storage;
     </section>
 @else
     <!-- Default Hero Banner -->
-    <section class="hero-banner-section hero-goodlife mb-4" style="background: linear-gradient(105deg, rgba(232, 245, 233, 0.9) 0%, rgba(255,255,255,0.95) 50%, #ffffff 100%); padding: 80px 0; position: relative; overflow: hidden; min-height: 420px; border-radius: 24px; margin-left: 8px; margin-right: 8px; margin-top: 12px;">
-        <div class="container position-relative" style="z-index: 2;">
+    <section class="hero-banner-section hero-goodlife hero-default-banner mb-4">
+        <div class="container position-relative hero-carousel-content" style="z-index: 2;">
             <div class="row align-items-center">
-                <div class="col-md-6 col-lg-5">
-                    <h1 class="display-4 fw-bold mb-3 hero-heading-purple" style="line-height: 1.15;">
+                <div class="col-12 col-md-6 col-lg-5">
+                    <h1 class="hero-banner-title fw-bold mb-2 mb-md-3 hero-heading-purple">
                         Your Health<br>
-                        <span style="color: #ee7d09;">Our Priority</span>
+                        <span class="hero-banner-accent">Our Priority</span>
                     </h1>
-                    <p class="lead mb-4 hero-lead-text" style="color: #4b5563;">
+                    <p class="hero-banner-lead mb-3 mb-md-4 hero-lead-text hero-lead-muted">
                         Save up to 50% off on your first order. Get all your prescription and over-the-counter medications delivered to your doorstep.
                     </p>
-                    <form class="subscribe-form mb-3" style="max-width: 450px;">
-                        <div class="subscribe-input-group hero-subscribe-pill" style="display: flex; background: white; border-radius: 999px; overflow: hidden; box-shadow: 0 2px 12px rgba(21, 141, 67, 0.1); border: 1px solid #e5e7eb;">
-                            <div class="input-wrapper" style="flex: 1; display: flex; align-items: center; padding: 12px 20px;">
-                                <i class="fas fa-paper-plane me-2" style="color: #9ca3af; font-size: 0.9rem;"></i>
-                                <input type="email" class="form-control border-0 shadow-none" placeholder="Your email address" required style="padding: 0; background: transparent; color: #333; font-size: 0.95rem;">
+                    <form class="subscribe-form mb-0 hero-subscribe-form">
+                        <div class="subscribe-input-group hero-subscribe-pill">
+                            <div class="input-wrapper hero-subscribe-input-wrap">
+                                <i class="fas fa-paper-plane me-2 hero-subscribe-icon"></i>
+                                <input type="email" class="form-control border-0 shadow-none" placeholder="Your email address" required>
                             </div>
-                            <button type="submit" class="btn border-0 px-4 hero-btn-primary" style="color: white; font-weight: 600; border-radius: 999px; white-space: nowrap; margin: 4px;">Subscribe</button>
+                            <button type="submit" class="btn border-0 hero-btn-primary hero-subscribe-btn">Subscribe</button>
                         </div>
                     </form>
                 </div>
@@ -395,23 +395,24 @@ use Illuminate\Support\Facades\Storage;
                 
                 
                 <!-- Category Filter Tabs -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="product-filters d-flex gap-3 flex-wrap">
-                        <button class="btn btn-sm px-3 py-2 product-filter-btn active" data-category="all" style="border: none; background: transparent; color: #666; font-weight: 500; border-bottom: 2px solid transparent;">
-                            All
-                        </button>
-                        @foreach($featuredCategories->take(9) as $filterCategory)
-                            <button class="btn btn-sm px-3 py-2 product-filter-btn" data-category="{{ $filterCategory->id }}" style="border: none; background: transparent; color: #666; font-weight: 500; border-bottom: 2px solid transparent;">
-                                {{ $filterCategory->name }}
+                <div class="product-filters-toolbar d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 mb-4">
+                    <div class="product-filters-scroll w-100 order-2 order-md-1">
+                        <div class="product-filters d-flex gap-2 gap-md-3 flex-nowrap flex-md-wrap">
+                            <button type="button" class="btn btn-sm px-3 py-2 product-filter-btn active" data-category="all" style="border: none; background: transparent; color: #666; font-weight: 500; border-bottom: 2px solid transparent;">
+                                All
                             </button>
-                        @endforeach
+                            @foreach($featuredCategories->take(9) as $filterCategory)
+                                <button type="button" class="btn btn-sm px-3 py-2 product-filter-btn" data-category="{{ $filterCategory->id }}" style="border: none; background: transparent; color: #666; font-weight: 500; border-bottom: 2px solid transparent;">
+                                    {{ $filterCategory->name }}
+                                </button>
+                            @endforeach
+                        </div>
                     </div>
-                    <!-- Navigation Arrows -->
-                    <div class="product-nav-arrows d-flex gap-2">
-                        <button class="btn btn-sm btn-outline-secondary rounded-circle product-scroll-btn" id="productScrollLeft" style="width: 40px; height: 40px; border: 1px solid #ddd;">
+                    <div class="product-nav-arrows d-flex gap-2 flex-shrink-0 order-1 order-md-2 align-self-end align-self-md-center">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle product-scroll-btn" id="productScrollLeft" style="width: 40px; height: 40px; border: 1px solid #ddd;">
                             <i class="fas fa-chevron-left"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-secondary rounded-circle product-scroll-btn" id="productScrollRight" style="width: 40px; height: 40px; border: 1px solid #ddd;">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle product-scroll-btn" id="productScrollRight" style="width: 40px; height: 40px; border: 1px solid #ddd;">
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
@@ -599,8 +600,88 @@ use Illuminate\Support\Facades\Storage;
         .hero-heading-purple {
             color: #158d43 !important;
         }
+        .hero-banner-accent {
+            color: #ee7d09;
+        }
         .hero-lead-text {
             color: #374151 !important;
+        }
+        .hero-lead-muted {
+            color: #4b5563 !important;
+        }
+        .hero-banner-title {
+            font-size: clamp(1.45rem, 2.2vw + 1rem, 2.65rem);
+            line-height: 1.15;
+        }
+        .hero-banner-lead {
+            font-size: clamp(0.92rem, 1vw + 0.78rem, 1.2rem);
+            font-weight: 500;
+            line-height: 1.45;
+        }
+        .hero-carousel-item {
+            position: relative;
+            min-height: 420px;
+            padding: 72px 0;
+        }
+        .hero-banner-section .carousel-inner .hero-carousel-item.active {
+            display: flex !important;
+            align-items: center;
+        }
+        .hero-carousel-content {
+            width: 100%;
+        }
+        .hero-default-banner {
+            background: linear-gradient(105deg, rgba(232, 245, 233, 0.9) 0%, rgba(255,255,255,0.95) 50%, #ffffff 100%);
+            padding: 80px 0;
+            position: relative;
+            overflow: hidden;
+            min-height: 420px;
+            border-radius: 24px;
+            margin-left: 8px;
+            margin-right: 8px;
+            margin-top: 12px;
+        }
+        .hero-subscribe-form {
+            max-width: 450px;
+        }
+        .hero-subscribe-pill {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: stretch;
+            background: #fff;
+            border-radius: 999px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(21, 141, 67, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .hero-subscribe-input-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            min-width: 0;
+        }
+        .hero-subscribe-input-wrap input {
+            padding: 0;
+            background: transparent;
+            color: #333;
+            font-size: 0.95rem;
+            min-width: 0;
+        }
+        .hero-subscribe-icon {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .hero-subscribe-btn {
+            color: #fff !important;
+            font-weight: 600;
+            border-radius: 999px;
+            white-space: nowrap;
+            margin: 4px;
+            padding-left: 1.15rem;
+            padding-right: 1.15rem;
+            flex-shrink: 0;
         }
         .hero-btn-primary {
             background: #158d43 !important;
@@ -626,6 +707,27 @@ use Illuminate\Support\Facades\Storage;
         .hero-carousel-btn.carousel-control-next {
             right: 8px;
         }
+
+        .product-filters-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            min-width: 0;
+            margin-left: -4px;
+            margin-right: -4px;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+        .product-filters-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+        .product-filters-scroll::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        .product-filters .product-filter-btn {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
         
         @media (max-width: 767.98px) {
             .hero-banner-section,
@@ -637,6 +739,41 @@ use Illuminate\Support\Facades\Storage;
             
             .hero-carousel-item {
                 max-width: 100%;
+                min-height: min(72vh, 540px);
+                padding: 40px 0 52px;
+            }
+
+            .hero-banner-title {
+                font-size: clamp(1.2rem, 5.5vw + 0.45rem, 1.85rem);
+            }
+            .hero-banner-lead {
+                font-size: 0.9rem;
+            }
+
+            .hero-default-banner {
+                min-height: 0;
+                padding: 32px 12px 36px;
+                margin-left: 0;
+                margin-right: 0;
+                border-radius: 0;
+            }
+
+            .hero-subscribe-form {
+                max-width: none;
+            }
+            .hero-subscribe-pill {
+                flex-direction: column;
+                border-radius: 16px;
+                align-items: stretch;
+            }
+            .hero-subscribe-input-wrap {
+                padding: 10px 14px;
+            }
+            .hero-subscribe-btn {
+                margin: 0;
+                border-radius: 0 0 14px 14px;
+                padding: 12px 16px;
+                width: 100%;
             }
             
             .hero-carousel-btn.carousel-control-prev {
@@ -645,6 +782,15 @@ use Illuminate\Support\Facades\Storage;
             
             .hero-carousel-btn.carousel-control-next {
                 right: 4px;
+            }
+
+            .hero-carousel-circle {
+                width: 40px;
+                height: 40px;
+            }
+
+            .hero-carousel-dots {
+                margin-bottom: 0.65rem;
             }
             
             .home-page-container {

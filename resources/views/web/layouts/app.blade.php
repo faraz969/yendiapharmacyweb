@@ -541,8 +541,8 @@
         .footer {
             
             color: black;
-            padding: 3rem 0 1rem;
-            margin-top: 4rem;
+            padding: 1rem 0 1rem;
+            margin-top: 1rem;
         }
         .footer a{
             text-decoration:none;
@@ -726,6 +726,12 @@
                         <li class="list-inline-item"><a href="{{ route('order.tracking.index') }}" class="text-decoration-none">Order Tracking</a></li>
                     </ul>
                 </div>
+                <div class="col-12 text-center small pt-1 top-bar-mobile-phone">
+                    <a href="tel:{{ preg_replace('/[^\d+]/', '', $contactPhone) }}" class="text-white text-decoration-none d-inline-flex align-items-center justify-content-center gap-1 flex-wrap">
+                        <i class="fas fa-phone-alt" aria-hidden="true"></i>
+                        <span>Need help? <strong>Call {{ $contactPhone }}</strong></span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -734,14 +740,8 @@
     <header class="main-header bg-white py-md-1 py-1">
         <div class="container">
             <div class="row align-items-center g-0 gx-md-2">
-                <!-- Mobile menu (opens sidebar) -->
-                <div class="col-auto d-md-none ps-1 pe-0">
-                    <button class="btn btn-mobile-nav-toggle rounded-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mainNavOffcanvas" aria-controls="mainNavOffcanvas" aria-label="Open menu">
-                        <i class="fas fa-bars fa-lg"></i>
-                    </button>
-                </div>
                 <!-- Logo -->
-                <div class="col col-md-2 col-lg-2 ps-md-0">
+                <div class="col col-md-2 col-lg-2 ps-1 ps-md-0">
                     <a class="navbar-brand d-flex align-items-center mb-0" href="{{ route('home') }}">
                         <img src="{{ \App\Models\Setting::getHeaderLogo() }}" alt="YENDIA Pharmacy" style="height: 65px; width: auto; max-width: 100%;" class="img-fluid">
                     </a>
@@ -903,6 +903,9 @@
                             @endif
                             <span class="ms-2 d-none d-md-inline fw-semibold" style="color: #4b5563; font-size: 0.95rem;">Cart</span>
                         </a>
+                        <button class="btn btn-mobile-nav-toggle rounded-2 d-md-none ms-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#mainNavOffcanvas" aria-controls="mainNavOffcanvas" aria-label="Open menu">
+                            <i class="fas fa-bars fa-lg"></i>
+                        </button>
                     </div>
                 </div>
             </div>
