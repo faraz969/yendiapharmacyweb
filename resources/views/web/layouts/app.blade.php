@@ -540,12 +540,17 @@
         /* Footer */
         .footer {
             
-            color: black;
+            color: white;
+            background-color:#158d43;
             padding: 1rem 0 1rem;
             margin-top: 1rem;
         }
         .footer a{
             text-decoration:none;
+            color:white;
+        }
+        .footer p{
+            color:white;
         }
         /* Cart */
         .cart-item {
@@ -705,27 +710,8 @@
     <div class="top-utility-bar top-bar-premium py-2 d-block d-md-none">
         <div class="container">
             <div class="row g-2 align-items-center">
-                <div class="col-12 text-center small">
-                    <span class="d-inline-flex align-items-center gap-2 justify-content-center">
-                        <i class="fas fa-circle-info opacity-75"></i>
-                        {{ \App\Models\Setting::getTopbarTagline() }}
-                    </span>
-                </div>
-                <div class="col-12">
-                    <ul class="list-inline mb-0 small text-center">
-                        @auth
-                            @if(Auth::user()->isBranchStaff())
-                                <li class="list-inline-item"><a href="{{ route('branch.dashboard') }}" class="text-decoration-none">Branch Dashboard</a></li>
-                            @else
-                                <li class="list-inline-item"><a href="{{ route('user.dashboard') }}" class="text-decoration-none">My Account</a></li>
-                            @endif
-                        @else
-                            <li class="list-inline-item"><a href="{{ route('login') }}" class="text-decoration-none">My Account</a></li>
-                        @endauth
-                        <li class="list-inline-item"><span class="top-bar-sep">|</span></li>
-                        <li class="list-inline-item"><a href="{{ route('order.tracking.index') }}" class="text-decoration-none">Order Tracking</a></li>
-                    </ul>
-                </div>
+                
+                
                 <div class="col-12 text-center small pt-1 top-bar-mobile-phone">
                     <a href="tel:{{ preg_replace('/[^\d+]/', '', $contactPhone) }}" class="text-white text-decoration-none d-inline-flex align-items-center justify-content-center gap-1 flex-wrap">
                         <i class="fas fa-phone-alt" aria-hidden="true"></i>
@@ -1068,7 +1054,7 @@
                     <div class="d-flex align-items-center mb-3">
                         <img src="{{ \App\Models\Setting::getFooterLogo() }}" alt="YENDIA Pharmacy" style="height: 40px; width: auto; margin-right: 10px;">
                     </div>
-                    <p class="text-black-50">Your trusted online pharmacy for all your healthcare needs.</p>
+                    <p>Your trusted online pharmacy for all your healthcare needs.</p>
                     @php
                         $appStoreUrl = \App\Models\Setting::getAppStoreUrl();
                         $playStoreUrl = \App\Models\Setting::getPlayStoreUrl();
@@ -1091,20 +1077,20 @@
                 <div class="col-md-4">
                     <h5>Quick Links</h5>
                     <ul class="list-unstyled">
-                        <li><a href="{{ route('home') }}" class="text-black-50">Home</a></li>
-                        <li><a href="{{ route('products.index') }}" class="text-black-50">Products</a></li>
-                        <li><a href="{{ route('cart.index') }}" class="text-black-50">Cart</a></li>
+                        <li><a href="{{ route('home') }}" >Home</a></li>
+                        <li><a href="{{ route('products.index') }}" >Products</a></li>
+                        <li><a href="{{ route('cart.index') }}">Cart</a></li>
                         @php
                             $pages = \App\Models\Page::where('is_active', true)->orderBy('title', 'asc')->get();
                         @endphp
                         @foreach($pages as $page)
-                            <li><a href="{{ route('pages.show', $page->slug) }}" class="text-black-50">{{ $page->title }}</a></li>
+                            <li><a href="{{ route('pages.show', $page->slug) }}" >{{ $page->title }}</a></li>
                         @endforeach
                     </ul>
                 </div>
                 <div class="col-md-4">
                     <h5>Contact</h5>
-                    <p class="text-muted">
+                    <p >
                         <i class="fas fa-phone me-2"></i>{{ \App\Models\Setting::getContactPhone() }}<br>
                         <i class="fas fa-envelope me-2"></i>{{ \App\Models\Setting::getContactEmail() }}
                     </p>

@@ -377,10 +377,12 @@ use Illuminate\Support\Facades\Storage;
             
             .home-categories-carousel-control.carousel-control-prev {
                 left: 0;
+                display:none;
             }
             
             .home-categories-carousel-control.carousel-control-next {
                 right: 0;
+                display:none;
             }
         </style>
     @endif
@@ -768,6 +770,7 @@ use Illuminate\Support\Facades\Storage;
             .hero-subscribe-form {
                 max-width: none;
                 padding:40px;
+                display:none;
             }
             .hero-subscribe-pill {
                 flex-direction: column;
@@ -786,10 +789,12 @@ use Illuminate\Support\Facades\Storage;
             
             .hero-carousel-btn.carousel-control-prev {
                 left: 4px;
+                display:none;
             }
             
             .hero-carousel-btn.carousel-control-next {
                 right: 4px;
+                display:none;
             }
 
             .hero-carousel-circle {
@@ -852,12 +857,43 @@ use Illuminate\Support\Facades\Storage;
         .trust-bar-icon-accent {
             color: #ee7d09;
         }
+        .trust-bar-carousel {
+            overflow: hidden;
+        }
+        .trust-bar-carousel .carousel-inner {
+            overflow: visible;
+        }
+        .trust-bar-carousel .carousel-item {
+            min-height: 11rem;
+        }
+        .trust-bar-carousel .carousel-indicators {
+            position: relative;
+            left: auto;
+            right: auto;
+            bottom: auto;
+            margin: 0.35rem 0 0;
+            padding: 0;
+        }
+        .trust-bar-carousel .carousel-indicators [data-bs-target] {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: none;
+            margin: 0 5px;
+            background-color: #d1d5db;
+            opacity: 1;
+        }
+        .trust-bar-carousel .carousel-indicators .active {
+            background-color: #158d43;
+            transform: scale(1.15);
+        }
     </style>
 
     <!-- Trust / features bar -->
     <section class="trust-bar-home mb-1 py-1">
         <div class="container">
-            <div class="row g-4 justify-content-center trust-bar-inner">
+            <!-- Desktop: three columns -->
+            <div class="row g-4 justify-content-center trust-bar-inner d-none d-md-flex">
                 <div class="col-md-4 text-center">
                     <div class="p-4 px-3">
                         <i class="fas fa-shipping-fast fa-2x mb-3 trust-bar-icon"></i>
@@ -878,6 +914,38 @@ use Illuminate\Support\Facades\Storage;
                         <h5 class="fw-bold trust-bar-title">Expert Consultation</h5>
                         <p class="text-muted mb-0">Get advice from qualified pharmacists</p>
                     </div>
+                </div>
+            </div>
+
+            <!-- Mobile: one feature per slide -->
+            <div id="trustBarCarousel" class="carousel slide d-md-none trust-bar-carousel trust-bar-inner" data-bs-ride="carousel" data-bs-interval="5500" data-bs-touch="true" aria-label="Why shop with us">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="text-center p-4 px-3">
+                            <i class="fas fa-shipping-fast fa-2x mb-3 trust-bar-icon" aria-hidden="true"></i>
+                            <h5 class="fw-bold trust-bar-title">Fast Delivery</h5>
+                            <p class="text-muted mb-0">Quick and reliable delivery to your doorstep</p>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="text-center p-4 px-3">
+                            <i class="fas fa-shield-alt fa-2x mb-3 trust-bar-icon" aria-hidden="true"></i>
+                            <h5 class="fw-bold trust-bar-title">Authentic Products</h5>
+                            <p class="text-muted mb-0">100% genuine medications from licensed pharmacies</p>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="text-center p-4 px-3">
+                            <i class="fas fa-user-md fa-2x mb-3 trust-bar-icon-accent" aria-hidden="true"></i>
+                            <h5 class="fw-bold trust-bar-title">Expert Consultation</h5>
+                            <p class="text-muted mb-0">Get advice from qualified pharmacists</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-indicators trust-bar-carousel-dots" role="tablist">
+                    <button type="button" data-bs-target="#trustBarCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Fast delivery"></button>
+                    <button type="button" data-bs-target="#trustBarCarousel" data-bs-slide-to="1" aria-label="Authentic products"></button>
+                    <button type="button" data-bs-target="#trustBarCarousel" data-bs-slide-to="2" aria-label="Expert consultation"></button>
                 </div>
             </div>
         </div>
