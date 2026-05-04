@@ -14,6 +14,7 @@ class Banner extends Model
         'title',
         'description',
         'image',
+        'image_mobile',
         'link',
         'order',
         'is_active',
@@ -53,5 +54,16 @@ class Banner extends Model
             return asset('storage/' . $this->image);
         }
         return null;
+    }
+
+    /**
+     * Mobile hero image URL; falls back to desktop image when not set.
+     */
+    public function getMobileImageUrlAttribute()
+    {
+        if ($this->image_mobile) {
+            return asset('storage/' . $this->image_mobile);
+        }
+        return $this->image_url;
     }
 }

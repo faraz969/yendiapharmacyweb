@@ -13,11 +13,22 @@
             @csrf
             @method('PUT')
             
-            @if($banner->image)
+            @if($banner->image || $banner->image_mobile)
             <div class="mb-3">
-                <label class="form-label">Current Image</label>
-                <div>
-                    <img src="{{ Storage::url($banner->image) }}" alt="{{ $banner->title }}" style="max-width: 300px; max-height: 200px; border-radius: 5px;">
+                <label class="form-label">Current images</label>
+                <div class="d-flex flex-wrap gap-3">
+                    @if($banner->image)
+                        <div>
+                            <div class="small text-muted mb-1">Desktop</div>
+                            <img src="{{ Storage::url($banner->image) }}" alt="{{ $banner->title }}" style="max-width: 300px; max-height: 200px; object-fit: cover; border-radius: 5px;">
+                        </div>
+                    @endif
+                    @if($banner->image_mobile)
+                        <div>
+                            <div class="small text-muted mb-1">Mobile</div>
+                            <img src="{{ Storage::url($banner->image_mobile) }}" alt="{{ $banner->title }} mobile" style="max-width: 200px; max-height: 320px; object-fit: cover; border-radius: 5px;">
+                        </div>
+                    @endif
                 </div>
             </div>
             @endif
@@ -38,13 +49,27 @@
                 @enderror
             </div>
 
-            <div class="mb-3">
-                <label for="image" class="form-label">Banner Image</label>
-                <input type="file" class="form-control @error('image') is-invalid @enderror" id="image" name="image" accept="image/*">
-                @error('image')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-                <small class="form-text text-muted">Leave empty to keep current image. Max size: 5MB. Formats: JPEG, PNG, JPG, GIF, WEBP</small>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Replace desktop banner</label>
+                        <input type="file" class="form-control @error('image') is-invalid @enderror" id="image" name="image" accept="image/*">
+                        @error('image')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted">Leave empty to keep current. Max 5MB.</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="image_mobile" class="form-label">Replace mobile banner</label>
+                        <input type="file" class="form-control @error('image_mobile') is-invalid @enderror" id="image_mobile" name="image_mobile" accept="image/*">
+                        @error('image_mobile')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted">Leave empty to keep current. Upload to add if none yet.</small>
+                    </div>
+                </div>
             </div>
 
             <div class="mb-3">

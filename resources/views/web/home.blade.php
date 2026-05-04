@@ -14,9 +14,12 @@ use Illuminate\Support\Facades\Storage;
             <div class="carousel-inner">
                 @foreach($banners as $index => $banner)
                     @php
-                        $bannerImage = $banner && $banner->image ? Storage::url($banner->image) : null;
+                        $bannerImageDesktop = $banner && $banner->image ? Storage::url($banner->image) : '';
+                        $bannerImageMobile = ($banner && $banner->image_mobile)
+                            ? Storage::url($banner->image_mobile)
+                            : $bannerImageDesktop;
                     @endphp
-                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }} hero-carousel-item" style="background-image: url('{{ $bannerImage }}');">
+                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }} hero-carousel-item" style="--hero-bg-desktop: url('{{ $bannerImageDesktop }}'); --hero-bg-mobile: url('{{ $bannerImageMobile }}');">
                         <div class="container position-relative hero-carousel-content" style="z-index: 2;">
                             <div class="row align-items-center">
                                 <div class="col-12 col-md-6 col-lg-5">
@@ -624,6 +627,7 @@ use Illuminate\Support\Facades\Storage;
             position: relative;
             min-height: 420px;
             padding: 72px 0;
+            background-image: var(--hero-bg-desktop);
             background-size: cover;
             background-position: center center;
             background-repeat: no-repeat;
@@ -745,6 +749,7 @@ use Illuminate\Support\Facades\Storage;
             .hero-carousel-item {
                 max-width: 100%;
                 /* contain = full image visible (no cover crop); soft fill for letterboxing */
+                background-image: var(--hero-bg-mobile);
                 background-size: cover;
                 background-color: #e8f5e9;
                 background-position: center center;

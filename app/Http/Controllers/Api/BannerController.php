@@ -20,6 +20,7 @@ class BannerController extends Controller
                 'title' => $banner->title,
                 'description' => $banner->description,
                 'image' => $banner->image_url,
+                'image_mobile' => $banner->mobile_image_url,
                 'link' => $banner->link,
                 'order' => $banner->order,
             ];

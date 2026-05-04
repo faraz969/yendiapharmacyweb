@@ -26,6 +26,7 @@ class BannerController extends Controller
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'image_mobile' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'link' => 'nullable|url|max:500',
             'order' => 'nullable|integer|min:0',
             'start_date' => 'nullable|date',
@@ -34,6 +35,12 @@ class BannerController extends Controller
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('banners', 'public');
+        }
+
+        if ($request->hasFile('image_mobile')) {
+            $validated['image_mobile'] = $request->file('image_mobile')->store('banners', 'public');
+        } else {
+            $validated['image_mobile'] = null;
         }
 
         $validated['is_active'] = $request->has('is_active') ? true : false;
@@ -61,6 +68,7 @@ class BannerController extends Controller
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'image_mobile' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'link' => 'nullable|url|max:500',
             'order' => 'nullable|integer|min:0',
             'start_date' => 'nullable|date',
@@ -72,6 +80,13 @@ class BannerController extends Controller
                 Storage::disk('public')->delete($banner->image);
             }
             $validated['image'] = $request->file('image')->store('banners', 'public');
+        }
+
+        if ($request->hasFile('image_mobile')) {
+            if ($banner->image_mobile) {
+                Storage::disk('public')->delete($banner->image_mobile);
+            }
+            $validated['image_mobile'] = $request->file('image_mobile')->store('banners', 'public');
         }
 
         $validated['is_active'] = $request->has('is_active') ? true : false;
@@ -87,6 +102,9 @@ class BannerController extends Controller
     {
         if ($banner->image) {
             Storage::disk('public')->delete($banner->image);
+        }
+        if ($banner->image_mobile) {
+            Storage::disk('public')->delete($banner->image_mobile);
         }
 
         $banner->delete();

@@ -17,7 +17,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Image</th>
+                        <th>Images</th>
                         <th>Title</th>
                         <th>Link</th>
                         <th>Order</th>
@@ -32,13 +32,18 @@
                         <tr>
                             <td>{{ $banner->id }}</td>
                             <td>
-                                @if($banner->image)
-                                    <img src="{{ Storage::url($banner->image) }}" alt="{{ $banner->title }}" style="width: 100px; height: 60px; object-fit: cover; border-radius: 5px;">
-                                @else
-                                    <div style="width: 100px; height: 60px; background: #e9ecef; border-radius: 5px; display: flex; align-items: center; justify-content: center;">
-                                        <i class="fas fa-image text-muted"></i>
-                                    </div>
-                                @endif
+                                <div class="d-flex flex-wrap gap-1 align-items-center">
+                                    @if($banner->image)
+                                        <img src="{{ Storage::url($banner->image) }}" alt="{{ $banner->title }} desktop" title="Desktop" style="width: 100px; height: 60px; object-fit: cover; border-radius: 5px;">
+                                    @else
+                                        <div style="width: 100px; height: 60px; background: #e9ecef; border-radius: 5px; display: flex; align-items: center; justify-content: center;" title="Desktop">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                    @endif
+                                    @if($banner->image_mobile)
+                                        <img src="{{ Storage::url($banner->image_mobile) }}" alt="{{ $banner->title }} mobile" title="Mobile" style="width: 50px; height: 80px; object-fit: cover; border-radius: 5px;">
+                                    @endif
+                                </div>
                             </td>
                             <td>{{ $banner->title ?? 'N/A' }}</td>
                             <td>

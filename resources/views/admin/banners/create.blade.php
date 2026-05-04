@@ -27,13 +27,27 @@
                 @enderror
             </div>
 
-            <div class="mb-3">
-                <label for="image" class="form-label">Banner Image <span class="text-danger">*</span></label>
-                <input type="file" class="form-control @error('image') is-invalid @enderror" id="image" name="image" accept="image/*" required>
-                @error('image')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-                <small class="form-text text-muted">Max size: 5MB. Formats: JPEG, PNG, JPG, GIF, WEBP</small>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Desktop banner <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control @error('image') is-invalid @enderror" id="image" name="image" accept="image/*" required>
+                        @error('image')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted">Wide layout (tablets landscape and up). Max 5MB. JPEG, PNG, JPG, GIF, WEBP</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="image_mobile" class="form-label">Mobile banner</label>
+                        <input type="file" class="form-control @error('image_mobile') is-invalid @enderror" id="image_mobile" name="image_mobile" accept="image/*">
+                        @error('image_mobile')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted">Optional portrait-friendly image for phones. If omitted, the desktop image is used.</small>
+                    </div>
+                </div>
             </div>
 
             <div class="mb-3">
