@@ -97,10 +97,12 @@
             right: 0;
             width: 100%;
             max-width: 100%;
-            z-index: 1030;
+            /* Above typical page content; below Bootstrap modals (1055+) */
+            z-index: 1040;
             background: #fff;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-            overflow-x: hidden;
+            /* overflow-x:hidden clips absolutely-positioned dropdowns inside the header */
+            overflow: visible;
         }
         
         .site-header-fixed .main-header {
@@ -109,7 +111,7 @@
         }
         
         .site-header-fixed .dropdown-menu {
-            z-index: 1055;
+            z-index: 1060;
         }
         
         @media (max-width: 767.98px) {
