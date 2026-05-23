@@ -86,11 +86,10 @@
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                @if($item->product->images && is_array($item->product->images) && count($item->product->images) > 0)
-                                                    <img src="{{ asset('storage/' . $item->product->images[0]) }}" 
-                                                         alt="{{ $item->product->name }}" 
-                                                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 10px;">
-                                                @endif
+                                                @include('web.partials.product-image', [
+                                                    'product' => $item->product,
+                                                    'style' => 'width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 10px;',
+                                                ])
                                                 <div>
                                                     <strong>{{ $item->product->name }}</strong>
                                                     @if($item->batch)

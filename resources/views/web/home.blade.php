@@ -441,11 +441,10 @@ use Illuminate\Support\Facades\Storage;
                                     <div class="card product-card h-100 border-0 shadow-sm" style=" overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; display: flex; flex-direction: column; width: 100%;">
                                         <!-- Product Image with Badge -->
                                         <div class="position-relative" style="height: 220px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
-                                            @if($product->images && is_array($product->images) && count($product->images) > 0)
-                                                <img src="{{ asset('storage/' . $product->images[0]) }}" alt="{{ $product->name }}" style="max-width: 100%; max-height: 100%; object-fit: contain; padding: 15px;">
-                                            @else
-                                                <i class="fas fa-image fa-4x text-muted"></i>
-                                            @endif
+                                            @include('web.partials.product-image', [
+                                                'product' => $product,
+                                                'style' => 'max-width: 100%; max-height: 100%; object-fit: contain; padding: 15px;',
+                                            ])
                                             @if($badgeLabel)
                                                 <span class="position-absolute top-0 start-0 m-2 px-2 py-1 text-white fw-bold" style="background: {{ $badgeColor }}; border-radius: 5px; font-size: 0.75rem;">
                                                     {{ $badgeLabel }}

@@ -11,7 +11,12 @@
                     <div class="carousel-inner">
                         @foreach($product->images as $index => $image)
                             <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                                <img src="{{ asset('storage/' . $image) }}" class="d-block w-100" style="height: 500px; object-fit: cover;" alt="{{ $product->name }}">
+                                @include('web.partials.product-image', [
+                                    'image' => $image,
+                                    'product' => $product,
+                                    'class' => 'd-block w-100',
+                                    'style' => 'height: 500px; object-fit: cover;',
+                                ])
                             </div>
                         @endforeach
                     </div>
@@ -25,9 +30,11 @@
                     @endif
                 </div>
             @else
-                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 500px;">
-                    <i class="fas fa-image fa-5x text-muted"></i>
-                </div>
+                @include('web.partials.product-image', [
+                    'product' => $product,
+                    'class' => 'd-block w-100',
+                    'style' => 'height: 500px; object-fit: cover;',
+                ])
             @endif
         </div>
 
@@ -133,13 +140,7 @@
                 @foreach($relatedProducts as $relatedProduct)
                     <div class="col-md-3">
                         <div class="card product-card">
-                                @if($relatedProduct->images && is_array($relatedProduct->images) && count($relatedProduct->images) > 0)
-                                    <img src="{{ asset('storage/' . $relatedProduct->images[0]) }}" class="product-image" alt="{{ $relatedProduct->name }}">
-                            @else
-                                <div class="product-image d-flex align-items-center justify-content-center bg-light">
-                                    <i class="fas fa-image fa-3x text-muted"></i>
-                                </div>
-                            @endif
+                            @include('web.partials.product-image', ['product' => $relatedProduct, 'class' => 'product-image'])
                             <div class="product-card-body">
                                 <h6 class="card-title">{{ Str::limit($relatedProduct->name, 40) }}</h6>
                                 <div class="d-flex justify-content-between align-items-center mt-3">

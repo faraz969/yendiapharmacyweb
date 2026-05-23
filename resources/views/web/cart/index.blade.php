@@ -15,13 +15,11 @@
                             <div class="cart-item">
                                 <div class="row align-items-center">
                                     <div class="col-md-2">
-                                        @if($item['product']->images && is_array($item['product']->images) && count($item['product']->images) > 0)
-                                            <img src="{{ asset('storage/' . $item['product']->images[0]) }}" class="img-fluid rounded" alt="{{ $item['product']->name }}">
-                                        @else
-                                            <div class="bg-light d-flex align-items-center justify-content-center rounded" style="width: 80px; height: 80px;">
-                                                <i class="fas fa-image text-muted"></i>
-                                            </div>
-                                        @endif
+                                        @include('web.partials.product-image', [
+                                            'product' => $item['product'],
+                                            'class' => 'img-fluid rounded',
+                                            'style' => 'width: 80px; height: 80px; object-fit: cover;',
+                                        ])
                                     </div>
                                     <div class="col-md-4">
                                         <h6 class="mb-1">{{ $item['product']->name }}</h6>
