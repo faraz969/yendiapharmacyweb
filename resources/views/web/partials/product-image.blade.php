@@ -3,8 +3,8 @@
 
     if (!empty($src)) {
         $imageSrc = $src;
-    } elseif (!empty($image)) {
-        $imageSrc = asset('storage/' . $image);
+    } elseif (!empty($imagePath)) {
+        $imageSrc = asset('storage/' . $imagePath);
     } elseif (isset($product) && $product->images && is_array($product->images) && count($product->images) > 0) {
         $imageSrc = asset('storage/' . $product->images[0]);
     } else {

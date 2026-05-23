@@ -12,7 +12,7 @@
                         @foreach($product->images as $index => $image)
                             <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
                                 @include('web.partials.product-image', [
-                                    'image' => $image,
+                                    'imagePath' => $image,
                                     'product' => $product,
                                     'class' => 'd-block w-100',
                                     'style' => 'height: 500px; object-fit: contain;',
