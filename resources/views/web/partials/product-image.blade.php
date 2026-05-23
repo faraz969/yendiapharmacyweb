@@ -1,5 +1,5 @@
 @php
-    $fallbackUrl = asset('dummy.jpg');
+    $fallbackUrl = asset('dummy.png');
 
     if (!empty($src)) {
         $imageSrc = $src;

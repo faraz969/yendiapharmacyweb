@@ -462,7 +462,7 @@
         .product-image {
             width: 100%;
             height: 250px;
-            object-fit: cover;
+            object-fit: contain;
             background: #f3f4f6;
             flex-shrink: 0;
         }

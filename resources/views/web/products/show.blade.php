@@ -15,7 +15,7 @@
                                     'image' => $image,
                                     'product' => $product,
                                     'class' => 'd-block w-100',
-                                    'style' => 'height: 500px; object-fit: cover;',
+                                    'style' => 'height: 500px; object-fit: contain;',
                                 ])
                             </div>
                         @endforeach
@@ -33,7 +33,7 @@
                 @include('web.partials.product-image', [
                     'product' => $product,
                     'class' => 'd-block w-100',
-                    'style' => 'height: 500px; object-fit: cover;',
+                    'style' => 'height: 500px; object-fit: contain;',
                 ])
             @endif
         </div>
