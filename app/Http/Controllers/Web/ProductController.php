@@ -85,6 +85,14 @@ class ProductController extends Controller
         
         $categories = Category::where('is_active', true)->orderBy('name')->get();
 
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('web.products.partials.product-cards', compact('products'))->render(),
+                'has_more' => $products->hasMorePages(),
+                'next_page' => $products->currentPage() + 1,
+            ]);
+        }
+
         return view('web.products.index', compact('products', 'categories'));
     }
 
