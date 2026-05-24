@@ -2,7 +2,7 @@
     <div class="col-md-4">
         <div class="card product-card h-100">
             <div class="position-relative">
-                @include('web.partials.product-image', ['product' => $product, 'class' => 'product-image'])
+                @include('web.partials.product-image', ['product' => $product, 'class' => 'product-image', 'hideUntilLoaded' => true])
                 @if($product->discount && $product->discount > 0)
                     <span class="position-absolute top-0 start-0 m-2 px-2 py-1 text-white fw-bold" style="background: #ee7d09; border-radius: 5px; font-size: 0.75rem;">
                         {{ \App\Models\Setting::formatPrice($product->discount) }} OFF

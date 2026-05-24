@@ -140,7 +140,7 @@
                 @foreach($relatedProducts as $relatedProduct)
                     <div class="col-md-3">
                         <div class="card product-card">
-                            @include('web.partials.product-image', ['product' => $relatedProduct, 'class' => 'product-image'])
+                            @include('web.partials.product-image', ['product' => $relatedProduct, 'class' => 'product-image', 'hideUntilLoaded' => true])
                             <div class="product-card-body">
                                 <h6 class="card-title">{{ Str::limit($relatedProduct->name, 40) }}</h6>
                                 <div class="d-flex justify-content-between align-items-center mt-3">

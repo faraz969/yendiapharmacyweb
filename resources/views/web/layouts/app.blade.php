@@ -466,6 +466,10 @@
             background: #f3f4f6;
             flex-shrink: 0;
         }
+
+        .product-image-pending {
+            display: none !important;
+        }
         
         .product-card-body {
             padding: 1.5rem;
@@ -1214,6 +1218,70 @@
         })();
     </script>
     
+    <script>
+        (function () {
+            function getProductCardWrapper(img) {
+                return img.closest('.col-md-4, .col-md-3, .product-card-wrapper');
+            }
+
+            function isFallbackImage(img) {
+                if (img.dataset.fallbackInitial === '1') return true;
+                var fallback = img.dataset.fallbackUrl || '';
+                if (!fallback) return false;
+                try {
+                    return new URL(img.currentSrc || img.src, window.location.origin).href
+                        === new URL(fallback, window.location.origin).href;
+                } catch (e) {
+                    return (img.src || '').indexOf('dummy') !== -1;
+                }
+            }
+
+            function hideProductCard(img) {
+                var wrapper = getProductCardWrapper(img);
+                if (wrapper) wrapper.classList.add('product-image-pending');
+            }
+
+            function showProductCard(img) {
+                var wrapper = getProductCardWrapper(img);
+                if (wrapper) wrapper.classList.remove('product-image-pending');
+            }
+
+            window.onProductImageLoad = function (img) {
+                if (img.dataset.hideUntilLoaded !== '1') return;
+                if (isFallbackImage(img)) {
+                    hideProductCard(img);
+                } else {
+                    showProductCard(img);
+                }
+            };
+
+            window.onProductImageError = function (img) {
+                if (img.dataset.hideUntilLoaded !== '1') return;
+                img.dataset.fallbackInitial = '1';
+                hideProductCard(img);
+            };
+
+            window.initProductImageVisibility = function (root) {
+                var scope = root || document;
+                scope.querySelectorAll('img.js-product-image[data-hide-until-loaded="1"]').forEach(function (img) {
+                    if (img.complete) {
+                        window.onProductImageLoad(img);
+                    } else {
+                        hideProductCard(img);
+                    }
+                });
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function () {
+                    window.initProductImageVisibility();
+                });
+            } else {
+                window.initProductImageVisibility();
+            }
+        })();
+    </script>
+
     @stack('scripts')
 </body>
 </html>

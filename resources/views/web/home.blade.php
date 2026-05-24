@@ -444,6 +444,7 @@ use Illuminate\Support\Facades\Storage;
                                             @include('web.partials.product-image', [
                                                 'product' => $product,
                                                 'style' => 'max-width: 100%; max-height: 100%; object-fit: contain; padding: 15px;',
+                                                'hideUntilLoaded' => true,
                                             ])
                                             @if($badgeLabel)
                                                 <span class="position-absolute top-0 start-0 m-2 px-2 py-1 text-white fw-bold" style="background: {{ $badgeColor }}; border-radius: 5px; font-size: 0.75rem;">

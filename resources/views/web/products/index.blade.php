@@ -124,6 +124,9 @@
             .then(function (data) {
                 if (data.html) {
                     productsGrid.insertAdjacentHTML('beforeend', data.html);
+                    if (window.initProductImageVisibility) {
+                        window.initProductImageVisibility(productsGrid);
+                    }
                 }
                 if (data.has_more && data.next_page) {
                     btn.dataset.nextPage = data.next_page;
