@@ -98,35 +98,8 @@ class OrderController extends Controller
         // Get delivery_zone_id from request (only for delivery orders)
         $deliveryZoneId = ($deliveryType === 'delivery') ? $request->input('delivery_zone_id') : null;
 
-        // Check if any product requires prescription
-        $requiresPrescription = false;
-        $prescriptionRequiredProducts = [];
-        foreach ($validated['items'] as $item) {
-            $product = Product::find($item['product_id']);
-            if ($product && $product->requires_prescription) {
-                $requiresPrescription = true;
-                $prescriptionRequiredProducts[] = $product->name;
-            }
-        }
-
-        // Validate prescription if required
-        if ($requiresPrescription) {
-            // Check if prescription images are provided (for mobile app, this might be sent as a flag or files)
-            $hasPrescription = $request->has('prescription_images') || 
-                              $request->hasFile('prescription_images') ||
-                              $request->has('prescription_uploaded') ||
-                              $request->input('prescription_uploaded', false);
-            
-            if (!$hasPrescription) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Prescription image(s) are required for the following products: ' . implode(', ', $prescriptionRequiredProducts),
-                    'errors' => [
-                        'prescription' => ['Prescription image(s) are required for prescription-required products.']
-                    ]
-                ], 422);
-            }
-        }
+        // Prescription is optional even for prescription-required products
+        // (upload section is still shown on clients when cart has Rx items)
 
         return DB::transaction(function () use ($validated, $deliveryAddressId, $deliveryZoneId, $deliveryType, $request) {
             // Calculate totals

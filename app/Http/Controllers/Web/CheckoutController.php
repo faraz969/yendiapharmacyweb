@@ -117,7 +117,6 @@ class CheckoutController extends Controller
             // Calculate totals
             $cartItems = [];
             $subtotal = 0;
-            $requiresPrescription = false;
 
             foreach ($cart as $productId => $item) {
                 $product = Product::find($productId);
@@ -129,10 +128,6 @@ class CheckoutController extends Controller
                         'price' => $item['price'],
                     ];
                     $subtotal += $itemTotal;
-                    
-                    if ($product->requires_prescription) {
-                        $requiresPrescription = true;
-                    }
                 }
             }
 
@@ -156,9 +151,9 @@ class CheckoutController extends Controller
 
             $total = $subtotal + $deliveryFee;
 
-            // Handle prescription
+            // Handle prescription (optional — even when cart has Rx products)
             $prescription = null;
-            if ($requiresPrescription && $request->hasFile('prescription_file')) {
+            if ($request->hasFile('prescription_file')) {
                 $filePath = $request->file('prescription_file')->store('prescriptions', 'public');
                 
                 $prescription = Prescription::create([

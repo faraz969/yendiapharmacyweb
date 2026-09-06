@@ -195,15 +195,15 @@
                     </div>
                 </div>
 
-                <!-- Prescription Upload -->
+                <!-- Prescription Upload (optional) -->
                 @if($requiresPrescription)
                     <div class="card mb-4">
                         <div class="card-header bg-warning text-dark">
-                            <h5 class="mb-0"><i class="fas fa-prescription me-2"></i>Prescription Required</h5>
+                            <h5 class="mb-0"><i class="fas fa-prescription me-2"></i>Prescription (Optional)</h5>
                         </div>
                         <div class="card-body">
                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>Your order contains prescription medications. Please upload a valid prescription.
+                                <i class="fas fa-info-circle me-2"></i>Your order contains prescription medications. You may upload a prescription now, or skip and provide it later.
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
@@ -224,8 +224,8 @@
                                 <input type="date" name="prescription_date" class="form-control" value="{{ old('prescription_date') }}">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Prescription File <span class="text-danger">*</span></label>
-                                <input type="file" name="prescription_file" class="form-control @error('prescription_file') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png" required>
+                                <label class="form-label">Prescription File <span class="text-muted">(Optional)</span></label>
+                                <input type="file" name="prescription_file" class="form-control @error('prescription_file') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
                                 <small class="form-text text-muted">Upload PDF or image (Max 5MB)</small>
                                 @error('prescription_file')
                                     <div class="invalid-feedback">{{ $message }}</div>
