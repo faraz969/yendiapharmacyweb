@@ -32,10 +32,10 @@
         <!-- Filters -->
         <form method="GET" action="{{ route('admin.products.index') }}" class="mb-4">
             <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <input type="text" name="search" class="form-control" placeholder="Search by name, SKU, or barcode..." value="{{ request('search') }}">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select name="category_id" class="form-select">
                         <option value="">All Categories</option>
                         @foreach($categories as $category)
@@ -45,12 +45,19 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select name="status" class="form-select">
                         <option value="">All Status</option>
                         <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                         <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
                         <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="prescription" class="form-select">
+                        <option value="">All Prescription</option>
+                        <option value="required" {{ request('prescription') == 'required' ? 'selected' : '' }}>Prescription Required</option>
+                        <option value="not_required" {{ request('prescription') == 'not_required' ? 'selected' : '' }}>OTC (No Prescription)</option>
                     </select>
                 </div>
                 <div class="col-md-2">

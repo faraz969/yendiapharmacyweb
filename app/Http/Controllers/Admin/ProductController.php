@@ -42,6 +42,15 @@ class ProductController extends Controller
             }
         }
 
+        // Filter by prescription requirement
+        if ($request->filled('prescription')) {
+            if ($request->prescription === 'required') {
+                $query->where('requires_prescription', true);
+            } elseif ($request->prescription === 'not_required') {
+                $query->where('requires_prescription', false);
+            }
+        }
+
         // Export to Excel/CSV (exports ALL products, ignoring filters)
         if ($request->has('export') && $request->export === 'excel') {
             return $this->exportToExcel();
