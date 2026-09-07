@@ -199,11 +199,11 @@
                 @if($requiresPrescription)
                     <div class="card mb-4">
                         <div class="card-header bg-warning text-dark">
-                            <h5 class="mb-0"><i class="fas fa-prescription me-2"></i>Prescription (Optional)</h5>
+                            <h5 class="mb-0"><i class="fas fa-prescription me-2"></i>Prescription </h5>
                         </div>
                         <div class="card-body">
                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>Your order contains prescription medications. You may upload a prescription now, or skip and provide it later.
+                                <i class="fas fa-info-circle me-2"></i>Your order contains prescription medications upload a prescription.
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
