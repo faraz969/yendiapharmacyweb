@@ -137,8 +137,8 @@
                                 <li><code>barcode</code> - Barcode</li>
                                 <li><code>cost_price</code> - Cost price (default: 0)</li>
                                 <li><code>discount</code> - Discount amount (default: 0)</li>
-                                <li><code>purchase_unit</code> - Purchase unit: box, pack, bottle, piece (default: box)</li>
-                                <li><code>selling_unit</code> - Selling unit: tablet, capsule, ml, piece (default: tablet)</li>
+                                <li><code>purchase_unit</code> - Purchase unit value from Product Units (default: box)</li>
+                                <li><code>selling_unit</code> - Selling unit value from Product Units (default: tablet)</li>
                                 <li><code>conversion_factor</code> - Conversion factor (default: 1)</li>
                                 <li><code>requires_prescription</code> - true/false (default: false)</li>
                                 <li><code>prescription_notes</code> - Prescription notes</li>

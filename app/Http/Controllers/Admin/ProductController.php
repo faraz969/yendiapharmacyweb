@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductUnit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -65,7 +67,9 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::where('is_active', true)->orderBy('name')->get();
-        return view('admin.products.create', compact('categories'));
+        $purchaseUnits = ProductUnit::purchaseOptions();
+        $sellingUnits = ProductUnit::sellingOptions();
+        return view('admin.products.create', compact('categories', 'purchaseUnits', 'sellingUnits'));
     }
 
     public function store(Request $request)
@@ -82,8 +86,8 @@ class ProductController extends Controller
             'selling_price' => 'required|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
             'cost_price' => 'required|numeric|min:0',
-            'purchase_unit' => 'required|string|in:box,pack,bottle,piece',
-            'selling_unit' => 'required|string|in:tablet,capsule,ml,piece',
+            'purchase_unit' => ['required', 'string', Rule::in(ProductUnit::purchaseValues())],
+            'selling_unit' => ['required', 'string', Rule::in(ProductUnit::sellingValues())],
             'conversion_factor' => 'required|integer|min:1',
             'prescription_notes' => 'nullable|string',
             'min_stock_level' => 'nullable|integer|min:0',
@@ -129,11 +133,24 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::where('is_active', true)->orderBy('name')->get();
-        return view('admin.products.edit', compact('product', 'categories'));
+        $purchaseUnits = ProductUnit::purchaseOptions();
+        $sellingUnits = ProductUnit::sellingOptions();
+        return view('admin.products.edit', compact('product', 'categories', 'purchaseUnits', 'sellingUnits'));
     }
 
     public function update(Request $request, Product $product)
     {
+        $purchaseValues = ProductUnit::purchaseValues();
+        $sellingValues = ProductUnit::sellingValues();
+
+        // Allow currently saved unit values even if inactive/removed from options
+        if ($product->purchase_unit && !in_array($product->purchase_unit, $purchaseValues, true)) {
+            $purchaseValues[] = $product->purchase_unit;
+        }
+        if ($product->selling_unit && !in_array($product->selling_unit, $sellingValues, true)) {
+            $sellingValues[] = $product->selling_unit;
+        }
+
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
@@ -146,8 +163,8 @@ class ProductController extends Controller
             'selling_price' => 'required|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
             'cost_price' => 'required|numeric|min:0',
-            'purchase_unit' => 'required|string|in:box,pack,bottle,piece',
-            'selling_unit' => 'required|string|in:tablet,capsule,ml,piece',
+            'purchase_unit' => ['required', 'string', Rule::in($purchaseValues)],
+            'selling_unit' => ['required', 'string', Rule::in($sellingValues)],
             'conversion_factor' => 'required|integer|min:1',
             'prescription_notes' => 'nullable|string',
             'min_stock_level' => 'nullable|integer|min:0',

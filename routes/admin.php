@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductUnitController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\OrderController;
@@ -41,6 +41,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Categories
         Route::resource('categories', CategoryController::class);
+
+        // Product Units (purchase / selling)
+        Route::resource('product-units', ProductUnitController::class)->except(['show']);
         
         // Products - Import routes must come before resource route to avoid conflicts
         Route::get('/products/import', [ProductController::class, 'showImportForm'])->name('products.import');

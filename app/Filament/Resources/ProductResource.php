@@ -58,22 +58,15 @@ class ProductResource extends Resource
                 Components\Section::make('Unit Conversion')
                     ->schema([
                         Components\Select::make('purchase_unit')
-                            ->options([
-                                'box' => 'Box',
-                                'pack' => 'Pack',
-                                'bottle' => 'Bottle',
-                            ])
+                            ->options(fn () => \App\Models\ProductUnit::purchaseOptions()->pluck('name', 'value')->all())
                             ->default('box')
-                            ->required(),
+                            ->required()
+                            ->searchable(),
                         Components\Select::make('selling_unit')
-                            ->options([
-                                'tablet' => 'Tablet',
-                                'capsule' => 'Capsule',
-                                'ml' => 'ML',
-                                'piece' => 'Piece',
-                            ])
+                            ->options(fn () => \App\Models\ProductUnit::sellingOptions()->pluck('name', 'value')->all())
                             ->default('tablet')
-                            ->required(),
+                            ->required()
+                            ->searchable(),
                         Components\TextInput::make('conversion_factor')
                             ->numeric()
                             ->default(1)

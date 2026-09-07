@@ -339,6 +339,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.product-units.index') }}" class="{{ request()->routeIs('admin.product-units.*') ? 'active' : '' }}">
+                        <i class="fas fa-ruler-combined"></i> Product Units
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.vendors.index') }}" class="{{ request()->routeIs('admin.vendors.*') ? 'active' : '' }}">
                         <i class="fas fa-truck"></i> Vendors
                     </a>

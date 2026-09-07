@@ -165,11 +165,16 @@
                             <div class="mb-3">
                                 <label for="purchase_unit" class="form-label">Purchase Unit <span class="text-danger">*</span></label>
                                 <select class="form-select @error('purchase_unit') is-invalid @enderror" id="purchase_unit" name="purchase_unit" required>
-                                    <option value="box" {{ old('purchase_unit', 'box') == 'box' ? 'selected' : '' }}>Box</option>
-                                    <option value="pack" {{ old('purchase_unit') == 'pack' ? 'selected' : '' }}>Pack</option>
-                                    <option value="bottle" {{ old('purchase_unit') == 'bottle' ? 'selected' : '' }}>Bottle</option>
-                                    <option value="piece" {{ old('purchase_unit') == 'piece' ? 'selected' : '' }}>Piece</option>
+                                    <option value="">Select purchase unit</option>
+                                    @forelse($purchaseUnits as $unit)
+                                        <option value="{{ $unit->value }}" {{ old('purchase_unit', 'box') == $unit->value ? 'selected' : '' }}>
+                                            {{ $unit->name }}
+                                        </option>
+                                    @empty
+                                        <option value="" disabled>No purchase units configured</option>
+                                    @endforelse
                                 </select>
+                                <small class="form-text text-muted">Manage units in <a href="{{ route('admin.product-units.index') }}" target="_blank">Product Units</a></small>
                                 @error('purchase_unit')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -179,11 +184,16 @@
                             <div class="mb-3">
                                 <label for="selling_unit" class="form-label">Selling Unit <span class="text-danger">*</span></label>
                                 <select class="form-select @error('selling_unit') is-invalid @enderror" id="selling_unit" name="selling_unit" required>
-                                    <option value="tablet" {{ old('selling_unit', 'tablet') == 'tablet' ? 'selected' : '' }}>Tablet</option>
-                                    <option value="capsule" {{ old('selling_unit') == 'capsule' ? 'selected' : '' }}>Capsule</option>
-                                    <option value="ml" {{ old('selling_unit') == 'ml' ? 'selected' : '' }}>ML</option>
-                                    <option value="piece" {{ old('selling_unit') == 'piece' ? 'selected' : '' }}>Piece</option>
+                                    <option value="">Select selling unit</option>
+                                    @forelse($sellingUnits as $unit)
+                                        <option value="{{ $unit->value }}" {{ old('selling_unit', 'tablet') == $unit->value ? 'selected' : '' }}>
+                                            {{ $unit->name }}
+                                        </option>
+                                    @empty
+                                        <option value="" disabled>No selling units configured</option>
+                                    @endforelse
                                 </select>
+                                <small class="form-text text-muted">Manage units in <a href="{{ route('admin.product-units.index') }}" target="_blank">Product Units</a></small>
                                 @error('selling_unit')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

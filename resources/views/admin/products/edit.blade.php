@@ -191,11 +191,20 @@
                             <div class="mb-3">
                                 <label for="purchase_unit" class="form-label">Purchase Unit <span class="text-danger">*</span></label>
                                 <select class="form-select @error('purchase_unit') is-invalid @enderror" id="purchase_unit" name="purchase_unit" required>
-                                    <option value="box" {{ old('purchase_unit', $product->purchase_unit) == 'box' ? 'selected' : '' }}>Box</option>
-                                    <option value="pack" {{ old('purchase_unit', $product->purchase_unit) == 'pack' ? 'selected' : '' }}>Pack</option>
-                                    <option value="bottle" {{ old('purchase_unit', $product->purchase_unit) == 'bottle' ? 'selected' : '' }}>Bottle</option>
-                                    <option value="piece" {{ old('purchase_unit', $product->purchase_unit) == 'piece' ? 'selected' : '' }}>Piece</option>
+                                    <option value="">Select purchase unit</option>
+                                    @php $selectedPurchase = old('purchase_unit', $product->purchase_unit); @endphp
+                                    @forelse($purchaseUnits as $unit)
+                                        <option value="{{ $unit->value }}" {{ $selectedPurchase == $unit->value ? 'selected' : '' }}>
+                                            {{ $unit->name }}
+                                        </option>
+                                    @empty
+                                        <option value="" disabled>No purchase units configured</option>
+                                    @endforelse
+                                    @if($selectedPurchase && !$purchaseUnits->contains('value', $selectedPurchase))
+                                        <option value="{{ $selectedPurchase }}" selected>{{ ucfirst($selectedPurchase) }} (current)</option>
+                                    @endif
                                 </select>
+                                <small class="form-text text-muted">Manage units in <a href="{{ route('admin.product-units.index') }}" target="_blank">Product Units</a></small>
                                 @error('purchase_unit')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -205,11 +214,20 @@
                             <div class="mb-3">
                                 <label for="selling_unit" class="form-label">Selling Unit <span class="text-danger">*</span></label>
                                 <select class="form-select @error('selling_unit') is-invalid @enderror" id="selling_unit" name="selling_unit" required>
-                                    <option value="tablet" {{ old('selling_unit', $product->selling_unit) == 'tablet' ? 'selected' : '' }}>Tablet</option>
-                                    <option value="capsule" {{ old('selling_unit', $product->selling_unit) == 'capsule' ? 'selected' : '' }}>Capsule</option>
-                                    <option value="ml" {{ old('selling_unit', $product->selling_unit) == 'ml' ? 'selected' : '' }}>ML</option>
-                                    <option value="piece" {{ old('selling_unit', $product->selling_unit) == 'piece' ? 'selected' : '' }}>Piece</option>
+                                    <option value="">Select selling unit</option>
+                                    @php $selectedSelling = old('selling_unit', $product->selling_unit); @endphp
+                                    @forelse($sellingUnits as $unit)
+                                        <option value="{{ $unit->value }}" {{ $selectedSelling == $unit->value ? 'selected' : '' }}>
+                                            {{ $unit->name }}
+                                        </option>
+                                    @empty
+                                        <option value="" disabled>No selling units configured</option>
+                                    @endforelse
+                                    @if($selectedSelling && !$sellingUnits->contains('value', $selectedSelling))
+                                        <option value="{{ $selectedSelling }}" selected>{{ ucfirst($selectedSelling) }} (current)</option>
+                                    @endif
                                 </select>
+                                <small class="form-text text-muted">Manage units in <a href="{{ route('admin.product-units.index') }}" target="_blank">Product Units</a></small>
                                 @error('selling_unit')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
