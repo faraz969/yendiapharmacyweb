@@ -57,6 +57,7 @@
                         @error('image')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                        <small class="form-text text-muted d-block">Recommended size: <strong>1920 × 600 px</strong> (widescreen).</small>
                         <small class="form-text text-muted">Leave empty to keep current. Max 5MB.</small>
                     </div>
                 </div>
@@ -67,7 +68,8 @@
                         @error('image_mobile')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <small class="form-text text-muted">Leave empty to keep current. Upload to add if none yet.</small>
+                        <small class="form-text text-muted d-block">Recommended size: <strong>1080 × 1350 px</strong> (portrait).</small>
+                        <small class="form-text text-muted">Leave empty to keep current. Upload to add if none yet. Max 5MB.</small>
                     </div>
                 </div>
             </div>

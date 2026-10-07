@@ -35,7 +35,8 @@
                         @error('image')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <small class="form-text text-muted">Wide layout (tablets landscape and up). Max 5MB. JPEG, PNG, JPG, GIF, WEBP</small>
+                        <small class="form-text text-muted d-block">Recommended size: <strong>1920 × 600 px</strong> (widescreen).</small>
+                        <small class="form-text text-muted">Wide layout for tablets landscape and up. Max 5MB. JPEG, PNG, JPG, GIF, WEBP</small>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -45,7 +46,8 @@
                         @error('image_mobile')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <small class="form-text text-muted">Optional portrait-friendly image for phones. If omitted, the desktop image is used.</small>
+                        <small class="form-text text-muted d-block">Recommended size: <strong>1080 × 1350 px</strong> (portrait).</small>
+                        <small class="form-text text-muted">Optional for phones. If omitted, the desktop image is used. Max 5MB.</small>
                     </div>
                 </div>
             </div>

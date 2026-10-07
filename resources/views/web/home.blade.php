@@ -24,10 +24,10 @@ use Illuminate\Support\Facades\Storage;
                             <div class="row align-items-center">
                                 <div class="col-12 col-md-6 col-lg-5">
                                     <h1 class="hero-banner-title fw-bold mb-2 mb-md-3 hero-heading-purple">
-                                        {{ $banner->title ?? 'Fresh & Healthy' }}
+                                        {{ $banner->title ?? '' }}
                                     </h1>
                                     <p class="hero-banner-lead mb-3 mb-md-4 hero-lead-text">
-                                        {{ $banner->description ?? 'Save up to 50% off on your first order' }}
+                                        {{ $banner->description ?? '' }}
                                     </p>
                                     <form class="subscribe-form mb-0 mb-md-3 hero-subscribe-form">
                                         <div class="subscribe-input-group hero-subscribe-pill">
