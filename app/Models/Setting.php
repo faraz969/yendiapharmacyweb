@@ -171,4 +171,26 @@ class Setting extends Model
     {
         return self::get('show_out_of_stock_products', '1') == '1';
     }
+
+    /**
+     * Global loyalty discount percentage applied to all products (0–100).
+     */
+    public static function getLoyaltyDiscount(): float
+    {
+        static $cached = null;
+
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        $value = (float) self::get('loyalty_discount', 0);
+
+        if ($value < 0) {
+            $value = 0.0;
+        } elseif ($value > 100) {
+            $value = 100.0;
+        }
+
+        return $cached = $value;
+    }
 }

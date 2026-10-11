@@ -37,10 +37,13 @@ class ProductController extends Controller
         // Check if we should hide out of stock products
         $showOutOfStock = \App\Models\Setting::shouldShowOutOfStockProducts();
 
-        // Ensure total_stock is included and filter out-of-stock products if setting is disabled
+        // Ensure total_stock is included and apply loyalty discount to selling_price for customers
         $products->getCollection()->transform(function ($product) {
             $productArray = $product->toArray();
             $productArray['total_stock'] = $product->total_stock;
+            $productArray['original_price'] = $product->original_price;
+            $productArray['loyalty_discount_percent'] = $product->loyalty_discount_percent;
+            $productArray['selling_price'] = $product->current_price;
             return $productArray;
         });
 
@@ -77,9 +80,12 @@ class ProductController extends Controller
             abort(404, 'Product not found');
         }
 
-        // Ensure total_stock is included in the response
+        // Ensure total_stock is included and apply loyalty discount to selling_price for customers
         $productData = $product->toArray();
         $productData['total_stock'] = $product->total_stock;
+        $productData['original_price'] = $product->original_price;
+        $productData['loyalty_discount_percent'] = $product->loyalty_discount_percent;
+        $productData['selling_price'] = $product->current_price;
 
         // Log product view activity (only if user is authenticated)
         if (Auth::check()) {

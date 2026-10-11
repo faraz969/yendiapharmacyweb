@@ -18,6 +18,7 @@ class SettingController extends Controller
             'data' => [
                 'currency' => Setting::getCurrency(),
                 'currency_symbol' => Setting::getCurrencySymbol(),
+                'loyalty_discount' => Setting::getLoyaltyDiscount(),
             ],
         ]);
     }

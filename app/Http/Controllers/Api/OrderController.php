@@ -102,10 +102,21 @@ class OrderController extends Controller
         // (upload section is still shown on clients when cart has Rx items)
 
         return DB::transaction(function () use ($validated, $deliveryAddressId, $deliveryZoneId, $deliveryType, $request) {
-            // Calculate totals
+            // Recalculate item prices from DB + loyalty discount (do not trust client prices)
+            $pricedItems = [];
             $subtotal = 0;
             foreach ($validated['items'] as $item) {
-                $subtotal += $item['quantity'] * $item['price'];
+                $product = Product::find($item['product_id']);
+                if (!$product) {
+                    continue;
+                }
+                $unitPrice = $product->current_price;
+                $pricedItems[] = [
+                    'product_id' => $product->id,
+                    'quantity' => $item['quantity'],
+                    'price' => $unitPrice,
+                ];
+                $subtotal += $item['quantity'] * $unitPrice;
             }
 
             // Calculate delivery fee (only for delivery orders)
@@ -154,7 +165,7 @@ class OrderController extends Controller
             ]);
 
             // Create order items
-            foreach ($validated['items'] as $itemData) {
+            foreach ($pricedItems as $itemData) {
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $itemData['product_id'],
@@ -174,7 +185,7 @@ class OrderController extends Controller
                 [
                     'order_number' => $order->order_number,
                     'total_amount' => $order->total_amount,
-                    'item_count' => count($validated['items']),
+                    'item_count' => count($pricedItems),
                     'branch_id' => $order->branch_id,
                     'source' => 'mobile_app',
                 ],

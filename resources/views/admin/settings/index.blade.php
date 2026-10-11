@@ -263,6 +263,28 @@
                 </div>
             </div>
 
+            <!-- Loyalty Discount -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-percent me-2"></i>Loyalty Discount</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="loyalty_discount" class="form-label">Loyalty Discount (%)</label>
+                        <div class="input-group" style="max-width: 280px;">
+                            <input type="number" step="0.01" min="0" max="100" class="form-control @error('loyalty_discount') is-invalid @enderror" id="loyalty_discount" name="loyalty_discount" value="{{ old('loyalty_discount', $settings['loyalty_discount']->value ?? 0) }}" placeholder="0">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        @error('loyalty_discount')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted d-block mt-2">
+                            This percentage discount is applied to all products for customers (web and mobile). Set to 0 to disable.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
             <!-- Navbar Categories -->
             <div class="card mb-3">
                 <div class="card-header bg-light">

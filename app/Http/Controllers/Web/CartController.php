@@ -17,16 +17,21 @@ class CartController extends Controller
         foreach ($cart as $productId => $item) {
             $product = Product::find($productId);
             if ($product && $product->is_active && !$product->is_expired) {
-                $itemTotal = $item['quantity'] * $item['price'];
+                // Always use current loyalty price so setting changes apply
+                $price = $product->current_price;
+                $cart[$productId]['price'] = $price;
+                $itemTotal = $item['quantity'] * $price;
                 $cartItems[] = [
                     'product' => $product,
                     'quantity' => $item['quantity'],
-                    'price' => $item['price'],
+                    'price' => $price,
                     'total' => $itemTotal,
                 ];
                 $total += $itemTotal;
             }
         }
+
+        session()->put('cart', $cart);
 
         return view('web.cart.index', compact('cartItems', 'total'));
     }
@@ -54,10 +59,11 @@ class CartController extends Controller
 
         if (isset($cart[$product->id])) {
             $cart[$product->id]['quantity'] += $request->quantity;
+            $cart[$product->id]['price'] = $product->current_price;
         } else {
             $cart[$product->id] = [
                 'name' => $product->name,
-                'price' => $product->selling_price,
+                'price' => $product->current_price,
                 'quantity' => $request->quantity,
                 'image' => $product->images && is_array($product->images) && count($product->images) > 0 
                     ? $product->images[0] 

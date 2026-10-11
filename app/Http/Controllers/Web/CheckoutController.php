@@ -36,11 +36,13 @@ class CheckoutController extends Controller
         foreach ($cart as $productId => $item) {
             $product = Product::find($productId);
             if ($product && $product->is_active && !$product->is_expired) {
-                $itemTotal = $item['quantity'] * $item['price'];
+                $price = $product->current_price;
+                $cart[$productId]['price'] = $price;
+                $itemTotal = $item['quantity'] * $price;
                 $cartItems[] = [
                     'product' => $product,
                     'quantity' => $item['quantity'],
-                    'price' => $item['price'],
+                    'price' => $price,
                     'total' => $itemTotal,
                 ];
                 $subtotal += $itemTotal;
@@ -50,6 +52,8 @@ class CheckoutController extends Controller
                 }
             }
         }
+
+        session()->put('cart', $cart);
 
         $deliveryZones = DeliveryZone::where('is_active', true)->get();
         $defaultZone = $deliveryZones->first();
@@ -121,11 +125,12 @@ class CheckoutController extends Controller
             foreach ($cart as $productId => $item) {
                 $product = Product::find($productId);
                 if ($product && $product->is_active && !$product->is_expired) {
-                    $itemTotal = $item['quantity'] * $item['price'];
+                    $price = $product->current_price;
+                    $itemTotal = $item['quantity'] * $price;
                     $cartItems[] = [
                         'product' => $product,
                         'quantity' => $item['quantity'],
-                        'price' => $item['price'],
+                        'price' => $price,
                     ];
                     $subtotal += $itemTotal;
                 }

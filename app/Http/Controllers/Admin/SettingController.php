@@ -40,6 +40,7 @@ class SettingController extends Controller
             'topbar_tagline' => 'nullable|string|max:255',
             'currency' => 'required|string|max:10',
             'currency_symbol' => 'required|string|max:10',
+            'loyalty_discount' => 'nullable|numeric|min:0|max:100',
         ]);
 
         // Handle favicon
@@ -123,6 +124,9 @@ class SettingController extends Controller
 
         // Update show out of stock products setting
         Setting::set('show_out_of_stock_products', $request->has('show_out_of_stock_products') ? '1' : '0');
+
+        // Loyalty discount percentage applied to all products
+        Setting::set('loyalty_discount', (string) ($validated['loyalty_discount'] ?? 0));
 
         return redirect()->route('admin.settings.index')
             ->with('success', 'Settings updated successfully.');

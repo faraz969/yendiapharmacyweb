@@ -52,7 +52,7 @@ class Product extends Model
      *
      * @var array
      */
-    protected $appends = ['total_stock'];
+    protected $appends = ['total_stock', 'current_price', 'original_price', 'loyalty_discount_percent'];
 
     // Accessor to ensure images is always an array
     public function getImagesAttribute($value)
@@ -118,6 +118,37 @@ class Product extends Model
         } while ($exists);
         
         return $sku;
+    }
+
+    /**
+     * Original selling price before loyalty discount.
+     */
+    public function getOriginalPriceAttribute()
+    {
+        return round((float) ($this->attributes['selling_price'] ?? 0), 2);
+    }
+
+    /**
+     * Global loyalty discount percentage from settings.
+     */
+    public function getLoyaltyDiscountPercentAttribute()
+    {
+        return Setting::getLoyaltyDiscount();
+    }
+
+    /**
+     * Customer-facing price after loyalty discount.
+     */
+    public function getCurrentPriceAttribute()
+    {
+        $price = $this->original_price;
+        $percent = $this->loyalty_discount_percent;
+
+        if ($percent <= 0) {
+            return $price;
+        }
+
+        return round($price * (1 - ($percent / 100)), 2);
     }
 
     // Relationships

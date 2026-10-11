@@ -3,7 +3,11 @@
         <div class="card product-card h-100">
             <div class="position-relative">
                 @include('web.partials.product-image', ['product' => $product, 'class' => 'product-image', 'hideUntilLoaded' => true])
-                @if($product->discount && $product->discount > 0)
+                @if($product->loyalty_discount_percent > 0)
+                    <span class="position-absolute top-0 start-0 m-2 px-2 py-1 text-white fw-bold" style="background: #ee7d09; border-radius: 5px; font-size: 0.75rem;">
+                        {{ rtrim(rtrim(number_format($product->loyalty_discount_percent, 2), '0'), '.') }}% OFF
+                    </span>
+                @elseif($product->discount && $product->discount > 0)
                     <span class="position-absolute top-0 start-0 m-2 px-2 py-1 text-white fw-bold" style="background: #ee7d09; border-radius: 5px; font-size: 0.75rem;">
                         {{ \App\Models\Setting::formatPrice($product->discount) }} OFF
                     </span>
@@ -18,7 +22,12 @@
                     </span>
                 @endif
                 <div class="d-flex justify-content-between align-items-center mt-auto">
-                    <span class="product-price">{{ \App\Models\Setting::formatPrice($product->selling_price) }}</span>
+                    <div>
+                        <span class="product-price">{{ \App\Models\Setting::formatPrice($product->current_price) }}</span>
+                        @if($product->loyalty_discount_percent > 0)
+                            <span class="text-muted text-decoration-line-through ms-1" style="font-size: 0.85rem;">{{ \App\Models\Setting::formatPrice($product->original_price) }}</span>
+                        @endif
+                    </div>
                     <form action="{{ route('cart.add') }}" method="POST" class="d-inline">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">

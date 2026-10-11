@@ -428,10 +428,13 @@ use Illuminate\Support\Facades\Storage;
                     <div class="product-cards-container d-flex gap-3" id="productCardsContainer" style="overflow-x: auto; max-width: 100%; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;">
                         @foreach($featuredProducts as $index => $product)
                             @php
-                                // Determine badge label - only show discount badge
+                                // Determine badge label - loyalty discount takes priority
                                 $badgeLabel = null;
                                 $badgeColor = null;
-                                if ($product->discount && $product->discount > 0) {
+                                if ($product->loyalty_discount_percent > 0) {
+                                    $badgeLabel = rtrim(rtrim(number_format($product->loyalty_discount_percent, 2), '0'), '.') . '% OFF';
+                                    $badgeColor = '#ee7d09';
+                                } elseif ($product->discount && $product->discount > 0) {
                                     $badgeLabel = \App\Models\Setting::formatPrice($product->discount) . ' OFF';
                                     $badgeColor = '#ee7d09';
                                 }
@@ -471,7 +474,10 @@ use Illuminate\Support\Facades\Storage;
                                         <!-- Price and Add Button -->
                                         <div class="d-flex justify-content-between align-items-center mt-auto">
                                             <span class="fw-bold" style="font-size: 1.1rem; color: #158d43;">
-                                                {{ \App\Models\Setting::formatPrice($product->selling_price) }}
+                                                {{ \App\Models\Setting::formatPrice($product->current_price) }}
+                                                @if($product->loyalty_discount_percent > 0)
+                                                    <small class="text-muted text-decoration-line-through ms-1" style="font-size: 0.8rem; font-weight: 400;">{{ \App\Models\Setting::formatPrice($product->original_price) }}</small>
+                                                @endif
                                             </span>
                                             <form action="{{ route('cart.add') }}" method="POST" class="d-inline" onclick="event.stopPropagation();">
                                                 @csrf

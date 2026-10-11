@@ -53,14 +53,22 @@
 
             <div class="mb-4">
                 <div class="d-flex align-items-center gap-3 mb-2">
-                    <h2 class="mb-0" style="color: #dc8423">{{ \App\Models\Setting::formatPrice($product->selling_price) }}</h2>
-                    @if($product->discount && $product->discount > 0)
+                    <h2 class="mb-0" style="color: #dc8423">{{ \App\Models\Setting::formatPrice($product->current_price) }}</h2>
+                    @if($product->loyalty_discount_percent > 0)
+                        <span class="badge px-3 py-2" style="background: #ee7d09; color: white; font-size: 0.9rem;">
+                            {{ rtrim(rtrim(number_format($product->loyalty_discount_percent, 2), '0'), '.') }}% OFF
+                        </span>
+                    @elseif($product->discount && $product->discount > 0)
                         <span class="badge px-3 py-2" style="background: #ee7d09; color: white; font-size: 0.9rem;">
                             {{ \App\Models\Setting::formatPrice($product->discount) }} OFF
                         </span>
                     @endif
                 </div>
-                @if($product->discount && $product->discount > 0 && $product->cost_price)
+                @if($product->loyalty_discount_percent > 0)
+                    <p class="text-muted mb-2">
+                        <span class="text-decoration-line-through">{{ \App\Models\Setting::formatPrice($product->original_price) }}</span>
+                    </p>
+                @elseif($product->discount && $product->discount > 0 && $product->cost_price)
                     <p class="text-muted mb-2">
                         <span class="text-decoration-line-through">{{ \App\Models\Setting::formatPrice($product->cost_price) }}</span>
                     </p>
@@ -144,7 +152,7 @@
                             <div class="product-card-body">
                                 <h6 class="card-title">{{ Str::limit($relatedProduct->name, 40) }}</h6>
                                 <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <span class="product-price">{{ \App\Models\Setting::formatPrice($relatedProduct->selling_price) }}</span>
+                                    <span class="product-price">{{ \App\Models\Setting::formatPrice($relatedProduct->current_price) }}</span>
                                     <a href="{{ route('products.show', $relatedProduct->id) }}" class="btn btn-primary btn-sm">
                                         <i class="fas fa-eye"></i>
                                     </a>
